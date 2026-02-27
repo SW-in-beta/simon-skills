@@ -13,13 +13,16 @@ You are executing the **simon-bot** deep workflow. This is a 19-step quality pip
 
 ### Startup
 
-1. Read the workflow config: `.omc/workflow/config.yaml`
-2. Read retrospective (if exists): `.omc/memory/retrospective.md`
-3. Read project memory: `.omc/project-memory.json`
-4. Determine if `.omc/workflow/` exists in the current project. If not, run the init script:
+**IMPORTANT: Execute these steps SEQUENTIALLY, not in parallel. Step 1 must complete before Step 2.**
+
+1. Determine if `.omc/workflow/` exists in the current project. If not, run the init script:
    ```
-   bash ~/.claude/simon-bot/install.sh --project-only
+   bash ~/.claude/skills/simon-bot/install.sh --project-only
    ```
+2. After Step 1 confirms workflow files exist, read these (can be parallel):
+   - Workflow config: `.omc/workflow/config.yaml`
+   - Retrospective (if exists, skip if not): `.omc/memory/retrospective.md`
+   - Project memory (if exists, skip if not): use `project_memory_read` MCP tool
 
 ### Phase A: Planning (Interactive with User)
 
@@ -182,6 +185,7 @@ Independent Units run in **parallel**.
 
 - Spawn `writer` (opus)
 - Use template: `.omc/workflow/templates/report-template.md`
+- **Language:** Follow `language` setting in `.omc/workflow/config.yaml` (default: `ko` for Korean)
 - Contents:
   - Before/After flow diagrams
   - Key review points (with code snippets)

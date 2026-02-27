@@ -2,6 +2,11 @@
 # Modify this file to customize the workflow behavior.
 
 # ============================================
+# Language Policy
+# ============================================
+language: ko                    # Report and documentation language (ko/en)
+
+# ============================================
 # Model Policy
 # ============================================
 model_policy: opus              # Default model for all agents
