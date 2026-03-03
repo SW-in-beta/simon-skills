@@ -13,7 +13,7 @@ You are executing the **simon-bot** deep workflow. This is a 19-step quality pip
 
 ### Startup
 
-**IMPORTANT: Execute these steps SEQUENTIALLY, not in parallel. Step 1 must complete before Step 2.**
+**IMPORTANT: Execute these steps SEQUENTIALLY, not in parallel.**
 
 1. Determine if `.omc/workflow/` exists in the current project. If not, run the init script:
    ```
@@ -23,6 +23,10 @@ You are executing the **simon-bot** deep workflow. This is a 19-step quality pip
    - Workflow config: `.omc/workflow/config.yaml`
    - Retrospective (if exists, skip if not): `.omc/memory/retrospective.md`
    - Project memory (if exists, skip if not): use `project_memory_read` MCP tool
+3. **브랜치명 입력받기** (AskUserQuestion):
+   - 사용자에게 작업용 브랜치명을 입력받음 (예: `feat/add-auth`, `fix/login-bug`)
+   - 입력받은 브랜치명을 `.omc/memory/branch-name.md`에 저장
+   - 이 브랜치명은 이후 worktree 생성, Integration, PR 생성에 모두 사용됨
 
 ### Phase A: Planning (Interactive with User)
 
@@ -115,6 +119,18 @@ You are executing the **simon-bot** deep workflow. This is a 19-step quality pip
 After Phase A is confirmed, activate ralph + ultrawork mode automatically.
 Each Unit runs in an **isolated git worktree**.
 Independent Units run in **parallel**.
+
+**Pre-Phase: Base Branch Sync & Worktree 생성**
+- 목적: 최신 main/master 기준으로 작업용 worktree 생성
+- 절차:
+  1. default branch 감지 (`auto`이면 main/master 자동 감지)
+  2. `git fetch {remote} {base_branch}` 실행 (원격 최신 동기화)
+  3. `.omc/memory/branch-name.md`에서 사용자가 입력한 브랜치명 읽기
+  4. worktree 생성: `git worktree add .claude/worktrees/{branch-name} -b {branch-name} origin/{base_branch}`
+  5. 해당 worktree로 작업 디렉토리 이동
+  6. base commit SHA를 `.omc/memory/base-commit.md`에 기록
+- **중요:** 현재 로컬 브랜치를 checkout/변경하지 않음 (안전)
+- Save: `.omc/memory/base-commit.md`
 
 **CRITICAL RULES:**
 - All verification/review: ONLY changed files (git diff based)
@@ -228,11 +244,12 @@ Independent Units run in **parallel**.
 
 ### Integration Stage (after all Units complete)
 
-1. Merge each worktree to main sequentially
-2. If conflict: `architect` (opus) analyzes + `executor` (opus) resolves
-3. Full build + test pass verification
-4. Create **Draft PR**
-5. Save: `.omc/memory/integration-result.md`
+1. 모든 변경사항은 Startup에서 생성한 worktree의 브랜치에 커밋
+2. 브랜치명: `.omc/memory/branch-name.md` 참조
+3. If conflict: `architect` (opus) analyzes + `executor` (opus) resolves
+4. Full build + test pass verification
+5. Create **Draft PR** (base: `{base_branch}`, head: 사용자가 입력한 브랜치)
+6. Save: `.omc/memory/integration-result.md`
 
 ### Step 18: Work Report
 
@@ -255,6 +272,9 @@ Independent Units run in **parallel**.
 - Collect user feedback
 - Code fixes needed → `executor` (opus)
 - Workflow fixes needed → update config.yaml / prompts
+- **피드백 영속 기록**: `.omc/memory/feedback.md`에 저장 (세션 종료 후에도 유지)
+  - 피드백 내용, 수정 요청사항, 완료 여부
+  - 새 세션에서 `manage-sessions.sh info {branch}`로 확인 가능
 - Record in `.omc/memory/retrospective.md` (auto-referenced next run)
 
 ### Global Forbidden Rules
@@ -272,6 +292,28 @@ NEVER execute any of these under ANY circumstances:
 - `mysql`/`psql`/`redis-cli`/`mongosh` to real databases
 - `ssh`/`scp`/`sftp` to real servers
 - Any test that calls real DB or external API
+
+### Session Management (세션 관리)
+
+이전 세션을 찾거나, 이어서 작업하거나, 삭제할 때 사용.
+스크립트: `.omc/workflow/scripts/manage-sessions.sh`
+
+**사용 가능 명령:**
+- `list` - 현재 활성 워크트리(세션) 목록
+- `info <branch-name>` - 특정 세션 상세 정보 (커밋, 메모리 파일, 상태)
+- `delete <branch-name>` - 세션 삭제 (워크트리 + 브랜치)
+
+**이전 세션 이어서 작업하기:**
+1. `bash manage-sessions.sh list`로 세션 목록 확인
+2. `bash manage-sessions.sh info {branch}`로 상세 정보 확인
+3. 해당 워크트리 경로로 이동하여 작업 계속
+4. `.omc/memory/` 파일들을 읽어 이전 작업 맥락 복원
+
+**리뷰 피드백 전달하기:**
+1. 사용자가 브랜치명으로 세션을 지정
+2. 해당 워크트리로 이동
+3. `.omc/memory/feedback.md`에 피드백 기록
+4. Step 19 (Retrospective) 플로우를 이어서 실행
 
 ### Memory Persistence
 

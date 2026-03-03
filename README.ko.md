@@ -74,7 +74,11 @@ Step 0에서 리뷰 경로를 선택합니다:
 
 ### Phase B-E: 구현 및 검증 (자율 실행)
 
-`ralph + ultrawork` 모드로 자동 실행됩니다. 각 Unit은 격리된 git worktree에서 실행됩니다.
+`ralph + ultrawork` 모드로 자동 실행됩니다.
+
+**Pre-Phase: Base Branch Sync** — 최신 `origin/main` (또는 `master`)을 fetch한 후, 사용자가 입력한 브랜치명으로 worktree를 생성합니다. 이를 통해 여러 세션이 동일한 base에서 시작하여 충돌을 방지합니다.
+
+각 Unit은 격리된 git worktree에서 실행됩니다.
 
 | 단계 | 에이전트 | 역할 |
 |------|----------|------|
@@ -98,13 +102,35 @@ Step 0에서 리뷰 경로를 선택합니다:
 
 | 단계 | 역할 |
 |------|------|
-| **통합** | worktree 병합 → 충돌 해결 → Draft PR 생성 |
+| **통합** | 사용자 지정 브랜치에 커밋 → 충돌 해결 → Draft PR 생성 |
 | **18** | 작업 보고서 (변경 전후 흐름, 트레이드오프, 리스크, 테스트) |
-| **19** | 회고 (사용자 피드백 → 워크플로우 개선) |
+| **19** | 회고 (사용자 피드백 → feedback.md에 영속 기록 → 워크플로우 개선) |
+
+## 세션 관리
+
+`/simon-bot-sessions` 커맨드로 여러 Claude Code 세션에 걸친 작업을 관리할 수 있습니다.
+
+| 커맨드 | 설명 |
+|--------|------|
+| `/simon-bot-sessions list` | 활성 워크트리 세션 목록 |
+| `/simon-bot-sessions info feat/add-auth` | 세션 상세 정보 (커밋, 메모리 파일, 상태) |
+| `/simon-bot-sessions delete feat/add-auth` | 세션 삭제 (워크트리 + 브랜치) |
+| `/simon-bot-sessions resume feat/add-auth` | 이전 작업 이어서 진행 (맥락 복원) |
+| `/simon-bot-sessions pr feat/add-auth` | 세션에서 PR 생성 |
+
+또는 쉘 스크립트를 직접 사용:
+
+```bash
+bash ~/.claude/skills/simon-bot/workflow/scripts/manage-sessions.sh list
+bash ~/.claude/skills/simon-bot/workflow/scripts/manage-sessions.sh info <branch>
+bash ~/.claude/skills/simon-bot/workflow/scripts/manage-sessions.sh delete <branch>
+```
 
 ## 흐름도
 
 ```
+Startup: 브랜치명 입력 (사용자가 직접 지정)
+        │
 Step 0: Scope Challenge
   └─ git history + what exists → SMALL / STANDARD / LARGE
         │
@@ -113,6 +139,9 @@ Phase A (interactive)
   ├─ 1-B Planning (Unit split, NOT in scope, Unresolved)
   ├─ 2-4 Review loop
   └─ 4-B Expert Plan Review (구현 전 우려사항 식별)
+        │
+Pre-Phase: Base Branch Sync
+  └─ git fetch origin main → origin/main 기준 worktree 생성
         │ ralph + ultrawork starts
         ▼
 Phase B-E (autonomous, worktree isolated)
@@ -126,10 +155,11 @@ Phase B-E (autonomous, worktree isolated)
           worktree/unit-3 (depends on 1,2)
                   │
                   ▼
-          Integration + AI Merge
+          Integration → Draft PR
                   │
                   ▼
-          Draft PR → Report → Retrospective
+          Report → Retrospective → feedback.md
+                                    (세션 간 영속 기록)
 ```
 
 ## 전문가 패널 (Step 4-B & Step 7)

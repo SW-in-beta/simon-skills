@@ -76,7 +76,11 @@ User chooses a review path in Step 0:
 
 ### Phase B-E: Implementation & Verification (Autonomous)
 
-Runs automatically with `ralph + ultrawork` mode. Each Unit executes in an isolated git worktree.
+Runs automatically with `ralph + ultrawork` mode.
+
+**Pre-Phase: Base Branch Sync** — Fetches latest `origin/main` (or `master`) and creates a worktree with the user-provided branch name. This ensures all sessions share the same base, preventing conflicts across parallel sessions.
+
+Each Unit executes in an isolated git worktree.
 
 | Step | Agent | Role |
 |------|-------|------|
@@ -100,13 +104,35 @@ Runs automatically with `ralph + ultrawork` mode. Each Unit executes in an isola
 
 | Step | Role |
 |------|------|
-| **Integration** | Merge worktrees → resolve conflicts → Draft PR |
+| **Integration** | Commit to user-named branch → resolve conflicts → Draft PR |
 | **18** | Work report (before/after flow, trade-offs, risks, tests) |
-| **19** | Retrospective (user feedback → workflow improvement) |
+| **19** | Retrospective (user feedback → persistent feedback file → workflow improvement) |
+
+## Session Management
+
+Use `/simon-bot-sessions` to manage work sessions across Claude Code sessions.
+
+| Command | Description |
+|---------|-------------|
+| `/simon-bot-sessions list` | List all active worktree sessions |
+| `/simon-bot-sessions info feat/add-auth` | Show session details (commits, memory files, status) |
+| `/simon-bot-sessions delete feat/add-auth` | Delete session (worktree + branch) |
+| `/simon-bot-sessions resume feat/add-auth` | Resume previous work with context restoration |
+| `/simon-bot-sessions pr feat/add-auth` | Create PR from session |
+
+Or use the shell script directly:
+
+```bash
+bash ~/.claude/skills/simon-bot/workflow/scripts/manage-sessions.sh list
+bash ~/.claude/skills/simon-bot/workflow/scripts/manage-sessions.sh info <branch>
+bash ~/.claude/skills/simon-bot/workflow/scripts/manage-sessions.sh delete <branch>
+```
 
 ## Flow Diagram
 
 ```
+Startup: Branch name input (user provides branch name)
+        │
 Step 0: Scope Challenge
   └─ git history + what exists → SMALL / STANDARD / LARGE
         │
@@ -115,6 +141,9 @@ Phase A (interactive)
   ├─ 1-B Planning (Unit split, NOT in scope, Unresolved)
   ├─ 2-4 Review loop
   └─ 4-B Expert Plan Review (concerns before coding)
+        │
+Pre-Phase: Base Branch Sync
+  └─ git fetch origin main → worktree from origin/main
         │ ralph + ultrawork starts
         ▼
 Phase B-E (autonomous, worktree isolated)
@@ -128,10 +157,11 @@ Phase B-E (autonomous, worktree isolated)
           worktree/unit-3 (depends on 1,2)
                   │
                   ▼
-          Integration + AI Merge
+          Integration → Draft PR
                   │
                   ▼
-          Draft PR → Report → Retrospective
+          Report → Retrospective → feedback.md
+                                    (persistent across sessions)
 ```
 
 ## Expert Panel (Step 4-B & Step 7)

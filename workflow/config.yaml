@@ -13,6 +13,20 @@ model_policy: opus              # Default model for all agents
 # No exceptions - all agents use opus
 
 # ============================================
+# Base Branch (worktree 생성 기준)
+# ============================================
+base_branch:
+  name: auto                     # auto = main or master 자동 감지
+  remote: origin                 # Remote name
+  always_fetch: true             # worktree 생성 전 항상 fetch
+
+# ============================================
+# Branch Naming
+# ============================================
+# 브랜치명은 Startup Step 3에서 사용자에게 직접 입력받음
+# 입력받은 브랜치명으로 worktree 생성 및 PR 생성에 사용
+
+# ============================================
 # Unit Limits (PR reviewer friendly)
 # ============================================
 unit_limits:
