@@ -68,6 +68,13 @@ pr:
   draft: true                   # Always create as Draft PR
 
 # ============================================
+# Test Environment
+# ============================================
+test_env:
+  check_before_test: true        # Check test environment before running tests
+  skip_on_missing: true          # Skip tests if environment not ready (true = skip, false = fail)
+
+# ============================================
 # Test Configuration
 # ============================================
 test:

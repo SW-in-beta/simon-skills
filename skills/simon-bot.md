@@ -94,6 +94,21 @@ Independent Units run in **parallel**.
 - Tests: NEVER use real DB or external APIs (mock/stub only)
 - Commands: NEVER access real external systems (no curl to prod, no real DB connections)
 
+**Pre-Step: Test Environment Check**
+- Run `.omc/workflow/scripts/check-test-env.sh` to detect if test dependencies are installed
+- Detection criteria per stack:
+  - Node.js: `node_modules` directory exists
+  - Python: `pytest` command available
+  - Rust: `cargo` command available
+  - Go: `go` command available
+  - Java/Maven: `mvn` command + `.m2` cache exists
+  - Java/Gradle: `gradle` command or `gradlew` wrapper exists
+- If environment is ready (exit 0): All subsequent steps run tests normally
+- If environment is NOT ready (exit 1): All test execution is automatically skipped throughout the pipeline (build and typecheck still run)
+- This check is embedded in `run-tests.sh` — every test invocation auto-checks
+- Configurable via `test_env` section in `config.yaml`
+- Save result: `.omc/memory/test-env-status.md`
+
 **For each Unit (in isolated worktree):**
 
 **Step 5: Implementation**

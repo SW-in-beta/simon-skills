@@ -9,6 +9,14 @@ cd "$PROJECT_DIR"
 
 echo "=== simon-bot: Test Execution ==="
 
+# Pre-check: Test environment readiness
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if ! bash "$SCRIPT_DIR/check-test-env.sh" "$PROJECT_DIR"; then
+    echo "[SKIP] Test environment not ready. Skipping all tests."
+    echo "=== Test Execution: SKIPPED ==="
+    exit 0
+fi
+
 # Detect project type and run tests
 if [ -f "package.json" ]; then
     echo "[Node.js] Running tests..."
