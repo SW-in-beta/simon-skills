@@ -64,6 +64,7 @@ simon-bot으로 결제 시스템 구현해줘
 | **2** | `critic` ↔ `planner` | Plan review loop (max 3 iterations) |
 | **3** | `architect` | Meta-verification of critic's review |
 | **4** | `architect` | Over-engineering check (YAGNI/KISS) |
+| **4-B** | Expert panel | Pre-implementation plan review — experts flag concerns before coding starts |
 
 User chooses a review path in Step 0:
 
@@ -80,9 +81,10 @@ Runs automatically with `ralph + ultrawork` mode. Each Unit executes in an isola
 | Step | Agent | Role |
 |------|-------|------|
 | **Pre** | `setup-test-env.sh` | Test environment setup — auto-install deps if missing |
-| **5** | `executor` | Implementation (TDD if selected) |
+| **5** | `executor` | Implementation (reads expert concerns from 4-B, TDD if selected) |
 | **6** | `architect` | Purpose alignment review |
-| **7** | `security-reviewer` + `architect` + experts | Bug/security/performance review |
+| **7-A** | `security-reviewer` + `architect` + experts | Bug/security/performance review |
+| **7-B** | `architect` | Cross-check against Step 4-B concerns; fix missed items |
 | **8** | `architect` | Regression verification |
 | **9** | `architect` → `executor` | File/function splitting |
 | **10** | `architect` → `executor` | Integration/reuse review |
@@ -111,7 +113,8 @@ Step 0: Scope Challenge
 Phase A (interactive)
   ├─ 1-A Analysis (Context7)
   ├─ 1-B Planning (Unit split, NOT in scope, Unresolved)
-  └─ 2-4 Review loop
+  ├─ 2-4 Review loop
+  └─ 4-B Expert Plan Review (concerns before coding)
         │ ralph + ultrawork starts
         ▼
 Phase B-E (autonomous, worktree isolated)
@@ -131,26 +134,30 @@ Phase B-E (autonomous, worktree isolated)
           Draft PR → Report → Retrospective
 ```
 
-## Expert Panel (Step 7)
+## Expert Panel (Step 4-B & Step 7)
+
+Experts participate **twice** in the workflow:
+1. **Step 4-B** (Plan Review): Review the plan and flag concerns/risks before implementation
+2. **Step 7** (Verification): Review the implementation and cross-check against pre-identified concerns
 
 Always active:
 
-| Expert | Focus |
-|--------|-------|
-| `security-reviewer` | OWASP Top 10, injection, auth |
-| `architect` (bugs) | Race conditions, edge cases, error handling |
+| Expert | Focus | Plan Review Focus |
+|--------|-------|-------------------|
+| `security-reviewer` | OWASP Top 10, injection, auth | Security vulnerabilities in the design |
+| `architect` (bugs) | Race conditions, edge cases, error handling | Stability and error handling gaps |
 
 Auto-detected based on project analysis:
 
-| Expert | Activated when |
-|--------|---------------|
-| DB expert | Database usage detected |
-| API expert | REST/gRPC/WebSocket detected |
-| Concurrency expert | Multi-thread/async patterns |
-| Infra expert | Docker/K8s/CI code detected |
-| Caching expert | Caching layer detected |
-| Messaging expert | Kafka/RabbitMQ detected |
-| Auth expert | Authentication logic is core |
+| Expert | Activated when | Plan Review Focus |
+|--------|---------------|-------------------|
+| DB expert | Database usage detected | Schema changes, migrations, query performance |
+| API expert | REST/gRPC/WebSocket detected | API design, compatibility, versioning |
+| Concurrency expert | Multi-thread/async patterns | Deadlocks, race conditions |
+| Infra expert | Docker/K8s/CI code detected | Deployment, infrastructure impact |
+| Caching expert | Caching layer detected | Cache invalidation, consistency |
+| Messaging expert | Kafka/RabbitMQ detected | Message ordering, idempotency |
+| Auth expert | Authentication logic is core | Auth/authorization flow |
 
 ## Customization
 
@@ -168,6 +175,11 @@ unit_limits:
 size_thresholds:
   function_lines: 50
   file_lines: 300
+
+# Loop limits (including expert plan review)
+loop_limits:
+  step4b_critical: 2    # Step 4-B: plan revision on CRITICAL concerns
+  step7b_recheck: 1     # Step 7-B: re-review after fixing missed concerns
 
 # Test environment check (skip tests if deps not installed)
 test_env:

@@ -80,6 +80,36 @@ You are executing the **simon-bot** deep workflow. This is a 19-step quality pip
   - Minor (some items excessive): → Step 2
   - Major (entire design excessive): → Step 1-B (with failure reason)
 
+**Step 4-B: Expert Plan Review (사전 우려 검토)**
+- 목적: 구현 전에 도메인 전문가들이 계획을 검토하여 우려사항/위험요소를 사전에 식별
+- Step 1-A에서 auto-detect된 전문가들 + always 전문가들이 참여
+- Read expert prompts from `.omc/workflow/prompts/*.md`
+- 전문가 스폰 (모두 opus, parallel):
+  - Always:
+    - `security-reviewer`: 보안 관점에서 계획의 취약점/위험 검토
+    - `architect` (bugs): 안정성/에러 처리 관점에서 계획 검토
+  - Auto-detected (Step 1-A 결과 기반):
+    - DB expert ← DB 사용이 감지된 경우: 스키마 변경, 마이그레이션, 쿼리 성능 우려
+    - API expert ← REST/gRPC/WebSocket 감지된 경우: API 설계, 호환성, 버전관리 우려
+    - Concurrency expert ← 멀티스레드/비동기 감지된 경우: 동시성, 데드락, 레이스컨디션 우려
+    - Infra expert ← Docker/K8s/CI 감지된 경우: 배포, 인프라 영향 우려
+    - Caching expert ← 캐싱 레이어 감지된 경우: 캐시 무효화, 일관성 우려
+    - Messaging expert ← Kafka/RabbitMQ 감지된 경우: 메시지 순서, 멱등성 우려
+    - Auth expert ← 인증 로직이 핵심인 경우: 인증/인가 플로우 우려
+- 각 전문가에게 전달할 컨텍스트:
+  - `.omc/memory/plan-summary.md` (전체 계획)
+  - `.omc/memory/requirements.md` (요구사항)
+  - 해당 도메인의 expert prompt (`.omc/workflow/prompts/{expert}.md`)
+- 각 전문가 출력 형식:
+  - **우려사항**: CRITICAL / HIGH / MEDIUM 심각도로 분류
+  - **권장사항**: 구현 시 고려해야 할 구체적 주의점
+  - **질문**: 계획에서 불명확한 부분
+- CRITICAL 우려가 있으면: `planner`에게 전달하여 계획 수정 → Step 2로 회귀 (max 2회)
+- HIGH 우려: 계획에 주의사항으로 추가, 구현 시 반드시 반영
+- MEDIUM 우려: 기록만 하고 구현 시 참고
+- Save: `.omc/memory/expert-plan-concerns.md`
+- 사용자에게 주요 우려사항 요약 보고 (AskUserQuestion으로 진행 여부 확인)
+
 ### Phase B-E: Implementation & Verification (ralph + ultrawork AUTO)
 
 After Phase A is confirmed, activate ralph + ultrawork mode automatically.
@@ -112,7 +142,9 @@ Independent Units run in **parallel**.
 **For each Unit (in isolated worktree):**
 
 **Step 5: Implementation**
+- **먼저 읽기**: `.omc/memory/expert-plan-concerns.md` (Step 4-B 전문가 우려사항)
 - Spawn `executor` (opus), parallel for independent files
+- 전문가 우려사항 중 HIGH 이상 항목을 구현 시 반드시 고려
 - If TDD selected: Write tests first, then implement
 - Run via tmux: build + test + typecheck simultaneously
 - Skill: `/tdd` if TDD was selected
@@ -125,19 +157,25 @@ Independent Units run in **parallel**.
 
 **Step 7: Bug/Security/Performance Review**
 - Read expert prompts from `.omc/workflow/prompts/*.md`
-- Always (parallel):
-  - `security-reviewer` (opus): Security
-  - `architect` (opus): Bugs/stability
-- Auto-detect from Step 1-A (all opus):
-  - DB expert ← if DB usage detected
-  - API expert ← if REST/gRPC/WebSocket detected
-  - Concurrency expert ← if multi-thread/async detected
-  - Infra expert ← if Docker/K8s/CI detected
-  - Caching expert ← if caching layer detected
-  - Messaging expert ← if Kafka/RabbitMQ detected
-  - Auth expert ← if auth logic is core
-- tmux: build + test + typecheck simultaneously
-- CRITICAL/HIGH → executor auto-fix, MEDIUM → record
+- **7-A: 구현 결과 검증** (기존과 동일)
+  - Always (parallel):
+    - `security-reviewer` (opus): Security
+    - `architect` (opus): Bugs/stability
+  - Auto-detect from Step 1-A (all opus):
+    - DB expert ← if DB usage detected
+    - API expert ← if REST/gRPC/WebSocket detected
+    - Concurrency expert ← if multi-thread/async detected
+    - Infra expert ← if Docker/K8s/CI detected
+    - Caching expert ← if caching layer detected
+    - Messaging expert ← if Kafka/RabbitMQ detected
+    - Auth expert ← if auth logic is core
+  - tmux: build + test + typecheck simultaneously
+  - CRITICAL/HIGH → executor auto-fix, MEDIUM → record
+- **7-B: 사전 우려사항 대조 검증**
+  - 읽기: `.omc/memory/expert-plan-concerns.md` (Step 4-B 결과)
+  - Spawn `architect` (opus): 사전 우려사항 중 구현에서 누락된 항목이 있는지 대조
+  - 누락된 우려사항 발견 시: executor auto-fix → 7-A 전문가 재검증 (max 1회)
+  - 모두 반영 확인 시: 통과
 - Skill: `/security-review` + `/code-review`
 - Save: `.omc/memory/unit-{name}/review-findings.md`
 

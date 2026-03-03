@@ -24,6 +24,8 @@ unit_limits:
 # ============================================
 loop_limits:
   critic_planner: 3             # Step 2: critic ↔ planner max iterations
+  step4b_critical: 2            # Step 4-B: CRITICAL concerns → plan revision max loops
+  step7b_recheck: 1             # Step 7-B: missed concern fix → re-review max loops
   step7_8: 2                    # Step 7-8: review ↔ regression max loops
   step16: 3                     # Step 16: MEDIUM issue resolution max iterations
   step6_executor: 3             # Step 6: executor auto-fix max attempts

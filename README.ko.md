@@ -62,6 +62,7 @@ simon-bot으로 결제 시스템 구현해줘
 | **2** | `critic` ↔ `planner` | 계획 리뷰 반복 (최대 3회) |
 | **3** | `architect` | critic 리뷰의 메타 검증 |
 | **4** | `architect` | 과잉 설계 점검 (YAGNI/KISS) |
+| **4-B** | 전문가 패널 | 구현 전 계획 사전 리뷰 — 전문가들이 우려사항/위험요소 식별 |
 
 Step 0에서 리뷰 경로를 선택합니다:
 
@@ -78,9 +79,10 @@ Step 0에서 리뷰 경로를 선택합니다:
 | 단계 | 에이전트 | 역할 |
 |------|----------|------|
 | **Pre** | `setup-test-env.sh` | 테스트 환경 세팅 — 미설치 시 자동 설치 |
-| **5** | `executor` | 구현 (TDD 선택 시 적용) |
+| **5** | `executor` | 구현 (Step 4-B 우려사항 반영, TDD 선택 시 적용) |
 | **6** | `architect` | 목적 정합성 리뷰 |
-| **7** | `security-reviewer` + `architect` + 전문가 | 버그/보안/성능 리뷰 |
+| **7-A** | `security-reviewer` + `architect` + 전문가 | 버그/보안/성능 리뷰 |
+| **7-B** | `architect` | Step 4-B 사전 우려사항 대조, 누락 항목 보완 |
 | **8** | `architect` | 회귀 검증 |
 | **9** | `architect` → `executor` | 파일/함수 분할 |
 | **10** | `architect` → `executor` | 통합/재사용 리뷰 |
@@ -109,7 +111,8 @@ Step 0: Scope Challenge
 Phase A (interactive)
   ├─ 1-A Analysis (Context7)
   ├─ 1-B Planning (Unit split, NOT in scope, Unresolved)
-  └─ 2-4 Review loop
+  ├─ 2-4 Review loop
+  └─ 4-B Expert Plan Review (구현 전 우려사항 식별)
         │ ralph + ultrawork starts
         ▼
 Phase B-E (autonomous, worktree isolated)
@@ -129,26 +132,30 @@ Phase B-E (autonomous, worktree isolated)
           Draft PR → Report → Retrospective
 ```
 
-## 전문가 패널 (Step 7)
+## 전문가 패널 (Step 4-B & Step 7)
+
+전문가들은 워크플로우에서 **두 번** 개입합니다:
+1. **Step 4-B** (계획 사전 리뷰): 구현 전에 계획을 검토하고 우려사항/위험요소를 식별
+2. **Step 7** (구현 검증): 구현 결과를 검증하고, 사전 우려사항 누락 여부를 대조
 
 항상 활성화:
 
-| 전문가 | 중점 영역 |
-|--------|-----------|
-| `security-reviewer` | OWASP Top 10, 인젝션, 인증 |
-| `architect` (버그) | 레이스 컨디션, 엣지 케이스, 에러 핸들링 |
+| 전문가 | 중점 영역 | 사전 리뷰 시 초점 |
+|--------|-----------|------------------|
+| `security-reviewer` | OWASP Top 10, 인젝션, 인증 | 설계 단계의 보안 취약점 |
+| `architect` (버그) | 레이스 컨디션, 엣지 케이스, 에러 핸들링 | 안정성/에러 처리 설계 누락 |
 
 프로젝트 분석 결과에 따라 자동 감지:
 
-| 전문가 | 활성화 조건 |
-|--------|-------------|
-| DB 전문가 | 데이터베이스 사용이 감지된 경우 |
-| API 전문가 | REST/gRPC/WebSocket이 감지된 경우 |
-| 동시성 전문가 | 멀티스레드/비동기 패턴이 감지된 경우 |
-| 인프라 전문가 | Docker/K8s/CI 코드가 감지된 경우 |
-| 캐싱 전문가 | 캐싱 레이어가 감지된 경우 |
-| 메시징 전문가 | Kafka/RabbitMQ가 감지된 경우 |
-| 인증 전문가 | 인증 로직이 핵심인 경우 |
+| 전문가 | 활성화 조건 | 사전 리뷰 시 초점 |
+|--------|-------------|------------------|
+| DB 전문가 | 데이터베이스 사용이 감지된 경우 | 스키마 변경, 마이그레이션, 쿼리 성능 |
+| API 전문가 | REST/gRPC/WebSocket이 감지된 경우 | API 설계, 호환성, 버전관리 |
+| 동시성 전문가 | 멀티스레드/비동기 패턴이 감지된 경우 | 동시성, 데드락, 레이스컨디션 |
+| 인프라 전문가 | Docker/K8s/CI 코드가 감지된 경우 | 배포, 인프라 영향 |
+| 캐싱 전문가 | 캐싱 레이어가 감지된 경우 | 캐시 무효화, 일관성 |
+| 메시징 전문가 | Kafka/RabbitMQ가 감지된 경우 | 메시지 순서, 멱등성 |
+| 인증 전문가 | 인증 로직이 핵심인 경우 | 인증/인가 플로우 |
 
 ## 커스터마이징
 
@@ -166,6 +173,11 @@ unit_limits:
 size_thresholds:
   function_lines: 50
   file_lines: 300
+
+# 루프 제한 (전문가 사전 리뷰 포함)
+loop_limits:
+  step4b_critical: 2    # Step 4-B: CRITICAL 우려 시 계획 수정 최대 반복
+  step7b_recheck: 1     # Step 7-B: 누락 우려 fix 후 재검증 최대 반복
 
 # 테스트 환경 점검 (의존성 미설치 시 테스트 스킵)
 test_env:
