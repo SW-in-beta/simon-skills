@@ -79,6 +79,7 @@ Runs automatically with `ralph + ultrawork` mode. Each Unit executes in an isola
 
 | Step | Agent | Role |
 |------|-------|------|
+| **Pre** | `check-test-env.sh` | Test environment check — skip tests if not ready |
 | **5** | `executor` | Implementation (TDD if selected) |
 | **6** | `architect` | Purpose alignment review |
 | **7** | `security-reviewer` + `architect` + experts | Bug/security/performance review |
@@ -114,6 +115,7 @@ Phase A (interactive)
         │ ralph + ultrawork starts
         ▼
 Phase B-E (autonomous, worktree isolated)
+  Pre: Test env check (skip tests if not ready)
   ┌─────────────────┐  ┌─────────────────┐
   │ worktree/unit-1 │  │ worktree/unit-2 │  ← parallel
   │ Step 5~17       │  │ Step 5~17       │
@@ -166,6 +168,11 @@ unit_limits:
 size_thresholds:
   function_lines: 50
   file_lines: 300
+
+# Test environment check (skip tests if deps not installed)
+test_env:
+  check_before_test: true
+  skip_on_missing: true
 ```
 
 ### Expert Prompts
