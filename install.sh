@@ -58,6 +58,19 @@ install_global() {
 
     echo "  Workflow files copied to skill directory"
     echo ""
+
+    # Install grind variant
+    echo "  Installing grind variant..."
+    GRIND_DIR="$SKILLS_DIR/simon-bot-grind"
+    mkdir -p "$GRIND_DIR"
+
+    if [ -f "$SKILLS_DIR/simon-bot-grind.md" ]; then
+        rm "$SKILLS_DIR/simon-bot-grind.md"
+    fi
+
+    cp "$SCRIPT_DIR/skills/simon-bot-grind.md" "$GRIND_DIR/SKILL.md"
+    echo "  Grind Skill: $GRIND_DIR/SKILL.md"
+    echo ""
 }
 
 # ============================================
