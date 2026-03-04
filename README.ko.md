@@ -12,6 +12,9 @@
 - **5개 도메인 전문가 팀** — 22명의 전문가가 팀별 토론과 합의를 통해 리뷰합니다 (Safety, Code Design, Data, Integration, Ops)
 - **Code Design 사전 분석** — 컨벤션, 관용구, 패턴, 테스트 가능성 전문가들이 레포를 사전 분석합니다
 - **인터랙티브 가이드 리뷰** — 계획과 매핑된 코드 리뷰, 변경 전/후 풍부한 맥락 제공
+- **TDD 필수** — 모든 구현에서 RED→GREEN→REFACTOR 사이클을 강제합니다
+- **CONTEXT.md** — 세션별 한눈에 보는 작업 요약 문서 (git 제외, 각 단계마다 자동 갱신)
+- **성공 기준 체크리스트** — Step 17과 PR 생성 전에 검증하는 명시적 완료 게이트
 - **컨텍스트 효율적** — 스크립트가 결정적 작업을 처리하고, 메모리 파일이 컨텍스트 손실을 방지합니다
 - **PR 리뷰어 친화적** — 작업을 작은 단위로 분할합니다 (3-5개 파일, 최대 200줄)
 - **자기 개선** — 회고 피드백이 자동으로 다음 실행을 개선합니다
@@ -86,14 +89,14 @@ Step 0에서 리뷰 경로를 선택합니다:
 
 `ralph + ultrawork` 모드로 자동 실행됩니다.
 
-**Pre-Phase: Base Branch Sync** — 최신 `origin/main` (또는 `master`)을 fetch한 후, 사용자가 입력한 브랜치명으로 worktree를 생성합니다.
+**Pre-Phase: Base Branch Sync** — 최신 `origin/main` (또는 `master`)을 fetch한 후, 사용자가 입력한 브랜치명으로 worktree를 생성합니다. `CONTEXT.md` (git 제외 작업 문서)를 생성하여 계획 요약, 전문가 우려사항, 성공 기준 체크리스트를 기록합니다.
 
 각 Unit은 격리된 git worktree에서 실행됩니다.
 
 | 단계 | 에이전트 | 역할 |
 |------|----------|------|
 | **Pre** | `setup-test-env.sh` | 테스트 환경 세팅 — 미설치 시 자동 설치 |
-| **5** | `executor` | 구현 (전문가 우려사항 + Code Design 분석 반영) |
+| **5** | `executor` | 구현 — **TDD 필수** (RED→GREEN→REFACTOR) |
 | **6** | `architect` | 목적 정합성 리뷰 |
 | **7-A** | 5개 도메인 전문가팀 | 실제 diff 기반 버그/보안/성능 팀 토론 검증 |
 | **7-B** | `architect` | Step 4-B 사전 우려사항 대조, 누락 항목 보완 |
@@ -115,7 +118,7 @@ Step 0에서 리뷰 경로를 선택합니다:
 | **통합** | 사용자 지정 브랜치에 커밋 → 충돌 해결 → 빌드/테스트 확인 |
 | **18** | 작업 보고서 (변경 전후 흐름, 트레이드오프, 리스크, 테스트) |
 | **18-B** | 리뷰 시퀀스 — 변경사항을 논리적 단위로 그룹핑, 계획과 매핑 |
-| **19** | **인터랙티브 가이드 리뷰 → PR 생성** |
+| **19** | **인터랙티브 가이드 리뷰 → 성공 기준 검증 → PR 생성** |
 
 ## Step 19: 인터랙티브 가이드 리뷰
 
@@ -191,8 +194,9 @@ Phase A (대화형)
   ├─ 2-4 리뷰 루프 (Agent Team: planner ↔ critic ↔ architect)
   └─ 4-B 전문가 사전 리뷰 (5개 도메인팀 토론)
         │
-Pre-Phase: Base Branch Sync
+Pre-Phase: Base Branch Sync + CONTEXT.md
   └─ git fetch origin main → origin/main 기준 worktree 생성
+  └─ CONTEXT.md 생성 (git 제외, 자동 갱신)
         │ ralph + ultrawork 시작
         ▼
 Phase B-E (자율 실행, worktree 격리)

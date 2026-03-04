@@ -98,14 +98,60 @@ You are executing the **simon-bot** deep workflow. This is a 19-step quality pip
 - Split work into Units: max 3-5 files, 200 lines per Unit, single concern
 - Build dependency graph: parallel vs sequential groups
 - Use Context7 for SDK documentation needed for implementation
-- Required sections in plan:
-  - Goal and completion criteria
-  - Unit breakdown with file lists
-  - Implementation order
+
+- **Interview Guard (필수 원칙)**:
+  - 코드를 먼저 충분히 탐색한 뒤, **코드에서 답할 수 있는 질문은 절대 하지 않는다**
+  - Step 0 scope + Step 1-A 분석 결과에서 이미 파악된 정보를 다시 묻지 않는다
+  - 사용자에게는 **비즈니스 결정, 엣지케이스, 스코프 경계, 트레이드오프**만 질문한다
+  - 예시 (BAD): "이 프로젝트에서 어떤 ORM을 쓰나요?" → 코드에서 알 수 있음
+  - 예시 (GOOD): "기존 피드와 신규 피드 포맷이 충돌할 때 어느 쪽을 우선하나요?" → 비즈니스 결정
+
+- **계획서 구조 (STICC Framework)**:
+  계획서(`plan-summary.md`)는 다음 구조를 따른다. 단, 계획서에 "STICC"라는 메타 텍스트를 포함하지 않는다.
+
+  **1. Situation (현재 상태)**:
+  - 현재 시스템의 관련 부분이 어떤 상태인지
+  - 왜 이 작업이 필요한지 (배경, 문제점, 기회)
+
+  **2. Task (구체적 작업)**:
+  - Unit 분할 (max 3-5 files, 200 lines per Unit, single concern)
+  - 각 Unit별 변경 대상 파일 목록 (파일 경로 + 변경 유형: 신규/수정/삭제)
+  - Implementation order (dependency graph: parallel vs sequential)
   - Development principles (TDD/DDD/Clean Architecture as confirmed)
-  - "NOT in scope" section
-  - "Unresolved decisions" section
+
+  **3. Intent (의도와 목적)**:
+  - 이 작업이 달성하려는 근본적 목적 (단순히 "뭘 하는지"가 아니라 "왜 하는지")
+  - 성공 기준: 이 작업이 완료되면 시스템이 어떤 상태가 되어야 하는지
+
+  **4. Concerns (우려사항과 리스크)**:
   - Expected risks
+  - "NOT in scope" section (명시적으로 하지 않을 것)
+  - "Unresolved decisions" section (결정되지 않은 사항)
+
+  **5. Acceptance Criteria (인수 기준)** — 3개 하위 섹션으로 분할:
+  - **Code Changes**: 구현해야 할 코드 변경사항 목록
+  - **Tests**: 작성/수정해야 할 테스트 목록 (파일 패턴 수준)
+  - **Quality Gates**: 통과해야 할 품질 기준 (build, typecheck, lint, 특정 성능 기준 등)
+
+  **6. End State (최종 상태 명세)** — 구현 전에 "완료"의 모습을 구체적으로 정의:
+  - **Files Changed 테이블**:
+    ```
+    | File | Action | Summary |
+    |------|--------|---------|
+    | path/to/file.py | 신규 | 새 서비스 클래스 |
+    | path/to/existing.py | 수정 | 기존 핸들러에 새 분기 추가 |
+    ```
+  - **Behavior Changes**: Before → After 형식으로 동작 변화 명세
+    ```
+    - Before: X 요청 시 404 반환
+    - After: X 요청 시 새 핸들러가 처리하여 200 + 데이터 반환
+    ```
+  - **Test Targets**: 테스트 대상 파일 패턴 (실제 테스트 실행은 tester agent가 담당)
+    ```
+    - tests/test_new_service.py (신규)
+    - tests/test_existing_handler.py (기존 테스트에 케이스 추가)
+    ```
+
 - Save to `.omc/memory/plan-summary.md`
 - Skill: Use `/plan`
 
@@ -209,6 +255,24 @@ You are executing the **simon-bot** deep workflow. This is a 19-step quality pip
 - MEDIUM 우려: 기록만 하고 구현 시 참고
 - Save: `.omc/memory/expert-plan-concerns.md`
 - 사용자에게 주요 우려사항 요약 보고 (AskUserQuestion으로 진행 여부 확인)
+- Update: `CONTEXT.md` — Phase A 완료 표시, 핵심 결정사항 및 전문가 우려(HIGH+) 갱신
+
+**Phase A Calibration Checklist (Phase B 진입 전 필수 검증)**
+
+Phase A의 모든 단계가 완료된 후, Phase B로 진입하기 전에 다음 7개 항목을 자동 검증한다.
+**하나라도 미충족 시 해당 단계로 돌아가 보완한 후 재검증한다.**
+
+| # | 검증 항목 | 확인 방법 | 미충족 시 |
+|---|----------|----------|----------|
+| 1 | 코드베이스 탐색 완료 | `.omc/memory/requirements.md` + `.omc/memory/code-design-analysis.md` 존재 및 비어있지 않음 | → Step 1-A |
+| 2 | 인터뷰 완료 (비즈니스 결정 확보) | `plan-summary.md`에 Unresolved decisions이 비어있거나, 남은 결정이 구현에 영향 없음 | → Step 1-B |
+| 3 | 계획서에 파일 경로 포함 | `plan-summary.md`의 Task 섹션 + End State의 Files Changed 테이블에 구체적 파일 경로가 있음 | → Step 1-B |
+| 4 | Acceptance Criteria 3분할 | `plan-summary.md`에 Code Changes / Tests / Quality Gates 섹션이 모두 존재 | → Step 1-B |
+| 5 | End State에 Files Changed 테이블 존재 | `plan-summary.md`에 File \| Action \| Summary 형식 테이블 존재 | → Step 1-B |
+| 6 | End State에 Behavior Changes 존재 | `plan-summary.md`에 Before → After 형식의 동작 변화 명세 존재 | → Step 1-B |
+| 7 | Test Targets 섹션 존재 | `plan-summary.md`에 테스트 대상 파일 패턴이 명시됨 | → Step 1-B |
+
+검증 방법: `plan-summary.md` 파일을 읽어 각 항목의 존재 여부를 확인한다. 누락된 항목이 있으면 사용자에게 보고하지 않고 자동으로 해당 단계를 재실행하여 보완한다.
 
 ### Phase B-E: Implementation & Verification (ralph + ultrawork AUTO)
 
@@ -227,6 +291,46 @@ Independent Units run in **parallel**.
   6. base commit SHA를 `.omc/memory/base-commit.md`에 기록
 - **중요:** 현재 로컬 브랜치를 checkout/변경하지 않음 (안전)
 - Save: `.omc/memory/base-commit.md`
+7. **CONTEXT.md 생성** (한눈에 보는 작업 요약 문서):
+   - 워크트리 루트에 `CONTEXT.md` 생성
+   - `.git/info/exclude`에 `CONTEXT.md` 추가 (커밋에서 제외)
+   - Phase A 결과를 반영한 초기 내용:
+     ```markdown
+     # [브랜치명]: [작업 요약]
+
+     ## 목표
+     [plan-summary.md에서 Goal 발췌]
+
+     ## 현재 진행 상태
+     - [x] Phase A: Planning
+     - [ ] Phase B-E: Implementation & Verification
+     - [ ] Integration
+     - [ ] Step 18: Report
+     - [ ] Step 19: Interactive Review
+
+     ## 핵심 결정사항
+     [plan-summary.md에서 주요 결정 발췌]
+
+     ## 주의사항 (전문가 우려)
+     [expert-plan-concerns.md에서 HIGH 이상 발췌]
+
+     ## 성공 기준
+     - [ ] RED→GREEN TDD 사이클 완료
+     - [ ] 전체 테스트 통과 (0 failures)
+     - [ ] 빌드 + 타입체크 통과
+     - [ ] 보안 리뷰 CRITICAL 없음
+     - [ ] 코드 리뷰 통과
+     - [ ] 사용자 가이드 리뷰 완료
+     - [ ] 미해결 결정사항 문서화됨
+     - [ ] CONTEXT.md 최종 갱신됨
+
+     ## 메모리 파일 맵
+     - plan-summary.md — 전체 계획
+     - code-design-analysis.md — 코드 설계 분석
+     - expert-plan-concerns.md — 전문가 우려사항
+     - success-criteria.md — 완료 체크리스트
+     ```
+   - **갱신 시점**: 각 Step 완료, Integration 완료, Step 19 완료 시 진행 상태 및 성공 기준 갱신
 
 **CRITICAL RULES:**
 - All verification/review: ONLY changed files (git diff based)
@@ -253,17 +357,21 @@ Independent Units run in **parallel**.
 
 **For each Unit (in isolated worktree):**
 
-**Step 5: Implementation**
+**Step 5: Implementation (TDD 필수)**
 - **먼저 읽기**:
   - `.omc/memory/expert-plan-concerns.md` (Step 4-B 전문가 우려사항)
   - `.omc/memory/code-design-analysis.md` (Step 1-A Code Design Team 분석 — 레포 컨벤션, 기존 패턴, 공식 권장사항)
 - Spawn `executor` (opus), parallel for independent files
 - executor는 code-design-analysis.md의 컨벤션과 패턴을 따라 구현해야 함
 - 전문가 우려사항 중 HIGH 이상 항목을 구현 시 반드시 고려
-- If TDD selected: Write tests first, then implement
+- **MANDATORY TDD Cycle (RED→GREEN→REFACTOR)**:
+  - **Step 5a: RED** — 실패하는 테스트 먼저 작성. 예상 동작을 테스트로 정의한 후, 테스트가 **실패하는지 반드시 확인**.
+  - **Step 5b: GREEN** — 테스트를 통과시키는 최소한의 구현 코드 작성. **테스트 통과 확인 필수.**
+  - **Step 5c: REFACTOR** — 테스트가 통과하는 상태를 유지하며 코드 정리. 불필요하면 skip 가능.
+  - **Step 5d: VERIFY** — 전체 테스트 스위트 실행. **하나라도 실패하면 Step 6으로 진행 금지.**
 - Run via tmux: build + test + typecheck simultaneously
-- Skill: `/tdd` if TDD was selected
 - Save: `.omc/memory/unit-{name}/implementation.md`
+- Update: `CONTEXT.md` 진행 상태 갱신
 
 **Step 6: Purpose Alignment Review**
 - Spawn `architect` (opus): Check implementation matches requirements
@@ -347,6 +455,7 @@ Independent Units run in **parallel**.
 - Save: `.omc/memory/unit-{name}/quality-findings.md`
 
 **Step 17: Production Readiness**
+- **참조**: Success Criteria 체크리스트의 기술적 항목을 이 단계에서 검증
 - Spawn `architect` + `security-reviewer` (opus, parallel)
 - Final checklist: requirements met, build passes, tests pass, no security issues
 - Minor: executor fix. Major: → relevant Phase. Critical: → Step 1-B
@@ -359,6 +468,7 @@ Independent Units run in **parallel**.
 3. If conflict: `architect` (opus) analyzes + `executor` (opus) resolves
 4. Full build + test pass verification
 5. Save: `.omc/memory/integration-result.md`
+6. Update: `CONTEXT.md` — Integration 완료 표시, 성공 기준 중간 갱신
 - **NOTE**: Draft PR은 이 단계에서 생성하지 않음. Step 19-C 리뷰 완료 후 생성.
 
 ### Step 18: Work Report + Review Sequence 준비
@@ -457,6 +567,28 @@ Independent Units run in **parallel**.
   - 각 논리적 변경 단위별 피드백 내용, 수정 요청사항, 완료 여부
   - 새 세션에서 `manage-sessions.sh info {branch}`로 확인 가능
 - Record in `.omc/memory/retrospective.md` (auto-referenced next run)
+- **Success Criteria 최종 검증**: `.omc/memory/success-criteria.md`에 체크리스트 결과 저장
+- Update: `CONTEXT.md` — 최종 상태 갱신 (모든 성공 기준 체크 결과 반영)
+
+### Success Criteria (완료 체크리스트)
+
+워크플로 완료 전 아래 항목을 모두 검증합니다. **하나라도 미충족이면 완료를 선언할 수 없습니다.**
+
+- [ ] 모든 테스트가 RED→GREEN 사이클로 작성됨 (Step 5 TDD)
+- [ ] 전체 테스트 스위트 통과 (0 failures)
+- [ ] 빌드 성공
+- [ ] 타입체크 통과
+- [ ] 보안 리뷰 통과 — CRITICAL 없음 (Step 7, 17)
+- [ ] 전문가 우려사항 HIGH 이상 모두 반영됨 (Step 4-B, 7)
+- [ ] 코드 리뷰 통과 (Step 12, 14)
+- [ ] 사용자 가이드 리뷰 완료 — 모든 변경 단위 OK (Step 19-B)
+- [ ] 미해결 결정사항 문서화됨 (`unresolved-decisions.md`)
+- [ ] CONTEXT.md 최종 상태 갱신됨
+
+**검증 시점:**
+- Step 17 (Production Readiness): 기술적 항목 (테스트, 빌드, 타입체크, 보안, 코드 리뷰) 검증
+- Step 19-C (PR 생성 전): 전체 체크리스트 최종 검증
+- Save: `.omc/memory/success-criteria.md`
 
 ### Global Forbidden Rules
 

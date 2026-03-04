@@ -14,6 +14,9 @@ Built on [oh-my-claudecode](https://github.com/nicepkg/oh-my-claudecode) multi-a
 - **5 domain expert teams** — 22 specialists organized into teams that discuss and reach consensus (Security, Code Design, Data, Integration, Ops)
 - **Code Design pre-analysis** — Convention, idiom, pattern, and testability experts analyze the repo before planning
 - **Interactive guided review** — Plan-mapped code review with rich before/after context
+- **Mandatory TDD** — RED→GREEN→REFACTOR cycle enforced in every implementation step
+- **CONTEXT.md** — At-a-glance working document per session (git-excluded, auto-updated at each step)
+- **Success Criteria checklist** — Explicit completion gate verified at Step 17 and before PR creation
 - **Context-efficient** — Scripts handle deterministic tasks; memory files prevent context loss
 - **PR-reviewer friendly** — Work split into small units (3-5 files, 200 lines max)
 - **Self-improving** — Retrospective feedback automatically improves future runs
@@ -88,14 +91,14 @@ User chooses a review path in Step 0:
 
 Runs automatically with `ralph + ultrawork` mode.
 
-**Pre-Phase: Base Branch Sync** — Fetches latest `origin/main` (or `master`) and creates a worktree with the user-provided branch name.
+**Pre-Phase: Base Branch Sync** — Fetches latest `origin/main` (or `master`) and creates a worktree with the user-provided branch name. Creates `CONTEXT.md` (git-excluded working document) with plan summary, expert concerns, and success criteria checklist.
 
 Each Unit executes in an isolated git worktree.
 
 | Step | Agent | Role |
 |------|-------|------|
 | **Pre** | `setup-test-env.sh` | Test environment setup — auto-install deps if missing |
-| **5** | `executor` | Implementation (reads expert concerns + code design analysis) |
+| **5** | `executor` | Implementation — **mandatory TDD** (RED→GREEN→REFACTOR) |
 | **6** | `architect` | Purpose alignment review |
 | **7-A** | 5 domain expert teams | Bug/security/performance verification via team discussion |
 | **7-B** | `architect` | Cross-check against Step 4-B concerns; fix missed items |
@@ -117,7 +120,7 @@ Each Unit executes in an isolated git worktree.
 | **Integration** | Commit to user-named branch → resolve conflicts → build/test verification |
 | **18** | Work report (before/after flow, trade-offs, risks, tests) |
 | **18-B** | Review sequence — group changes into logical units, map to plan |
-| **19** | **Interactive guided review → PR creation** |
+| **19** | **Interactive guided review → Success Criteria verification → PR creation** |
 
 ## Step 19: Interactive Guided Review
 
@@ -193,8 +196,9 @@ Phase A (interactive)
   ├─ 2-4 Review loop (Agent Team: planner ↔ critic ↔ architect)
   └─ 4-B Expert Plan Review (5 domain teams discuss concerns)
         │
-Pre-Phase: Base Branch Sync
+Pre-Phase: Base Branch Sync + CONTEXT.md
   └─ git fetch origin main → worktree from origin/main
+  └─ CONTEXT.md created (git-excluded, auto-updated)
         │ ralph + ultrawork starts
         ▼
 Phase B-E (autonomous, worktree isolated)
