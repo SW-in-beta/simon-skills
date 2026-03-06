@@ -18,23 +18,61 @@ echo ""
 # Global Skill Installation
 # ============================================
 install_global() {
-    echo "[1/2] Installing global skill..."
+    echo "[1/2] Installing global skills..."
 
+    # Helper: install a single skill directory
+    # Usage: install_skill <skill-name>
+    install_skill() {
+        local skill_name="$1"
+        local src_dir="$SCRIPT_DIR/skills/$skill_name"
+        local dest_dir="$SKILLS_DIR/$skill_name"
+
+        echo "  Installing $skill_name..."
+
+        # Remove old flat-file skill if exists (migration)
+        if [ -f "$SKILLS_DIR/${skill_name}.md" ]; then
+            rm "$SKILLS_DIR/${skill_name}.md"
+            echo "    Migrated: removed old ${skill_name}.md"
+        fi
+
+        # Create destination directory
+        mkdir -p "$dest_dir"
+
+        # Copy SKILL.md
+        cp "$src_dir/SKILL.md" "$dest_dir/SKILL.md"
+        echo "    SKILL.md installed"
+
+        # Copy references/ subdirectory if it exists
+        if [ -d "$src_dir/references" ]; then
+            mkdir -p "$dest_dir/references"
+            for f in "$src_dir/references/"*.md; do
+                [ -f "$f" ] && cp "$f" "$dest_dir/references/"
+            done
+            echo "    references/ copied"
+        fi
+
+        # Copy templates/ subdirectory if it exists
+        if [ -d "$src_dir/templates" ]; then
+            mkdir -p "$dest_dir/templates"
+            for f in "$src_dir/templates/"*.md; do
+                [ -f "$f" ] && cp "$f" "$dest_dir/templates/"
+            done
+            echo "    templates/ copied"
+        fi
+    }
+
+    # Install all skills
+    install_skill "simon-bot"
+    install_skill "simon-bot-grind"
+    install_skill "simon-bot-sessions"
+    install_skill "simon-bot-boost"
+    install_skill "simon-bot-pm"
+    install_skill "simon-bot-report"
+
+    echo ""
+
+    # Copy install.sh to main skill dir (for project-only install from skill context)
     SKILL_DIR="$SKILLS_DIR/simon-bot"
-
-    # Create skills directory (directory-based structure)
-    mkdir -p "$SKILL_DIR"
-
-    # Remove old file-based skill if exists
-    if [ -f "$SKILLS_DIR/simon-bot.md" ]; then
-        rm "$SKILLS_DIR/simon-bot.md"
-    fi
-
-    # Copy SKILL.md
-    cp "$SCRIPT_DIR/skills/simon-bot.md" "$SKILL_DIR/SKILL.md"
-    echo "  Skill: $SKILL_DIR/SKILL.md"
-
-    # Copy install.sh (for project-only install from skill context)
     cp "$SCRIPT_DIR/install.sh" "$SKILL_DIR/install.sh"
     chmod +x "$SKILL_DIR/install.sh"
     echo "  Installer: $SKILL_DIR/install.sh"
@@ -57,31 +95,6 @@ install_global() {
     done
 
     echo "  Workflow files copied to skill directory"
-    echo ""
-
-    # Install grind variant
-    echo "  Installing grind variant..."
-    GRIND_DIR="$SKILLS_DIR/simon-bot-grind"
-    mkdir -p "$GRIND_DIR"
-
-    if [ -f "$SKILLS_DIR/simon-bot-grind.md" ]; then
-        rm "$SKILLS_DIR/simon-bot-grind.md"
-    fi
-
-    cp "$SCRIPT_DIR/skills/simon-bot-grind.md" "$GRIND_DIR/SKILL.md"
-    echo "  Grind Skill: $GRIND_DIR/SKILL.md"
-
-    # Install sessions variant
-    echo "  Installing sessions variant..."
-    SESSIONS_DIR="$SKILLS_DIR/simon-bot-sessions"
-    mkdir -p "$SESSIONS_DIR"
-
-    if [ -f "$SKILLS_DIR/simon-bot-sessions.md" ]; then
-        rm "$SKILLS_DIR/simon-bot-sessions.md"
-    fi
-
-    cp "$SCRIPT_DIR/skills/simon-bot-sessions.md" "$SESSIONS_DIR/SKILL.md"
-    echo "  Sessions Skill: $SESSIONS_DIR/SKILL.md"
     echo ""
 }
 

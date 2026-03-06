@@ -2,16 +2,25 @@
 
 [한국어](./README.ko.md)
 
-A 19-step deep workflow plugin for [Claude Code](https://claude.com/claude-code) that plans, implements, and verifies code with maximum rigor.
+A modular skill family for [Claude Code](https://claude.com/claude-code) — from deep implementation workflows to project management, analysis reports, and self-improvement.
 
-Built on [oh-my-claudecode](https://github.com/nicepkg/oh-my-claudecode) multi-agent orchestration.
+## Skills
+
+| Skill | Description |
+|-------|-------------|
+| `/simon-bot` | 19-step deep workflow — plans, implements, and verifies code with maximum rigor |
+| `/simon-bot-grind` | Tenacious variant — all retry limits set to 10, auto-diagnosis/recovery/strategy pivots |
+| `/simon-bot-sessions` | Session management — list, resume, delete worktree-based work sessions |
+| `/simon-bot-boost` | External resource analysis — reads links (blogs, GitHub, papers) and suggests skill improvements |
+| `/simon-bot-pm` | Project Manager — plans entire apps via PRD and distributes tasks to simon-bot instances |
+| `/simon-bot-report` | Pre-analysis reports — RFC, status analysis, or custom format docs via expert team discussion |
 
 ## Features
 
 - **Scope-first planning** — Analyzes existing code and git history before planning
 - **19-step quality pipeline** — From scope challenge to production readiness
 - **Parallel execution** — Independent work units run simultaneously in isolated git worktrees
-- **5 domain expert teams** — 22 specialists organized into teams that discuss and reach consensus (Security, Code Design, Data, Integration, Ops)
+- **5 domain expert teams** — 22 specialists organized into teams that discuss and reach consensus (Safety, Code Design, Data, Integration, Ops)
 - **Code Design pre-analysis** — Convention, idiom, pattern, and testability experts analyze the repo before planning
 - **Interactive guided review** — Plan-mapped code review with rich before/after context
 - **Mandatory TDD** — RED→GREEN→REFACTOR cycle enforced in every implementation step
@@ -22,13 +31,38 @@ Built on [oh-my-claudecode](https://github.com/nicepkg/oh-my-claudecode) multi-a
 - **Self-improving** — Retrospective feedback automatically improves future runs
 - **Safe by design** — No force push, no real DB/API access, no destructive commands
 
-## Variants
+## Architecture
 
-| Skill | Description |
-|-------|-------------|
-| `/simon-bot` | Standard 19-step pipeline |
-| `/simon-bot-grind` | Grind mode — all retry limits set to 10, auto-diagnosis/recovery/strategy pivots |
-| `/simon-bot-sessions` | Session management — list, resume, delete previous work sessions |
+```
+skills/
+├── simon-bot/
+│   ├── SKILL.md                    # Core 19-step workflow
+│   └── references/                 # Phase-specific detail files
+│       ├── phase-a-planning.md
+│       ├── phase-b-implementation.md
+│       ├── integration-and-review.md
+│       ├── agent-teams.md
+│       ├── error-resilience.md
+│       └── ...
+├── simon-bot-grind/
+│   ├── SKILL.md                    # Grind overrides (extends simon-bot)
+│   └── references/
+├── simon-bot-sessions/
+│   └── SKILL.md
+├── simon-bot-boost/
+│   └── SKILL.md
+├── simon-bot-pm/
+│   ├── SKILL.md                    # 7-phase PM pipeline
+│   └── references/
+└── simon-bot-report/
+    └── SKILL.md
+```
+
+Skills are **modular**: each SKILL.md contains the core instructions while heavy details are split into `references/` subdirectories. Reference files are loaded on-demand per phase to minimize context consumption.
+
+Cross-cutting protocols (Error Resilience, Agent Teams, Decision Trail, Auto-Verification Hook) are shared across skills and defined once in the core `simon-bot` skill.
+
+Install path: `~/.claude/skills/`
 
 ## Installation
 
@@ -40,8 +74,8 @@ chmod +x install.sh
 ```
 
 This installs:
-- Global skill → `~/.claude/skills/simon-bot/SKILL.md`
-- Project workflow → `.omc/workflow/` (config, prompts, scripts, templates)
+- All 6 skills → `~/.claude/skills/simon-bot*/`
+- Project workflow files → `.claude/workflow/` (config, prompts, scripts, templates)
 
 ### Project-only install
 
@@ -65,7 +99,18 @@ Or naturally:
 simon-bot으로 결제 시스템 구현해줘
 ```
 
-## Workflow
+### When to use which skill
+
+| Situation | Skill |
+|-----------|-------|
+| Implement a feature or fix a bug | `/simon-bot` |
+| Must not fail — complex codebase, many retries needed | `/simon-bot-grind` |
+| Resume or manage previous work sessions | `/simon-bot-sessions` |
+| Found a useful article/repo — improve simon-bot skills | `/simon-bot-boost` |
+| Build an entire app or manage a multi-feature project | `/simon-bot-pm` |
+| Need an RFC, architecture analysis, or status report (no code changes) | `/simon-bot-report` |
+
+## Workflow (simon-bot)
 
 ### Phase A: Planning (Interactive)
 
@@ -122,45 +167,51 @@ Each Unit executes in an isolated git worktree.
 | **18-B** | Review sequence — group changes into logical units, map to plan |
 | **19** | **Interactive guided review → Success Criteria verification → PR creation** |
 
-## Step 19: Interactive Guided Review
+## simon-bot-grind
 
-Step 19 is an interactive code review with the user, conducted after all implementation and verification is complete. **PR is created after review, not before.**
+Extends simon-bot with maximum tenacity:
 
-### 19-A: Review Overview (Plan-Mapped)
+- **All retry limits = 10** — never gives up easily
+- **Escalation Ladder** — simple fix → root cause analysis → strategy pivot → last stand
+- **Auto-Diagnosis** — failure tracking, pattern detection, strategy pivots
+- **Checkpoints** — `git tag checkpoint-step{N}-attempt{M}` before every pivot for safe rollback
+- **Progress Detection** — 2 consecutive stalls trigger immediate strategy switch
+- **Total Retry Budget** — 50 retries across the entire workflow, with 70% warning
+- **Confidence Scoring** — all agent outputs tagged with confidence + impact
 
-Instead of simple stats, presents a **plan-to-implementation mapping**:
+## simon-bot-pm
 
-- **Plan summary reminder** — Original goals and key requirements
-- **Implementation mapping table** — Which plan Units map to which logical change units
-- **Relationship diagram** — How change units connect (data/call flow)
-- **Review order rationale** — Why this sequence (upstream → downstream)
+A 7-phase Project Manager pipeline:
 
-### 19-B: Sequential Review (Rich Context)
+| Phase | Name | What happens |
+|-------|------|--------------|
+| 0 | Project Setup | Project type detection, execution mode selection |
+| 1 | Spec-Driven Design | Interview → Spec(WHAT) → Architecture(HOW) → PRD |
+| 2 | Task Breakdown | PRD → feature decomposition → dependency graph → execution plan |
+| 3 | Environment Setup | Scaffolding, dependencies, configuration |
+| 4 | Feature Execution | Distributes features to simon-bot/grind instances (parallel where possible) |
+| 5 | Full Verification | Integration testing, architecture review, security review |
+| 6 | Delivery | Final report, guided review, PR creation |
 
-Each logical change unit is presented with:
+Automatically assigns `simon-bot` or `simon-bot-grind` to each feature based on complexity. Includes a Scope Guard to redirect small tasks to simon-bot directly.
 
-| Item | Description |
-|------|-------------|
-| **Plan mapping** | "This change implements [Unit N: title]" |
-| **Before state** | What the existing code did, how it worked, its limitations |
-| **What changed** | Specifically what was improved/added |
-| **Key diff** | Before/After code (important parts only) |
-| **Cross-references** | Relationship to previous/next change units |
-| **Review points** | Areas requiring careful attention |
-| **Expert concerns** | How relevant expert concerns were addressed |
-| **Trade-offs** | Design decisions and their rationale |
+## simon-bot-report
 
-For each unit, feedback is collected: **OK / Revision requested / Question**.
+Produces pre-implementation analysis documents without modifying code:
 
-### 19-C: PR Creation & Wrap-up
+- **Document types**: RFC, status analysis, custom format
+- **Expert team discussion**: Uses the same 5-domain expert structure as simon-bot
+- **Interactive guided review**: Section-by-section review with user feedback
+- **Seamless handoff**: After review, can launch simon-bot or simon-bot-pm with the analysis as context
 
-After review is complete, the user chooses:
+## simon-bot-boost
 
-- **Create Draft PR** — `gh pr create --draft`
-- **Create Ready PR** — `gh pr create` (ready immediately)
-- **More revisions needed** — Return to 19-B
+Reads external resources (blog posts, GitHub repos, papers, articles) and improves simon-bot skills:
 
-Step 18 report content is included in the PR description.
+- **5-expert panel**: Workflow Architect, Prompt Engineer, Innovation Scout, Quality & Safety Guardian, DX Specialist
+- **Targets all skills**: Analyzes all 5 skill files + references
+- **User-controlled**: Every improvement proposal requires explicit approval before applying
+- **Change tracking**: All applied changes logged in `.claude/boost/applied-log.md`
 
 ## Session Management
 
@@ -182,49 +233,6 @@ bash ~/.claude/skills/simon-bot/workflow/scripts/manage-sessions.sh info <branch
 bash ~/.claude/skills/simon-bot/workflow/scripts/manage-sessions.sh delete <branch>
 ```
 
-## Flow Diagram
-
-```
-Startup: Branch name input (user provides branch name)
-        │
-Step 0: Scope Challenge
-  └─ git history + what exists → SMALL / STANDARD / LARGE
-        │
-Phase A (interactive)
-  ├─ 1-A Analysis + Code Design Team (convention, idiom, pattern, testability)
-  ├─ 1-B Planning (Unit split, NOT in scope, Unresolved)
-  ├─ 2-4 Review loop (Agent Team: planner ↔ critic ↔ architect)
-  └─ 4-B Expert Plan Review (5 domain teams discuss concerns)
-        │
-Pre-Phase: Base Branch Sync + CONTEXT.md
-  └─ git fetch origin main → worktree from origin/main
-  └─ CONTEXT.md created (git-excluded, auto-updated)
-        │ ralph + ultrawork starts
-        ▼
-Phase B-E (autonomous, worktree isolated)
-  Pre: Test env setup (auto-install deps if missing)
-  ┌─────────────────┐  ┌─────────────────┐
-  │ worktree/unit-1 │  │ worktree/unit-2 │  ← parallel
-  │ Step 5~17       │  │ Step 5~17       │
-  └────────┬────────┘  └────────┬────────┘
-           └──────┬─────────────┘
-                  ▼
-          worktree/unit-3 (depends on 1,2)
-                  │
-                  ▼
-          Integration (commit, build, test)
-                  │
-                  ▼
-          Report → Review Sequence
-                  │
-                  ▼
-          Interactive Guided Review (19-A → 19-B → 19-C)
-                  │
-                  ▼
-          PR creation → feedback.md
-                        (persistent across sessions)
-```
-
 ## Expert Panel (5 Domain Teams)
 
 Experts operate as **teams that discuss and reach consensus**, not as individual reviewers.
@@ -238,20 +246,6 @@ Experts operate as **teams that discuss and reach consensus**, not as individual
 | **Data** | rdbms, cache, nosql | Auto-detect (min 2) | Data consistency, cache invalidation, cross-storage integrity |
 | **Integration** | sync-api, async, external-integration, messaging | Auto-detect (min 2) | Sync/async boundaries, error propagation, failure isolation |
 | **Ops** | infra, observability, performance, concurrency | Auto-detect (min 2) | Operational stability, observability, performance |
-
-### Team Activation by Review Path
-
-| Path | Teams |
-|------|-------|
-| SMALL | Safety + Code Design (always members only) |
-| STANDARD | Safety + Code Design + auto-detected Data/Integration/Ops |
-| LARGE | All teams + extended failure mode analysis |
-
-### Expert Involvement Points
-
-Experts participate **twice** in the workflow:
-1. **Step 4-B** (Plan Review): Teams discuss the plan → flag concerns (CRITICAL/HIGH/MEDIUM)
-2. **Step 7** (Verification): Teams verify implementation against actual diff + cross-check Step 4-B concerns
 
 ## Customization
 
@@ -291,11 +285,11 @@ test_env:
 
 ### Expert Prompts
 
-Modify expert review criteria in `.omc/workflow/prompts/*.md` (22 expert prompts).
+Modify expert review criteria in `.claude/workflow/prompts/*.md` (22 expert prompts).
 
 ### Retrospective
 
-Past feedback is stored in `.omc/memory/retrospective.md` and automatically referenced in future runs.
+Past feedback is stored in `.claude/memory/retrospective.md` and automatically referenced in future runs.
 
 ## Safety Rules
 
@@ -313,7 +307,6 @@ The following actions are **absolutely forbidden** at all times:
 ## Requirements
 
 - [Claude Code](https://claude.com/claude-code) v2.0+
-- [oh-my-claudecode](https://github.com/nicepkg/oh-my-claudecode) v4.0+
 - Git
 
 ## License
