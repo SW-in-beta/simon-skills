@@ -28,10 +28,10 @@ Most AI coding assistants generate code and hope for the best. simon-bot treats 
 ```mermaid
 graph LR
     A["Scope & Analyze"] --> B["Plan & Review"]
-    B --> C["Expert Teams\n(22 specialists)"]
-    C --> D["Implement\n(TDD enforced)"]
-    D --> E["Multi-step\nVerification"]
-    E --> F["Guided Review\n& PR"]
+    B --> C["Expert Teams<br>(22 specialists)"]
+    C --> D["Implement<br>(TDD enforced)"]
+    D --> E["Multi-step<br>Verification"]
+    E --> F["Guided Review<br>& PR"]
 
     style A fill:#e8f4f8,stroke:#2196F3
     style B fill:#e8f4f8,stroke:#2196F3

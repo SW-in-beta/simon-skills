@@ -45,9 +45,9 @@ Claude Code에서 바로 사용하세요:
 
 ```mermaid
 graph LR
-    A["Step 0-4B\n계획 & 전문가 사전 리뷰"] --> B["Step 5\nTDD 구현"]
-    B --> C["Step 6-17\n검증 & 리팩토링"]
-    C --> D["Step 18-19\n보고서 & PR"]
+    A["Step 0-4B<br>계획 & 전문가 사전 리뷰"] --> B["Step 5<br>TDD 구현"]
+    B --> C["Step 6-17<br>검증 & 리팩토링"]
+    C --> D["Step 18-19<br>보고서 & PR"]
     style A fill:#e8f4f8,stroke:#2196f3
     style B fill:#e8f5e9,stroke:#4caf50
     style C fill:#fff3e0,stroke:#ff9800
