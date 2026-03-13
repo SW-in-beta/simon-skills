@@ -3,6 +3,22 @@
 After Phase A is confirmed, use background agents (`Agent(run_in_background=true)`) for parallel unit execution.
 Each Unit runs in an **isolated git worktree**. Independent Units run in **parallel**.
 
+## 목차
+- [Pre-Phase: Base Branch Sync & Worktree 생성](#pre-phase-base-branch-sync--worktree-생성)
+  - [Unit Runbook 자동 생성](#unit-runbook-자동-생성)
+  - [CONTEXT.md 생성](#contextmd-생성)
+- [Critical Rules](#critical-rules)
+- [Pre-Step: Test Environment Setup](#pre-step-test-environment-setup)
+- [Step 5: Implementation (TDD 필수)](#step-5-implementation-tdd-필수)
+  - [기존 구현 참조 (P-013)](#기존-구현-참조-p-013)
+  - [TDD Cycle (RED → GREEN → REFACTOR)](#tdd-cycle-red--green--refactor)
+  - [Test-Spec Alignment Gate (STANDARD+ 경로)](#test-spec-alignment-gate-standard-경로)
+  - [Agent 출력물 검증 게이트](#agent-출력물-검증-게이트)
+  - [Inline Issue Capture (P-010)](#inline-issue-capture-p-010)
+  - [Ground Truth 검증 게이트](#ground-truth-검증-게이트)
+  - [Self-correction (Step 6 전 자가 검증)](#self-correction-step-6-전-자가-검증)
+- [Step 6 이후: Verification](#step-6-이후-verification)
+
 ## Pre-Phase: Base Branch Sync & Worktree 생성
 
 1. default branch 감지 (`auto`이면 main/master 자동 감지)
@@ -13,6 +29,29 @@ Each Unit runs in an **isolated git worktree**. Independent Units run in **paral
 6. base commit SHA를 `.claude/memory/base-commit.md`에 기록
 
 **중요:** 현재 로컬 브랜치를 checkout/변경하지 않음 (안전)
+
+### Unit Runbook 자동 생성
+
+`plan-summary.md`에서 현재 Unit에 해당하는 정보만 추출하여 `.claude/memory/unit-{name}/runbook.md`를 생성한다. executor 에이전트에게 전체 계획서 대신 이 runbook만 전달하여 컨텍스트 소비를 줄이고 집중도를 높인다.
+
+```markdown
+# Unit Runbook: {name}
+
+## 목표
+{plan-summary.md의 해당 Unit 설명}
+
+## 변경 파일
+{Files Changed 테이블에서 해당 Unit 파일만 필터}
+
+## Done-When Checks
+{Acceptance Criteria의 해당 Unit Done-When 항목}
+
+## 주의사항
+{expert-plan-concerns.md에서 해당 파일/도메인 관련 HIGH+ 항목만 필터}
+
+## 참고 컨텍스트
+{code-design-analysis.md에서 해당 파일/모듈의 컨벤션 발췌}
+```
 
 ### CONTEXT.md 생성
 
@@ -42,6 +81,11 @@ Each Unit runs in an **isolated git worktree**. Independent Units run in **paral
 ## 주의사항 (전문가 우려)
 [expert-plan-concerns.md에서 HIGH 이상 발췌]
 
+## 현재 상태
+- **진행 중**: Step {N} — {설명}
+- **마지막 검증**: {build/test/lint 결과 1줄 요약}
+- **블로커**: (없으면 생략)
+
 ## 성공 기준
 - [ ] RED→GREEN TDD 사이클 완료
 - [ ] 전체 테스트 통과 (0 failures)
@@ -52,6 +96,14 @@ Each Unit runs in an **isolated git worktree**. Independent Units run in **paral
 - [ ] 미해결 결정사항 문서화됨
 - [ ] CONTEXT.md 최종 갱신됨
 
+## 실행 로그
+| Step | 시작 | 종료 | 결과 | 비고 |
+|------|------|------|------|------|
+| 5 | — | — | — | — |
+
+## 알려진 이슈
+- (현재 없음)
+
 ## 메모리 파일 맵
 - plan-summary.md — 전체 계획
 - code-design-analysis.md — 코드 설계 분석
@@ -59,7 +111,7 @@ Each Unit runs in an **isolated git worktree**. Independent Units run in **paral
 - success-criteria.md — 완료 체크리스트
 ```
 
-**갱신 시점**: 각 Step 완료 시 즉시 해당 항목을 갱신한다. 여러 Step을 한꺼번에 모아서 갱신하지 않는다.
+**갱신 시점**: 각 Step 완료 시 즉시 해당 항목을 갱신한다. 여러 Step을 한꺼번에 모아서 갱신하지 않는다. 또한 Step 내에서도 중요 이벤트(전략 변경, 블로커 발생, 검증 실패 등) 발생 시 "현재 상태"와 "실행 로그"를 즉시 갱신하여 컨텍스트 압축 후에도 최신 상태를 복원할 수 있도록 한다.
 
 ## Critical Rules
 
@@ -71,7 +123,9 @@ Each Unit runs in an **isolated git worktree**. Independent Units run in **paral
 - Commands: NEVER access real external systems. CONTEXT-SENSITIVE 규칙에 해당하는 경우 SKILL.md의 판단 절차를 따른다.
 - **환각 방지**: 읽지 않은 코드에 대해 추측하지 않는다. 파일은 반드시 Read로 열어본 후에 의견을 제시한다. 추측 기반 수정은 새로운 버그를 만들 수 있다.
 - **Anti-hardcoding**: 테스트를 통과시키기 위해 특정 입력값을 하드코딩하지 않는다. 일반적 해결책을 구현한다. 하드코딩은 테스트만 통과시키고 실제 문제를 숨긴다.
-- **Auto-Verification Hook**: 소스코드 파일 수정(Edit/Write) 후 `verify-commands.md`의 빌드/린트 명령을 즉시 실행한다. 실패 시 현재 Step 내에서 수정-재검증 루프를 돌린다. `.md`, `.json` 등 비소스코드는 제외. (SKILL.md Cross-Cutting Protocol 참조)
+- **Auto-Verification Hook**: 소스코드 파일 수정(Edit/Write) 후 `verify-commands.md`의 빌드/린트 명령을 즉시 실행한다. 실패 시 **Stop-and-Fix Gate 적용** — 수정 완료 전까지 다음 작업 진행 금지. `.md`, `.json` 등 비소스코드는 제외. (SKILL.md Cross-Cutting Protocol 참조)
+- **Step Transition Gate**: Step N에서 Step N+1로 진입하기 전에 `verify-commands.md`의 빌드/린트/테스트를 실행하여 전부 통과해야 한다. 이전 Step의 미수정 실패를 다음 Step으로 넘기면 디버깅이 기하급수적으로 어려워진다. 실패 시 Stop-and-Fix Gate가 자동 발동된다. (SMALL 경로에서도 적용)
+- **Plan Immutability**: Phase A에서 확정된 `plan-summary.md`는 Phase B 이후 암묵적으로 변경할 수 없다. 변경이 필요한 경우 다음 절차를 따른다: (1) 변경 사유를 `.claude/memory/plan-amendments.md`에 기록, (2) 영향받는 Unit/Step 식별, (3) 사용자에게 변경 승인 요청 (AskUserQuestion), (4) 승인 후 plan-summary.md와 관련 memory 파일 일괄 갱신. 이 절차 없이 계획을 조용히 변경하면 Acceptance Criteria와 실제 구현이 괴리되어 Step 17에서 대규모 재작업이 발생한다.
 - **Step Progress Pulse (P-007)**: 각 Step 완료 시 사용자에게 1줄 상태를 출력한다 (AskUserQuestion이 아닌 단순 텍스트 출력이므로 사용자를 중단시키지 않는다). 형식: `[Step {N}/{total}] {Step명} 완료 — {핵심 결과 요약}`. 예: `[Step 7/17] Expert Review 완료 — CRITICAL 0, HIGH 2, MEDIUM 5`. Phase B-E 시작 시 예상 Step 수를 안내한다: `{경로} 경로: Steps 5-{N} ({M} steps)`.
 
 ## Pre-Step: Test Environment Setup
@@ -88,7 +142,9 @@ Each Unit runs in an **isolated git worktree**. Independent Units run in **paral
 
 - **먼저 읽기**: `expert-plan-concerns.md`, `code-design-analysis.md`, `verify-commands.md`
 - **검증 명령 활용**: `verify-commands.md`에 기록된 통합 검증 명령을 TDD 사이클의 VERIFY 단계에서 사용. 프로젝트 고유의 lint/build/test를 한번에 실행하여 빠른 피드백을 확보한다.
+- **Docs-First**: 처음 사용하는 라이브러리 API·DB 기능·프레임워크 설정은 구현 전 context7 또는 WebFetch로 공식 문서를 조회한다. 코드베이스에 이미 동일 패턴이 있으면 생략 가능.
 - Spawn `executor`, parallel for independent files
+- executor에게 코드를 전달할 때도 Context Preparation 원칙을 적용한다 — 파일 전체가 아닌 변경 대상 함수/메서드 단위로 추출하고, diff는 노이즈를 제거한 후 전달한다.
 - executor는 code-design-analysis.md의 컨벤션과 패턴을 따라 구현
 - 전문가 우려사항 중 HIGH 이상 항목을 구현 시 반드시 고려
 
@@ -115,6 +171,18 @@ TDD 사이클을 따르는 이유: 테스트를 먼저 작성하면 요구사항
 
 - Run via tmux: build + test + typecheck simultaneously
 
+### Test-Spec Alignment Gate (STANDARD+ 경로)
+
+TDD RED(Step 5a) 직후, GREEN(Step 5b) 전에 fresh `test-alignment-checker` subagent가 테스트와 AC의 정합성을 독립 검증한다. 동일 executor가 테스트 + 구현 모두 작성하면 해석 편향이 양쪽에 동일하게 반영되어 "self-congratulation machine"이 된다 — 구현 코드가 없는 시점에서 테스트의 AC 정합성을 검증하여 이를 방지한다.
+
+- **트리거**: STANDARD+ 경로에서만 적용. SMALL 경로는 skip
+- **전달**: plan-summary.md의 Acceptance Criteria(Mechanical + Behavioral Checks) + 작성된 테스트 코드. 구현 코드 없음 (아직 미작성)
+- **프롬프트**: "이 테스트들이 Acceptance Criteria의 모든 시나리오를 정확하게 커버하는지 검증하세요. (1) 누락된 AC 시나리오, (2) AC 해석의 정확성 (예: '5회 실패' = 연속? 누적?), (3) edge case 커버리지를 확인하세요."
+- **결과**:
+  - 모든 AC 커버 → Step 5b(GREEN)로 진행
+  - 누락/해석 오류 발견 → executor에게 테스트 보완 지시 (max 2회)
+- **Save**: `.claude/memory/unit-{name}/test-alignment-check.md`
+
 ### Agent 출력물 검증 게이트
 
 Agent가 "완료"를 보고하면 즉시 검증한다:
@@ -124,6 +192,21 @@ Agent가 "완료"를 보고하면 즉시 검증한다:
 4. 빌드 확인: `go build ./...` (또는 해당 언어 컴파일 명령)
 
 검증이 통과한 후에 다음 Step으로 진행한다.
+
+### Inline Issue Capture (P-010)
+
+Step 5-8 구현 중 발견된 비실패성 이슈(설계 우려, 테스트 어려움, 문서 불일치, 성능 의심)를 즉시 기록한다. Auto-Verification Hook은 빌드/린트 실패만 감지하므로, 이 프로토콜은 그 외 이슈를 포착한다.
+
+- 이슈 발견 시 `.claude/memory/unit-{name}/inline-issues.md`에 즉시 append:
+  ```markdown
+  ## [ISSUE-{N}] {한줄 요약}
+  - **발견 시점**: Step {N}, {파일명}:{라인}
+  - **유형**: design-concern / testability / doc-mismatch / performance / other
+  - **재현 조건**: {어떤 상황에서 문제가 되는지}
+  - **현재 대응**: 즉시 수정 / 기록만 (사유: ...)
+  - **후속 필요**: Step 7 Expert Review에서 검토 필요 여부
+  ```
+- Step 7 Expert Review 시 `inline-issues.md`를 전문가 팀에 자동 전달하여 리뷰 정밀도를 높인다
 
 ### Ground Truth 검증 게이트
 
@@ -143,96 +226,6 @@ executor가 구현을 완료하면, Step 6으로 넘기기 전에 plan-summary.m
 
 - Save: `.claude/memory/unit-{name}/implementation.md`
 
-## Step 6: Purpose Alignment Review
+## Step 6 이후: Verification
 
-- Spawn `architect`: Check implementation matches requirements
-- Minor: executor auto-fix (max 3 times)
-- Major: → Step 1-B (plan itself was insufficient)
-
-### 6-B: Working Example 검증
-
-테스트 통과 ≠ 실제 동작 확인. 며칠 후 "사실 이건 구현 안 됐었네"를 방지하기 위해, 실제로 코드가 의도대로 동작하는지 시연 가능한 수준으로 확인한다.
-
-- `architect`가 plan-summary.md의 **Behavior Changes (Before → After)**를 기준으로 검증 시나리오 1-2개 도출
-- `executor`가 실제 실행 또는 실행 가능한 스크립트/curl 명령으로 동작 확인
-  - CLI 도구: 실제 명령 실행
-  - API: curl/httpie 명령 예시 작성 (실제 외부 호출은 금지 — mock server 또는 dry-run)
-  - 라이브러리: 간단한 사용 예제 코드 작성 + 실행
-- 결과를 `.claude/memory/unit-{name}/working-example.md`에 기록
-- **검증 실패 시**: Step 5로 회귀 (구현 누락)
-
-## Step 7: Bug/Security/Performance Review — 도메인팀 Agent Team 토론
-
-### 7-A: 구현 결과 검증 (Agent Team 토론)
-
-- Step 4-B와 동일한 통합 전문가 팀 구조 (`TeamCreate(team_name="impl-review")`)
-- 추가 컨텍스트: `plan-summary.md`, `expert-plan-concerns.md`, `code-design-analysis.md`, **실제 git diff**
-- **Shared Tasks** (4단계):
-  - Task 0: Step 4-B 우려 반영 확인
-  - Task 1: 독립적 diff 검토 → findings (`references/expert-output-schema.md`의 Findings Schema를 따른다)
-  - Task 2: 직접 메시지로 토론
-  - Task 3: 팀 합의 → findings.md (CRITICAL/HIGH/MEDIUM)
-- CRITICAL/HIGH → executor auto-fix, MEDIUM → record
-
-### 7-B: 사전 우려사항 대조 검증
-
-- `.claude/memory/expert-plan-concerns.md` 읽기
-- `.claude/memory/expert-discussions/*-discussion.md` 읽기 (토론 맥락 + trigger_condition 확인)
-- 각 concern의 `trigger_condition`을 실제 구현 결과와 대조하여, 조건이 충족된 concern은 severity를 재평가한다
-- Spawn `architect`: 사전 우려사항 중 누락 항목 대조
-- 누락 발견 → executor fix → 7-A 재검증 (max 1회)
-
-- Use security-reviewer + code-reviewer subagents
-- Save: `.claude/memory/unit-{name}/review-findings.md`
-
-## Step 8: Regression Verification
-
-- Spawn `architect`: Step 7 fixes가 기존 기능 깨뜨리지 않았는지 확인
-- Regression → executor fix → Step 7 re-review (max 2 loops)
-
---- SMALL path skips to Step 17 here ---
-
-## Refinement Cycle (P-006, STANDARD+ 경로, Step 8 완료 후)
-
-ARC-AGI에서 영감을 받은 반복 개선 루프. 기존 Steps 9-16의 개별 단계를 "Generate → Self-improve → Verify → Correct" 사이클로 통합하여, 필요한 만큼만 반복하고 품질이 충족되면 즉시 종료한다.
-
-### Refinement Iteration (max 3회)
-
-각 iteration에서:
-
-**1. Scan (Generate)** — `architect`가 전체 diff를 스캔하여 개선 대상을 분류:
-- **Splitting**: 50줄+ 함수 또는 300줄+ 파일
-- **Reuse**: 중복 코드 또는 재사용 가능 패턴
-- **Dead Code**: 사용되지 않는 코드
-- **Flow Issues**: 다중 파일 간 흐름 문제
-- **Quality Issues**: 코드 품질 (가독성, 네이밍, 에러 처리)
-- **MEDIUM Issues**: 이전 Step에서 누적된 MEDIUM 이슈
-
-**2. Fix (Self-improve)** — `executor`가 발견된 이슈를 일괄 수정
-
-**3. Verify (Verify)** — 수정 후 빌드/테스트/타입체크 실행 + `/simplify` 스킬로 코드 품질 검토
-
-**4. Check (Correct)** — 새로운 이슈 발생 여부 확인:
-- 새 이슈 없음 → Cycle 종료, Step 17로 진행
-- 새 이슈 발생 → 다음 iteration으로 (남은 iteration 내에서)
-- max iteration 도달 → 잔여 MEDIUM 이슈는 기록 후 Step 17로 진행
-
-### Refinement 결과 기록
-
-`.claude/memory/unit-{name}/refinement-result.md`:
-```markdown
-## Refinement Cycle Result
-- Iterations: {N}/3
-- Issues found: {총 발견 수}
-- Issues fixed: {수정 수}
-- Remaining MEDIUM: {잔여 수} (기록만)
-- Exit reason: clean / max-iterations
-```
-
-## Step 17: Production Readiness
-
-- **참조**: Success Criteria 체크리스트의 기술적 항목을 이 단계에서 검증
-- Spawn `architect` + `security-reviewer` (parallel)
-- Final checklist: requirements met, build passes, tests pass, no security issues
-- Minor: executor fix. Major: → relevant Phase. Critical: → Step 1-B
-- Save: `.claude/memory/unit-{name}/final-check.md`
+Step 6부터 Step 17까지의 검증 단계는 [phase-b-verification.md](phase-b-verification.md)를 참조한다.

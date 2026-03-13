@@ -1,0 +1,89 @@
+# Inline Review Comment Format
+
+인라인 코드 리뷰 코멘트 양식. CONNECTED/STANDALONE 양 모드에서 공통으로 사용한다.
+
+## 최초 리뷰 (Step 2)
+
+각 변경 단위의 대표 파일 1-2개에 아래 양식으로 인라인 코멘트를 작성한다. 나머지 파일은 간단한 역할 설명만 추가한다.
+
+### CONNECTED 모드 양식
+
+```markdown
+**[변경 단위 N: {제목}]**
+
+**계획 매핑**: {plan-summary의 어떤 Unit/목표를 구현한 것인지 — "이 변경은 계획의 [Unit N: 제목]을 구현합니다"}
+**변경 전 상태**: {구체적 코드 동작 수준으로 — 어떤 분기를 타고, 어떤 메서드가 호출되며, 기존 한계가 무엇인지. 신규 생성이면 "신규 생성"}
+**변경 내용**: {구체적으로 어떤 부분을 어떻게 개선/추가했는지. 기존 코드베이스의 유사 패턴이 있으면 비교하며 설명}
+**관련 변경 단위**: {이전/이후 변경 단위와의 의존/호출/데이터 흐름 관계}
+**리뷰 포인트**:
+1. {구체적 기술 포인트 — 코드 수준 근거 포함. 예: "elif 체인 순서: SubsetProductFeed → HNS TV(50) → ELEVENTH → default. 우선순위 충돌 없음"}
+2. {미수정 사유 — 변경하지 않은 관련 코드가 있으면 왜 안 바꿨는지. 예: "_list_active_products 미수정: get_feed_id_or_parent_feed_id()가 이미 매핑하므로 추가 수정 불필요"}
+3. {유사 패턴 비교 — 코드베이스 내 비슷한 구현과의 차이/일관성. 예: "HNS TV 패턴과의 차이: HNS TV는 하드코딩된 parent_id=1, ELEVENTH는 상수 사용"}
+**전문가 우려사항**: {Step 4-B/7에서 제기된 우려 + 반영 내용. 수용하지 않은 경우 그 이유. 전문가 토론 맥락이 있으면 발췌}
+**트레이드오프**: {한계 명시 + 선택 이유, 기존 패턴과의 일관성 근거, 고려한 대안. 예: "서브피드 추가 시 수동 등록 필요 — 기존 패턴(HNS TV, Oliveyoung)과 일관된 접근"}
+```
+
+### STANDALONE 모드 양식
+
+`계획 매핑` 대신 `변경 동기`를 사용한다:
+
+```markdown
+**[변경 단위 N: {제목}]**
+
+**변경 동기**: {왜 이 변경이 필요한지 — 해결하려는 문제, 추가하려는 기능}
+**변경 전 상태**: {위와 동일}
+**변경 내용**: {위와 동일}
+**관련 변경 단위**: {위와 동일}
+**리뷰 포인트**:
+1. {위와 동일}
+2. {위와 동일}
+3. {위와 동일}
+**전문가 우려사항**: {Step 0에서 architect/writer가 도출한 우려사항 + 반영 내용}
+**트레이드오프**: {위와 동일}
+```
+
+## 피드백 반영 리뷰 (Step 4-C)
+
+수정된 변경 단위에 대해서만 작성한다. 기존 코멘트는 resolve 처리하고, 수정된 코드 위치에 아래 양식으로 새 코멘트를 작성한다.
+
+```markdown
+**[변경 단위 N: {제목}] — 수정 반영**
+
+**피드백 요약**: {사용자가 요청한 내용 — PR 코멘트 원문 인용}
+**수정 내용**: {무엇을 어떻게 바꿨는지 — Before/After 코드 발췌}
+**영향 범위**: {이 수정이 다른 변경 단위에 미치는 영향. 없으면 "영향 없음"}
+```
+
+## review-payload.json 구성 가이드
+
+### Line 번호 매핑
+
+GitHub PR Review API의 `line`은 **diff가 아닌 파일의 실제 라인 번호**를 사용한다. `gh pr diff`의 출력에서 `+` 라인의 실제 파일 라인 번호를 추출한다.
+
+변경 단위의 핵심 변경이 시작되는 라인 (주로 함수/메서드 시그니처 또는 핵심 로직의 첫 줄)을 코멘트 위치로 선택한다.
+
+### 코멘트 크기
+
+- 대표 파일 코멘트: 충분한 맥락을 담되, 마크다운으로 읽기 좋게 구조화
+- 보조 파일 코멘트: 1-2줄 역할 설명 ("이 테스트는 변경 단위 1의 새 분기를 검증합니다")
+
+### 예시
+
+```json
+{
+  "body": "",
+  "event": "COMMENT",
+  "comments": [
+    {
+      "path": "src/domain/service/best_product.py",
+      "line": 72,
+      "body": "**[변경 단위 1: ELEVENTH 서브피드 best products 선택 전략 분기 추가]**\n\n**계획 매핑**: Unit 1 — ELEVENTH 서브피드 지원\n**변경 전 상태**:\nELEVENTH 서브피드(1019, 1052, 1053, 1055, 1056)는 `else` 분기를 타며 `get_top_purchased_product_codes(product_feed_id, count)`가 호출됩니다. 서브피드 자체의 event_source가 없어 빈 결과를 반환하는 문제가 있었습니다.\n\n**변경 내용**:\nHNS TV(feed_id=50) 패턴과 동일한 구조로 `elif` 분기를 추가했습니다.\n- 부모 피드 ID(`ELEVENTH_FEED_ID=28`)의 event_source에서 구매 데이터를 조회\n- `ELEVENTH_FEED_PRODUCT_MAPPING[product_feed_id]`로 해당 서브피드의 상품 코드만 필터링\n\n**리뷰 포인트**:\n1. **elif 체인 순서**: SubsetProductFeed → HNS TV(50) → Oliveyoung → ELEVENTH → default 순서. ELEVENTH 서브피드는 SubsetProductFeed가 아니므로 우선순위 충돌 없음\n2. **`_list_active_products` 미수정**: `ProductService.list_products()` 내부에서 `get_feed_id_or_parent_feed_id()`가 이미 ELEVENTH 서브피드를 부모 피드(28)로 매핑하므로 추가 수정 불필요\n3. **HNS TV 패턴과의 차이**: HNS TV는 하드코딩된 parent_id=1을 사용하지만, ELEVENTH는 상수 `ELEVENTH_FEED_ID`를 사용하여 더 명확함\n\n**전문가 우려사항**: 서브피드 추가 시 매핑 누락 가능성 — 현재는 코드 리뷰로 방지, 장기적으로 subset_feed 방식 전환 예정\n**트레이드오프**: 서브피드 추가 시 `ELEVENTH_FEED_PRODUCT_MAPPING`에 수동 등록 필요 — 기존 패턴(HNS TV, Oliveyoung)과 일관된 접근"
+    },
+    {
+      "path": "tests/integration/test_update_best_products.py",
+      "line": 84,
+      "body": "**[변경 단위 2: 통합 테스트]**\n\n변경 단위 1의 새 분기가 부모 피드의 event_source를 올바르게 사용하는지 검증합니다. Mock 대상과 검증 포인트는 기존 테스트 패턴과 일관됩니다."
+    }
+  ]
+}
+```

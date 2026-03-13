@@ -1,5 +1,22 @@
 # Grind Phase B-E Step Overrides
 
+## 목차
+- [Pre-Phase](#pre-phase)
+- [Step 5: Implementation (with Build Resilience)](#step-5-implementation-with-build-resilience)
+- [Step 6: Purpose Alignment](#step-6-purpose-alignment-max-10-step6_executor)
+- [Step 7: Review (Enhanced Loop)](#step-7-review-enhanced-loop)
+- [Step 8: Regression Verification](#step-8-regression-verification-max-10-step7_8)
+- [Step 9: File/Function Splitting](#step-9-filefunction-splitting)
+- [Step 11: Side Effect Check](#step-11-side-effect-check-max-10-step9_11_refactor)
+- [Step 12: Full Change Review](#step-12-full-change-review-max-10-step12_major)
+- [Step 13: Dead Code Cleanup](#step-13-dead-code-cleanup-max-10-step13_cleanup)
+- [Step 14: Code Quality](#step-14-code-quality-max-10-step14_quality)
+- [Step 15: Flow Verification](#step-15-flow-verification-max-10-step15_flow)
+- [Step 16: MEDIUM Issues](#step-16-medium-issues-max-10-step16)
+- [Step 17: Production Readiness](#step-17-production-readiness-max-10-step17_readiness)
+- [Integration](#integration-max-10-integration_conflict)
+- [Steps 18-20 Overrides](#steps-18-20-overrides)
+
 > Base: `~/.claude/skills/simon-bot/references/phase-b-implementation.md`
 > 이 문서는 각 Step의 grind 전용 변경사항(주로 retry 확장 + escalation ladder)만 기술합니다.
 
@@ -28,20 +45,21 @@ CONTEXT.md 추가 항목:
 2. ALL pass → Step 6
 3. ANY fails:
    - **Attempt 1-3**: `executor` fixes immediate error
-   - **Attempt 4-6**: `architect` Root Cause Analysis → targeted fix
+   - **Attempt 4-6**: **fresh executor** spawn + `architect` Root Cause Analysis → fresh executor가 targeted fix (What-not-Why Handoff 적용)
    - **Attempt 7-9**: **Strategy Pivot** (`step5_strategy_pivot`)
      - Checkpoint: `git tag checkpoint-step5-attempt{N}`
-     - architect proposes: different pattern / simplified scope / different test strategy / alternative library
-     - executor implements from checkpoint
-   - **Attempt 10**: **Last Stand** — architect + executor fresh approach
+     - **fresh architect + executor** spawn → 요구사항 + 실패 이력(what)만 전달
+     - fresh architect proposes: different pattern / simplified scope / different test strategy / alternative library
+     - fresh executor implements from checkpoint
+   - **Attempt 10**: **Last Stand** — 완전 fresh context (최소 정보만 전달) architect + executor
      - Fails → `.claude/memory/escalation-report.md` + AskUserQuestion (skip Unit option)
 
 ## Step 6: Purpose Alignment (max 10: `step6_executor`)
 
 - **Attempt 1-3**: executor auto-fix
-- **Attempt 4-6**: architect re-analyzes requirements → clarify and re-fix
-- **Attempt 7-9**: architect proposes scope adjustment or alternative interpretation
-- **Attempt 10**: architect + executor final collaborative fix
+- **Attempt 4-6**: **fresh executor** spawn + architect re-analyzes requirements → fresh executor가 re-fix
+- **Attempt 7-9**: **fresh architect + executor** spawn → scope adjustment or alternative interpretation
+- **Attempt 10**: 완전 fresh context architect + executor final collaborative fix
 - **Major misalignment**: → Step 1-B (check failure-log first: if already revisited, escalate to user)
 
 ## Step 7: Review (Enhanced Loop)

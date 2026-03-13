@@ -1,5 +1,17 @@
 # Grind Cross-Cutting Systems
 
+## 목차
+1. [Auto-Diagnosis System](#auto-diagnosis-system)
+2. [Checkpoint System](#checkpoint-system)
+3. [Confidence Scoring & Assumption Registry](#confidence-scoring--assumption-registry)
+4. [Total Retry Budget (워크플로 전체 재시도 예산)](#total-retry-budget-워크플로-전체-재시도-예산)
+5. [Progress Pulse (중간 상황 보고)](#progress-pulse-중간-상황-보고)
+6. [Escalation Report Format](#escalation-report-format)
+7. [Agent Teams Fallback](#agent-teams-fallback)
+8. [Docs-First Protocol](#docs-first-protocol)
+
+---
+
 ## Auto-Diagnosis System
 
 This system operates across ALL steps. On ANY failure:
@@ -18,6 +30,20 @@ Record every failure in `.claude/memory/failure-log.md`:
 
 Check failure patterns before each retry.
 
+#### Failure Log 구조화 병행 저장
+
+failure-log.md(사람 읽기용)와 함께 failure-log.jsonl(CLI 조회용)을 병행 유지한다. grind의 특성상 failure-log가 매우 길어질 수 있으므로(Step당 10회 재시도 × 다수 Step), 전체 파일을 LLM이 읽는 대신 jq로 필터링된 결과만 전달한다.
+
+```jsonl
+{"step": 5, "attempt": 3, "error_type": "CODE_LOGIC", "subtype": "TEST_FAILURE", "error_summary": "TestAuth: expected 200 got 401", "timestamp": "2026-03-13T14:30:00"}
+```
+
+활용 예:
+- 동일 에러 반복 횟수: `jq -s '[.[] | .error_summary] | group_by(.) | map({error: .[0], count: length}) | sort_by(-.count)' failure-log.jsonl`
+- 특정 Step 실패 수: `jq -s '[.[] | select(.step == 5)] | length' failure-log.jsonl`
+
+decision-journal.md도 동일 패턴으로 decision-journal.jsonl을 병행한다.
+
 ### Progress Detection (재시도 진전 감지)
 
 매 재시도 후 이전 시도의 환경 피드백(빌드 로그, 테스트 결과)과 현재 결과를 구조적으로 비교한다.
@@ -31,6 +57,33 @@ Check failure patterns before each retry.
 **진전(Progress) 판정 기준:**
 - 실패 테스트 수가 줄었거나, 에러 메시지가 달라졌거나, 의미 있는 코드 변경이 있으면 → "진전 있음"
 - 위 세 항목 모두 변화 없으면 → "진전 없음(stalled)"
+
+**비교 예시 (Few-shot, P-004):**
+
+```
+예시 1 — 진전 있음:
+  Attempt 2: failing_tests=5, error="TypeError: undefined is not a function"
+  Attempt 3: failing_tests=2, error="Expected 200 but got 404"
+  → 실패 수 감소(5→2) + 에러 메시지 변화 → 진전 있음
+
+예시 2 — 진전 없음:
+  Attempt 3: failing_tests=3, error="Connection refused on port 5432"
+  Attempt 4: failing_tests=3, error="Connection refused on port 5432"
+  → 실패 수 동일 + 에러 동일 + 코드 변경 없음 → 진전 없음 (stalled)
+
+예시 3 — 진전 있음:
+  Attempt 4: failing_tests=0, build="FAIL: missing import"
+  Attempt 5: failing_tests=1, build="SUCCESS"
+  → 빌드 실패→성공, 테스트 단계까지 진입 → 진전 있음
+```
+
+Progress Detection의 비교 항목(실패 테스트 수, 에러 메시지 동일성, 변경 라인 수)은 모두 결정론적으로 계산 가능하다. CLI 도구(`detect-progress.sh` 등)가 있으면:
+- 실패 수 delta를 정량적으로 계산
+- 에러 시그니처의 해시 비교로 동일성 판별
+- `git diff --stat`으로 변경량 추출
+- 결과를 JSON으로 출력하여 LLM에 결과만 전달
+
+LLM은 `progress: false`일 때만 전략 전환 의사결정에 관여한다. 매 재시도마다 이전/현재 결과를 컨텍스트에 올려 비교하는 대신, CLI가 정량 비교 후 결과만 전달하면 토큰 소비를 대폭 줄인다.
 
 **Stall Detection Rule:**
 - 진전 없는 재시도가 **2회 연속** 되면 현재 전략을 즉시 전환한다 (다음 escalation tier로 점프).
@@ -47,6 +100,29 @@ Check failure patterns before each retry.
 - Dependency resolution (different package version, alternative dependency)
 - Scope reduction (implement core only, defer edge cases)
 - Complete rewrite of the problematic section
+
+### Fresh Context Handoff Protocol
+
+Escalation Ladder에서 fresh context spawn 시 다음 정보 분리를 준수한다 (`context-separation.md`의 What-not-Why Handoff 원칙):
+
+**Fresh Agent에게 전달 (What):**
+- plan-summary.md (요구사항)
+- 최신 git diff (현재 코드 상태)
+- 에러 메시지 / 실패 테스트 목록 / 빌드 로그
+- checkpoint tag (롤백 지점)
+- failure-log.md의 **Attempt 번호 + Error summary만** (Previous attempts의 구체적 수정 내용은 제외)
+
+**전달하지 않는 것 (Why):**
+- 이전 architect의 Root Cause Analysis 결론
+- 이전 executor의 수정 방향과 판단 근거
+- failure-log.md의 "왜 이 접근이 실패했는지"에 대한 분석
+- Strategy Pivot에서 기각된 대안의 기각 사유
+
+이 분리를 통해 같은 10회 재시도에서 3-4개의 genuinely 다른 관점을 확보한다. "같은 사고방식으로 10번 반복" 대신 "3-4가지 다른 접근"이 가능해진다.
+
+### Anti-Oscillation Check
+
+Strategy Pivot 전에 `.claude/memory/decision-journal.md`를 확인한다. 이전에 시도했다가 실패하고 명시적으로 기각한 전략을 다시 선택하려면, 기각 시점 이후에 새로운 정보(새로운 에러 메시지, 환경 변화, 외부 의존성 업데이트 등)가 확인되었음을 failure-log.md에 기록해야 한다. "다시 해보자"는 허용되지 않는다 — 같은 전략을 같은 조건에서 반복하면 결과도 같다.
 
 ### Problem Redefinition Check (P-009)
 
@@ -153,6 +229,8 @@ Every agent output in Phase A must include confidence assessments.
   - 사용자가 추가 예산을 부여하면 계속 진행 (예: "+20")
   - 사용자가 중단을 선택하면 현재까지의 결과물로 마무리
 
+재시도 예산 차감과 경고 발동은 단순 카운터 관리이므로, CLI 도구(`retry-budget.sh` 등)로 파일 기반 카운터를 관리하면 LLM 기억 의존을 제거할 수 있다. 스크립트가 70% 도달 시 경고, 100% 도달 시 중단을 exit code로 트리거하여 컨텍스트 압축으로 인한 카운트 손실 위험을 구조적으로 차단한다.
+
 ### Progress Pulse와의 연계
 - Progress Pulse 보고에 항상 "잔여 예산: {N}회" 포함
 - 예산 경고는 Progress Pulse의 발동 조건에 추가됨
@@ -223,3 +301,9 @@ When human escalation is needed, generate `.claude/memory/escalation-report.md`:
 ## Agent Teams Fallback
 
 Agent Teams가 비활성 상태일 때의 대체 전략은 `~/.claude/skills/simon-bot/references/agent-teams-fallback.md`를 따른다. grind의 "절대 멈추지 않는다" 원칙에 따라, Agent Teams 실패는 워크플로 중단 사유가 아니다. failure-log.md에 기록 후 subagent fallback으로 자동 전환한다.
+
+## Docs-First Protocol
+
+simon-bot의 Docs-First Protocol(`~/.claude/skills/simon-bot/SKILL.md` Cross-Cutting Protocols 참조)을 상속한다.
+
+**grind 맥락 추가 규칙**: 학습 데이터 기반 기억으로 구현하여 실패한 경우, 재시도 전에 반드시 공식 문서를 조회한다. failure-log.md에 "docs-not-checked"로 분류하여 같은 유형의 실패를 반복하지 않도록 한다.

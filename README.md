@@ -66,10 +66,15 @@ graph LR
 |------|------|
 | `/simon-bot` | 19단계 심층 워크플로우 — 계획, 구현, 검증을 최고 수준의 엄밀함으로 수행 |
 | `/simon-bot-grind` | 열일모드 — 재시도 한계 10, 자동 진단/복구/전략 전환 |
-| `/simon-bot-sessions` | 세션 관리 — worktree 기반 작업 세션 조회, 이어서 작업, 삭제 |
-| `/simon-bot-boost` | 외부 리소스 분석 — 링크를 읽고 스킬 개선을 제안 |
 | `/simon-bot-pm` | 프로젝트 매니저 — PRD 기반 전체 앱 기획, simon-bot 인스턴스에 작업 분배 |
+| `/simon-bot-review` | PR 기반 코드 리뷰 — Draft PR 생성, 인라인 리뷰 코멘트, CI Watch, 피드백 루프 |
+| `/simon-bot-sessions` | 세션 관리 — worktree 기반 작업 세션 조회, 이어서 작업, 삭제 |
 | `/simon-bot-report` | 사전 분석 보고서 — 전문가 팀 토론을 통한 RFC, 현황 분석, 커스텀 포맷 |
+| `/simon-bot-boost` | 외부 리소스 분석 — 링크를 읽고 스킬 개선을 제안 |
+| `/simon-bot-boost-capture` | 작업 중 스킬 개선점 백그라운드 캡처 — 작업 흐름을 멈추지 않고 인사이트 기록 |
+| `/simon-bot-boost-review` | 축적된 개선 인사이트 리뷰 & 적용 — 캡처된 개선안을 검토하고 스킬에 반영 |
+| `/simon-company` | 풀스택 소프트웨어 회사 — 다중 전문 팀 협업으로 기획부터 배포·운영까지 완성 |
+| `/simon-presenter` | 라이브 데모 프레젠터 — Playwright로 앱을 실제 구동하며 인터랙티브 시연 |
 
 ### 어떤 스킬을 쓸까?
 
@@ -77,10 +82,15 @@ graph LR
 |------|------|
 | 기능 구현 또는 버그 수정 | `/simon-bot` |
 | 실패하면 안 되는 복잡한 코드베이스 | `/simon-bot-grind` |
-| 이전 작업 세션 이어서 하기 | `/simon-bot-sessions` |
-| 유용한 아티클/레포 발견 — 스킬 개선 | `/simon-bot-boost` |
 | 전체 앱 빌드 또는 멀티 피처 프로젝트 | `/simon-bot-pm` |
+| 대규모 풀스택 서비스 (다중 팀 협업) | `/simon-company` |
+| 작업 완료 후 PR + 코드 리뷰 | `/simon-bot-review` |
+| 이전 작업 세션 이어서 하기 | `/simon-bot-sessions` |
 | RFC, 아키텍처 분석, 보고서 (코드 변경 없음) | `/simon-bot-report` |
+| 유용한 아티클/레포 발견 — 스킬 개선 | `/simon-bot-boost` |
+| 작업 중 스킬 개선점 메모 (작업 흐름 유지) | `/simon-bot-boost-capture` |
+| 축적된 개선안 일괄 검토 & 적용 | `/simon-bot-boost-review` |
+| 완성된 앱 라이브 데모 시연 | `/simon-presenter` |
 
 ---
 
@@ -134,12 +144,53 @@ simon-bot을 최대 집요함으로 확장합니다:
 </details>
 
 <details>
-<summary><strong>기타 스킬 상세 (report / boost / sessions)</strong></summary>
+<summary><strong>simon-bot-review 상세</strong></summary>
+<br>
+
+작업 완료 후 PR 생성과 코드 리뷰를 수행합니다:
+
+- **Draft PR 생성** — 변경사항 분석 기반 PR 자동 생성
+- **인라인 코드 리뷰** — diff를 분석하여 GitHub 인라인 코멘트 작성
+- **CI Watch** — CI 파이프라인 모니터링 및 실패 대응
+- **피드백 루프** — 리뷰 코멘트 기반 수정 및 재검증
+
+simon-bot이 생성한 `review-sequence.md`가 있으면 활용하고, 없으면 독자적으로 동일 품질의 리뷰를 수행합니다.
+</details>
+
+<details>
+<summary><strong>simon-company 상세</strong></summary>
+<br>
+
+대규모 풀스택 서비스를 다중 전문 팀(PM, Design, Frontend, Backend, QA, DBA, DevOps, ML)이 협업하여 완성합니다:
+
+- **의뢰 모드** — 불명확한 아이디어를 구조화된 인터뷰로 구체화
+- **Scope Guard** — 소규모 프로젝트는 simon-bot-pm으로 자동 리다이렉트
+- **전체 라이프사이클** — 기획 → 디자인 → 개발 → QA → 배포 → 운영
+- 명시적 호출 전용 (`/simon-company`)
+</details>
+
+<details>
+<summary><strong>simon-presenter 상세</strong></summary>
+<br>
+
+완성된 앱을 Playwright headed 브라우저로 실제 구동하며 인터랙티브하게 시연합니다:
+
+- 유저스토리 기반 시나리오로 앱의 핵심 기능 시연
+- 실제 브라우저 조작으로 동작 검증
+- 이해관계자에게 보여주기 위한 프레젠테이션 모드
+</details>
+
+<details>
+<summary><strong>기타 스킬 상세 (report / boost 패밀리 / sessions)</strong></summary>
 <br>
 
 **simon-bot-report** — 코드 변경 없이 구현 전 분석 문서(RFC, 현황 분석, 커스텀 포맷)를 생성합니다. simon-bot과 동일한 5개 도메인 전문가 팀 토론 구조를 사용하며, 리뷰 후 simon-bot / simon-bot-pm으로 원활하게 핸드오프할 수 있습니다.
 
 **simon-bot-boost** — 외부 리소스(블로그, GitHub, 논문)를 읽고 5인 전문가 패널이 스킬 개선을 제안합니다. 모든 제안은 적용 전 명시적 승인이 필요하며 `.claude/boost/applied-log.md`에 기록됩니다.
+
+**simon-bot-boost-capture** — 작업 중 발견한 스킬 개선점을 백그라운드로 분석·기록합니다. 작업 흐름을 멈추지 않고 인사이트를 캡처하여 나중에 일괄 처리할 수 있습니다.
+
+**simon-bot-boost-review** — `simon-bot-boost-capture`로 축적된 개선 인사이트를 검토하고 실제 스킬에 반영합니다. 캡처된 개선안을 모아서 한번에 처리할 때 사용합니다.
 
 **simon-bot-sessions** — 여러 Claude Code 세션에 걸친 worktree 기반 작업을 관리합니다: `list` | `info <branch>` | `resume <branch>` | `delete <branch>` | `pr <branch>`
 </details>

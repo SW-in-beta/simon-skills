@@ -61,10 +61,15 @@ Then in Claude Code:
 |-------|-------------|
 | `/simon-bot` | Full 19-step pipeline — plan, implement, verify, PR |
 | `/simon-bot-grind` | Same pipeline, maximum tenacity — 10x retries, auto-diagnosis, strategy pivots |
-| `/simon-bot-sessions` | List, resume, or clean up worktree-based work sessions |
-| `/simon-bot-boost` | Read external resources and improve simon-bot's own skills |
 | `/simon-bot-pm` | Project manager — PRD-driven planning, distributes tasks to simon-bot instances |
+| `/simon-bot-review` | PR-based code review — Draft PR creation, inline review comments, CI Watch, feedback loop |
+| `/simon-bot-sessions` | List, resume, or clean up worktree-based work sessions |
 | `/simon-bot-report` | Analysis documents (RFC, status report) via expert discussion — no code changes |
+| `/simon-bot-boost` | Read external resources and improve simon-bot's own skills |
+| `/simon-bot-boost-capture` | Background capture of skill improvements — record insights without interrupting workflow |
+| `/simon-bot-boost-review` | Review & apply accumulated improvement insights from boost-capture |
+| `/simon-company` | Full-stack software company — multi-team collaboration from planning to deployment & ops |
+| `/simon-presenter` | Live demo presenter — run apps with Playwright for interactive demonstrations |
 
 ### Pick the Right Skill
 
@@ -72,10 +77,15 @@ Then in Claude Code:
 |--------------|-----|
 | Build a feature or fix a bug | `/simon-bot` |
 | Tackle something complex that can't fail | `/simon-bot-grind` |
-| Resume or manage previous sessions | `/simon-bot-sessions` |
-| Improve simon-bot from an article or repo | `/simon-bot-boost` |
 | Plan and build an entire app | `/simon-bot-pm` |
+| Build a large-scale full-stack service (multi-team) | `/simon-company` |
+| Create a PR with inline code review | `/simon-bot-review` |
+| Resume or manage previous sessions | `/simon-bot-sessions` |
 | Get an RFC or analysis without changing code | `/simon-bot-report` |
+| Improve simon-bot from an article or repo | `/simon-bot-boost` |
+| Note a skill improvement without stopping work | `/simon-bot-boost-capture` |
+| Batch-review and apply accumulated improvements | `/simon-bot-boost-review` |
+| Demo a finished app with live browser interaction | `/simon-presenter` |
 
 <details>
 <summary><strong>Expert Teams (5 domains, 22 specialists)</strong></summary>
@@ -129,6 +139,54 @@ test_env:
 
 Customize expert review criteria in `.claude/workflow/prompts/*.md` (22 expert prompts).
 Past feedback is stored in `.claude/memory/retrospective.md` and automatically referenced in future runs.
+
+</details>
+
+<details>
+<summary><strong>simon-bot-review</strong></summary>
+
+Handles PR creation and code review after work is complete:
+
+- **Draft PR creation** — auto-generates PR based on change analysis
+- **Inline code review** — analyzes diff and writes GitHub inline comments
+- **CI Watch** — monitors CI pipeline and responds to failures
+- **Feedback loop** — applies fixes based on review comments and re-verifies
+
+Uses `review-sequence.md` from simon-bot if available; otherwise performs independent review at the same quality level.
+
+</details>
+
+<details>
+<summary><strong>simon-company</strong></summary>
+
+Builds large-scale full-stack services with multi-team collaboration (PM, Design, Frontend, Backend, QA, DBA, DevOps, ML):
+
+- **Consultation mode** — structures vague ideas through a guided interview
+- **Scope Guard** — auto-redirects small projects to simon-bot-pm
+- **Full lifecycle** — planning → design → development → QA → deployment → operations
+- Explicit invocation only (`/simon-company`)
+
+</details>
+
+<details>
+<summary><strong>simon-presenter</strong></summary>
+
+Runs finished apps with a Playwright headed browser for interactive live demonstrations:
+
+- User-story-based scenarios showcasing core features
+- Real browser interaction for behavior verification
+- Presentation mode for stakeholder demos
+
+</details>
+
+<details>
+<summary><strong>Boost Family (boost / boost-capture / boost-review)</strong></summary>
+
+**simon-bot-boost** — Reads external resources (blogs, GitHub, papers) and a 5-person expert panel proposes skill improvements. All proposals require explicit approval before application.
+
+**simon-bot-boost-capture** — Records skill improvement insights in the background during active work. Captures ideas without interrupting your workflow for later batch processing.
+
+**simon-bot-boost-review** — Reviews and applies accumulated insights from boost-capture. Batch-processes captured improvement proposals into actual skill changes.
 
 </details>
 

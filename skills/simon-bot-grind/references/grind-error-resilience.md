@@ -47,6 +47,8 @@ ERROR
 
 분류 후 해당 유형(ENV_INFRA / CODE_LOGIC / WORKFLOW_ERROR)의 복구 전략을 적용한다. **모호한 경우 ENV_INFRA → WORKFLOW_ERROR → CODE_LOGIC 순으로 우선 처리한다** (simon-bot 기본 프로토콜과 동일).
 
+에러 분류 트리의 키워드 매칭은 결정론적 작업이다. CLI 스크립트(`classify-error.sh` 등)가 있으면 키워드 기반 자동 분류를 먼저 수행하고, LLM은 분류 결과만 받아 복구 전략을 선택한다. grind의 재시도가 최대 10회이므로, 매번 에러 로그를 LLM이 읽는 것보다 CLI로 분류 결과만 받는 것이 컨텍스트 절약에 효과적이다.
+
 ## ENV_INFRA 실패 처리 (최대 10회)
 
 | 시도 | 복구 전략 |
@@ -104,10 +106,12 @@ WORKFLOW_ERROR도 동일한 10회 escalation ladder를 따른다:
 
 | Attempt | Action | 이 단계의 이유 |
 |---------|--------|--------------|
-| 1 ~ 3 | Simple retry: `executor` fixes the immediate issue | 대부분의 실패는 단순한 실수 — 빠른 수정이 가장 효율적 |
-| 4 ~ 6 | **Root Cause Analysis**: spawn `architect` to diagnose WHY it keeps failing, then `executor` applies the deeper fix | 같은 실수가 반복되면 표면이 아닌 근본 원인을 찾아야 함 |
-| 7 ~ 9 | **Strategy Pivot**: `architect` proposes 2-3 alternative approaches, selects the most different one from what was tried, resets relevant state, retries with new strategy | 같은 전략으로 6번 실패했다면 접근법 자체를 바꿔야 함 |
-| 10 (final) | **Last Stand**: architect + executor collaborate on completely fresh approach. If fails → Human Escalation via `.claude/memory/escalation-report.md` | 마지막 시도 — 모든 가용 자원 투입 |
+| 1 ~ 3 | Simple retry: `executor` fixes the immediate issue (동일 컨텍스트) | 대부분의 실패는 단순한 실수 — 빠른 수정이 가장 효율적 |
+| 4 ~ 6 | **Root Cause Analysis**: **fresh executor subagent** spawn → 실패 결과(에러 메시지, 실패 테스트)만 전달, 이전 추론 과정은 차단 (What-not-Why Handoff). architect가 진단 후 fresh executor가 deeper fix 적용 | 같은 실수가 반복되면 표면이 아닌 근본 원인을 찾아야 함. 새 컨텍스트는 기존 가정에 오염되지 않은 시각을 제공 |
+| 7 ~ 9 | **Strategy Pivot**: **fresh architect + executor** spawn → 원래 요구사항 + 실패 이력(what)만 전달, 접근 방식(why)은 차단. 새 architect가 2-3개 대안 제시, 가장 다른 접근법 선택, checkpoint에서 재시작 | 같은 전략으로 6번 실패 + 같은 사고방식도 오염됨. 코드 롤백만으로 부족 — 사고방식도 리셋해야 함 |
+| 10 (final) | **Last Stand**: 완전 fresh context — 최소 정보(요구사항 + 최종 에러)만 전달한 새 architect + executor. If fails → Human Escalation via `.claude/memory/escalation-report.md` | 마지막 시도 — 모든 가용 자원 투입 + 완전한 인지적 독립 |
+
+> **Fresh Context 원칙** (`context-separation.md` 참조): Attempt 4+에서 spawn하는 에이전트에게 결과(What: 에러 메시지, 실패 테스트, git diff)는 전달하되 추론(Why: 이전 접근법의 판단 근거, 실패 분석)은 차단한다. 이전 에이전트의 사고 패턴이 새 에이전트를 오염시키면 fresh context의 이점이 상실된다.
 
 **Progress Detection 연계**: 진전 없는 재시도가 2회 연속되면 현재 tier를 건너뛰고 다음 tier로 즉시 이동한다 (상세: grind-cross-cutting.md의 Progress Detection 참조).
 

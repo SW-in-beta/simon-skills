@@ -2,6 +2,17 @@
 
 Phase 4에서 각 Feature를 실행하는 상세 프로토콜.
 
+## 목차
+1. [Scope Guard](#scope-guard)
+2. [Subagent 사용 기준](#subagent-사용-기준)
+3. [Task Spec 생성](#task-spec-생성)
+4. [Agent Spawn Protocol](#agent-spawn-protocol)
+5. [그룹 간 통합 검증](#그룹-간-통합-검증)
+6. [Failure Recovery Details](#failure-recovery-details)
+7. [Progress Reporting](#progress-reporting)
+
+---
+
 ## Scope Guard
 
 각 Feature는 Task Spec에 명시된 변경만 구현한다. 요청하지 않은 추상화, 불필요한 헬퍼 파일 생성, 미래를 대비한 유연성 추가는 하지 않는다.
@@ -82,20 +93,24 @@ Phase 4에서 각 Feature를 실행하는 상세 프로토콜.
 완료 시 결과를 .claude/pm/tasks/{feature-id}/result.md에 저장.
 ```
 
-### deep-executor 프롬프트 필수 포함 항목
+### deep-executor 프롬프트 필수 포함 항목 (Lean Prompt 원칙)
 
-모든 deep-executor 프롬프트에 아래 항목을 반드시 포함한다. 누락 시 안전장치 없이 코드가 생성될 수 있다.
+deep-executor 프롬프트에는 **Task Spec + 핵심 실행 파이프라인 + 참고 파일 경로**만 포함한다. 공통 규칙(Forbidden Rules, Error Resilience 등)은 전문을 인라인하지 않고, "반드시 읽으라"는 포인터로 전달한다. 규칙 전문을 매 Feature마다 반복 포함하면 컨텍스트가 낭비되고, 규칙 업데이트 시 feature-execution.md도 함께 수정해야 하는 유지보수 부담이 발생하기 때문이다.
 
-**공통 필수 (simon-bot / simon-bot-grind 모두):**
-- [ ] Global Forbidden Rules 전문 (ABSOLUTE / CONTEXT-SENSITIVE / AUDIT-REQUIRED 3계층)
-- [ ] Auto-Verification Hook: 소스코드 수정 후 빌드/린트 즉시 실행
-- [ ] Anti-Hardcoding Principle: 테스트 통과를 위한 하드코딩 금지
-- [ ] Error Resilience 분류 트리 (ENV_INFRA / CODE_LOGIC) + 복구 Ladder
-- [ ] Runtime Guard (P-008): Anti-Hallucination, Git Diff 기반 스코프 검증
+**프롬프트에 직접 포함:**
+- Task Spec 전체 내용
+- 핵심 실행 파이프라인 (코드베이스 탐색 → 구현 계획 → TDD → 자체 리뷰 → 빌드/테스트)
+- 참고 컨텍스트 (code-design-analysis.md, CLAUDE.md 경로)
 
-**simon-bot-grind 추가 필수:**
-- [ ] Escalation Ladder (Attempt 1-3 → 4-6 → 7-9 → 10)
-- [ ] Progress Detection: stall 감지 후 전략 전환
+**포인터로 전달 (executor가 직접 Read):**
+- [ ] `forbidden-rules.md` — 절대 위반 금지 규칙 (ABSOLUTE / CONTEXT-SENSITIVE / AUDIT-REQUIRED 3계층)
+- [ ] `error-resilience.md` — 에러 발생 시 분류 및 복구 프로토콜
+- [ ] `verify-commands.md` — 빌드/린트/테스트 명령
+- [ ] Auto-Verification Hook, Anti-Hardcoding, Runtime Guard — SKILL.md Cross-Cutting에서 자동 적용
+
+**simon-bot-grind 추가 포인터:**
+- [ ] `grind-error-resilience.md` — Escalation Ladder + Strategy Pivot
+- [ ] `grind-cross-cutting.md` — Progress Detection, Retry Budget
 - [ ] Checkpoint System: 전략 전환 전 git tag
 - [ ] Total Retry Budget 추적
 
@@ -182,6 +197,28 @@ simon-bot으로 실행 중 3회 연속 실패 시:
 - 자동으로 simon-bot-grind 모드로 전환
 - 기존 진행 상태 유지한 채 grind의 강화된 재시도 로직 적용
 - `.claude/pm/tasks.json`의 해당 Feature `bot` 필드를 `simon-bot-grind`로 갱신
+
+**Handoff Manifest (P-009):** Bot 전환 시 `.claude/memory/handoff-manifest.json`에 전환 컨텍스트를 기록하여 이전 실패 이력이 전달되도록 한다:
+```json
+{
+  "from_skill": "simon-bot",
+  "to_skill": "simon-bot-grind",
+  "timestamp": "ISO-8601",
+  "context_files": [
+    ".claude/pm/tasks/{feature-id}/spec.md",
+    ".claude/pm/tasks/{feature-id}/result.md",
+    ".claude/memory/failure-log.md"
+  ],
+  "failure_context": {
+    "last_step": 5,
+    "failure_count": 3,
+    "last_error_summary": "...",
+    "attempted_strategies": ["..."]
+  },
+  "skip_steps": []
+}
+```
+전환받는 스킬은 Startup 시 이 manifest를 감지하여 `context_files`를 자동 로딩하고, `failure_context`를 failure-log.md 초기값으로 사용한다.
 
 ### 3단계: 사용자 에스컬레이션
 

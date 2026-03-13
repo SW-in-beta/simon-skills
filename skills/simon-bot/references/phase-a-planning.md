@@ -1,5 +1,33 @@
 # Phase A: Planning (Detailed Instructions)
 
+## 목차
+- [Step 0: Scope Challenge](#step-0-scope-challenge)
+  - [X-Y Problem Detection (P-005)](#x-y-problem-detection-p-005)
+  - [Impact-Aware Path Selection (P-001)](#impact-aware-path-selection-p-001)
+  - [SMALL Fast Track (P-002)](#small-fast-track-p-002)
+- [Step 1-A: Project Analysis + Code Design Analysis](#step-1-a-project-analysis--code-design-analysis)
+  - [Search Strategy for Code Exploration (P-013)](#search-strategy-for-code-exploration-p-013)
+  - [Agent Team: Code Design Team](#agent-team-code-design-team-explore-medium-완료-후)
+  - [통합 검증 명령 탐지 (Feedback Loop 기반)](#통합-검증-명령-탐지-feedback-loop-기반)
+- [Step 1-B: Plan Creation](#step-1-b-plan-creation)
+  - [AI-First Draft Protocol (P-005)](#ai-first-draft-protocol-p-005)
+  - [Interview Guard](#interview-guard)
+  - [질문 vs 진행 판단 기준표 (P-006)](#질문-vs-진행-판단-기준표-p-006)
+  - [계획서 구조 (STICC Framework)](#계획서-구조-sticc-framework)
+- [Steps 2-4: Plan Review (Agent Team)](#steps-2-4-plan-review-agent-team)
+  - [Step 2: Plan Review](#step-2-plan-review)
+  - [Step 3: Meta Verification](#step-3-meta-verification)
+  - [Step 4: Over-engineering Check](#step-4-over-engineering-check)
+- [Step 4-B: Expert Plan Review](#step-4-b-expert-plan-review--도메인팀-agent-team-토론)
+  - [팀 활성화 규칙](#팀-활성화-규칙-configyaml--expert_panelteam_activation)
+  - [통합 전문가 팀 생성](#통합-전문가-팀-생성-agent-teams-제약-세션당-1팀)
+  - [도메인별 작업 정의](#도메인별-작업-정의-taskcreate)
+  - [토론 로그 저장](#토론-로그-저장-필수)
+  - [Findings 품질 원칙 (P-008)](#findings-품질-원칙--깊이--수량-p-008)
+  - [Agent Scope Anti-Goals (P-003)](#agent-scope-anti-goals-p-003)
+  - [Lead의 Cross-team Synthesis](#lead의-cross-team-synthesis)
+- [Phase A Calibration Checklist](#phase-a-calibration-checklist-phase-b-진입-전-검증)
+
 ## Step 0: Scope Challenge
 
 - Spawn `architect`: Analyze git history for past problem areas
@@ -20,6 +48,20 @@
   - `[X-Y 감지] {Y} 요청이지만, 실제 문제는 {X}인 것 같습니다. {Y'} 대안이 더 적합할 수 있습니다.`
 - 사용자가 원래 요청을 고수하면 그대로 진행 (강제하지 않음)
 
+### Impact-Aware Path Selection (P-001)
+
+`config.yaml`에 `high_impact_paths`를 정의한다:
+
+```yaml
+high_impact_paths:
+  - "auth/**"
+  - "crypto/**"
+  - "migration/**"
+  - "middleware/security*"
+```
+
+변경 파일이 `high_impact_paths`에 매칭되면, 변경량이 SMALL이더라도 최소 STANDARD 경로를 강제한다. 보안·인증·마이그레이션 관련 코드는 단순 변경이라도 영향 범위가 크기 때문이다.
+
 ### SMALL Fast Track (P-002)
 
 Step 0에서 SMALL로 판별 시 Phase A를 압축 실행한다:
@@ -33,7 +75,7 @@ Step 0에서 SMALL로 판별 시 Phase A를 압축 실행한다:
 
 - Spawn `explore-medium`: Scan project structure
 - Spawn `analyst`: Generate analysis report + recommend principles
-- Use Context7 MCP (`resolve-library-id` → `query-docs`) for library docs
+- Use Context7 MCP (`resolve-library-id` → `query-docs`) for library docs — **Docs-First Protocol**: 기술 스택의 설정·마이그레이션·플러그인에 대해 학습 데이터 기반 기억이 아닌 공식 문서에서 확인한 정보를 사용한다. 조회 불가 시 기억으로 추측하지 않고 사용자에게 직접 확인을 요청한다.
 - Auto-generate allowed command list based on detected stack
 - Use subagent for deep codebase exploration if codebase is large
 - **Auto-detect experts**: 스캔 결과를 `config.yaml`의 `expert_panel.specialists[].detect` 키워드와 매칭하여 활성화할 전문가 목록 결정
@@ -126,6 +168,16 @@ AI의 실수를 가장 빠르게 잡아내는 것은 자동화된 검증이다. 
 - Step 0 scope + Step 1-A 분석 결과에서 이미 파악된 정보를 다시 묻지 않는다
 - 사용자에게는 비즈니스 결정, 엣지케이스, 스코프 경계, 트레이드오프만 질문한다
 
+#### 질문 vs 진행 판단 기준표 (P-006)
+
+| 판단 | 기준 | 예시 |
+|------|------|------|
+| **코드에서 확인 → 진행** | 기술적 사실, 기존 구현 패턴 | 프레임워크 버전, 디렉토리 구조, 에러 핸들링 패턴, import 경로, DB 스키마, 기존 API 스펙 |
+| **사용자 확인 → 질문** | 비즈니스 의도, 트레이드오프 선택 | 엣지케이스 동작, 성능 vs 단순성 트레이드오프, 인증 방식 선택, 외부 연동 범위, 사용자 시나리오 우선순위 |
+| **추론 가능 → 진행 + 통보** | 코드와 요청에서 높은 확률로 추론 가능 | 네이밍 규칙 (기존 패턴 따르기), 테스트 전략 (기존 구조 따르기), 에러 메시지 문구 |
+
+**원칙:** "이 정보를 코드에서 5분 안에 확인할 수 있는가?" → Yes이면 묻지 않고 확인한다. "이 결정의 결과가 사용자의 비즈니스에 영향을 미치는가?" → Yes이면 반드시 질문한다.
+
 ### 계획서 구조 (STICC Framework)
 
 계획서(`plan-summary.md`)는 다음 구조를 따른다. 단, 계획서에 "STICC"라는 메타 텍스트를 포함하지 않는다.
@@ -149,10 +201,38 @@ AI의 실수를 가장 빠르게 잡아내는 것은 자동화된 검증이다. 
 - "NOT in scope" section (명시적으로 하지 않을 것)
 - "Unresolved decisions" section (결정되지 않은 사항)
 
-**5. Acceptance Criteria (인수 기준)** — 3개 하위 섹션으로 분할:
+**5. Acceptance Criteria (인수 기준)** — 4개 하위 섹션으로 분할:
 - **Code Changes**: 구현해야 할 코드 변경사항 목록
 - **Tests**: 작성/수정해야 할 테스트 목록 (파일 패턴 수준)
 - **Quality Gates**: 통과해야 할 품질 기준 (build, typecheck, lint, 특정 성능 기준 등)
+- **Done-When Checks**: 각 Unit별 완료 판정 기준. 2계층(Mechanical + Behavioral)으로 구성한다.
+
+  **Mechanical Checks** — 기계적으로 검증 가능한 조건. `verify-commands.md` 기반:
+  ```
+  ## Unit: {name}
+  ### Mechanical Checks
+  - [ ] 빌드 성공 (verify-commands.md의 Build 명령)
+  - [ ] 해당 Unit 테스트 전체 통과 (verify-commands.md의 Test 명령, 대상 경로 필터)
+  - [ ] 린트/타입체크 통과 (verify-commands.md의 Lint/Typecheck 명령)
+  - [ ] plan-summary.md의 해당 Unit Code Changes 항목 전부 구현 확인
+  ```
+
+  **Behavioral Checks** — 기능의 실제 동작을 검증하는 행동적 수용 기준. "빌드 통과 ≠ 기능 동작" gap을 구조적으로 해소한다. 각 항목은 **Trigger + Observable + Verify Command** 3요소를 필수로 포함한다:
+  ```
+  ### Behavioral Checks
+  - [ ] {Trigger: 어떤 입력/조건} → {Observable: 기대 결과}
+        verify: {실행 가능한 검증 명령}
+  ```
+  예시:
+  ```
+  ### Behavioral Checks
+  - [ ] POST /login (잘못된 비밀번호) → 401 + "Invalid email or password"
+        verify: curl -s -o /dev/null -w "%{http_code}" -X POST localhost:3000/api/login -d '{"email":"test@test.com","password":"wrong"}'
+  - [ ] POST /login (올바른 비밀번호) → 200 + Set-Cookie 헤더 존재
+        verify: curl -s -D - -X POST localhost:3000/api/login -d '{"email":"test@test.com","password":"correct"}' | grep Set-Cookie
+  ```
+
+  **Behavior Changes → Behavioral Checks 변환 규칙**: End State의 Behavior Changes(Before → After) 각 항목을 Behavioral Check 후보로 자동 변환한다. 모든 Behavior Change가 Behavioral Check가 되어야 하는 것은 아니지만, 변환 가능한 항목은 반드시 Done-When에 포함한다.
 
 **6. End State (최종 상태 명세)** — 구현 전에 "완료"의 모습을 구체적으로 정의:
 - **Files Changed 테이블**:
@@ -178,8 +258,41 @@ AI의 실수를 가장 빠르게 잡아내는 것은 자동화된 검증이다. 
 ```
 각 파일에 대해 구체적인 변경 내용을 한 문장으로 설명한다. "수정"이라고만 적지 않고 무엇을 수정하는지 명시한다.
 
+#### Unit 파싱 마커
+
+plan-summary.md의 각 Unit 섹션에 CLI 파싱을 위한 표준 마커를 포함한다. 이 마커를 사용하면 `sed -n '/<!-- UNIT:unit-1 START -->/,/<!-- UNIT:unit-1 END -->/p' plan-summary.md`로 특정 Unit의 전체 내용을 정확하게 추출할 수 있어, CLI 스크립트의 plan-summary.md 파싱 안정성이 보장된다.
+
+```markdown
+<!-- UNIT:unit-1 START -->
+## Unit 1: {제목}
+...
+### Files Changed
+...
+### Done-When Checks
+...
+<!-- UNIT:unit-1 END -->
+```
+
 - Save to `.claude/memory/plan-summary.md`
 - Use subagent with planner role for plan creation
+
+### Spec Validation — AC 사용자 시나리오 확인 (STANDARD+ 경로)
+
+Step 1-B 완료 후, 기술 용어로 작성된 AC가 사용자의 실제 의도와 일치하는지 확인한다. "spec이 처음부터 틀리면 모든 검증이 무의미"하기 때문이다.
+
+- **트리거**: STANDARD+ 경로에서만 적용. SMALL 경로는 skip
+- **절차**:
+  1. `spec-validator` subagent가 plan-summary.md의 Acceptance Criteria(특히 Behavioral Checks)를 **구체적 사용자 시나리오**로 번역
+  2. 기술 용어를 사용자가 이해할 수 있는 언어로 변환
+  3. 사용자에게 AskUserQuestion으로 확인 요청
+
+- **변환 예시**:
+  - 기술 AC: `POST /api/auth/login에 invalid credentials → 401 + {error: 'INVALID_CREDENTIALS'}`
+  - 사용자 시나리오: "로그인 화면에서 틀린 비밀번호를 입력하고 '로그인' 버튼을 누르면, 화면에 'INVALID_CREDENTIALS'라는 에러 코드가 표시됩니다. 이게 맞나요?"
+
+- **결과 처리**:
+  - 사용자 "맞다" → Phase A 이후 단계로 진행
+  - 사용자 "아니다" / 수정 요청 → AC 수정 후 plan-summary.md 갱신
 
 ## Steps 2-4: Plan Review (Agent Team)
 
@@ -274,6 +387,14 @@ AI의 실수를 가장 빠르게 잡아내는 것은 자동화된 검증이다. 
 - [합의]: 최종 결론 + severity + 근거
 ```
 
+### Findings 품질 원칙 — "깊이 > 수량" (P-008)
+
+각 전문가 에이전트 prompt에 다음 품질 원칙을 포함:
+> "구체적 근거가 있는 5건이 모호한 설명의 20건보다 낫다. 각 finding에는 (1) 구체적 코드 위치, (2) 왜 문제인지, (3) 영향 범위를 반드시 포함하라. 추측성 보고와 변경하지 않은 코드에 대한 일반 조언은 포함하지 마라."
+
+- MEDIUM findings가 10개 이상이면 architect가 영향도 기준 상위 5개만 활성 처리하고 나머지는 backlog로 분류
+- 핵심 비즈니스 로직 > 내부 유틸리티 순으로 분석 깊이를 조절
+
 ### Agent Scope Anti-Goals (P-003)
 
 각 전문가 에이전트 prompt에 다음을 포함:
@@ -298,10 +419,37 @@ MEDIUM → 기록만 하고 구현 시 참고
 
 - Save: `.claude/memory/expert-plan-concerns.md`
 - 각 concern에 `trigger_condition` 필드를 포함하여, Step 7의 Impl Review Team이 구현 결과와 대조할 수 있도록 한다
-- 사용자에게 주요 우려사항 요약 보고 (AskUserQuestion으로 진행 여부 확인)
+
+### Fact-checking 검증 (CRITICAL/HIGH concerns)
+
+expert-plan-concerns.md 저장 후, **CRITICAL/HIGH concerns 중 기술적 사실에 기반한 주장**을 독립 fact-checker subagent로 검증한다. 전문가의 환각 기반 concern이 검증 없이 전체 파이프라인(Step 5→7→17→18)을 관통하는 것을 방지한다.
+
+**검증 대상** (사실적 주장만):
+- "X 라이브러리는 ~를 지원하지 않는다"
+- "Y 버전에서 ~가 변경/제거되었다"
+- "Z API의 동작이 ~이다"
+- 검증 가능한 기술적 사실에 기반한 CRITICAL/HIGH concerns
+
+**검증 대상 아님** (의견/판단):
+- "이 설계는 유지보수가 어렵다"
+- "이 접근법은 확장성이 부족하다"
+- 주관적 판단이나 미래 예측
+
+**검증 절차**:
+1. CRITICAL/HIGH concerns에서 사실적 주장을 추출
+2. 각 주장에 대해 **fact-checker subagent** spawn
+3. fact-checker가 Context7 MCP(`resolve-library-id` → `query-docs`)로 공식 문서 조회 + 실제 라이브러리 코드 확인
+4. 검증 결과:
+   - `[FACT-VERIFIED]`: 사실 확인됨 → concern 유지
+   - `[FACT-DISPUTED]`: 사실과 불일치 → concern에 태깅 + 근거 기록. 구현 시 이 concern은 무시해도 됨
+5. 결과를 expert-plan-concerns.md에 반영 (해당 concern에 태그 추가)
+
+- 사용자에게 주요 우려사항 요약 보고 (AskUserQuestion으로 진행 여부 확인). Fact-checking 결과도 함께 보고
 - Update: `CONTEXT.md` — Phase A 완료 표시, 핵심 결정사항 및 전문가 우려(HIGH+) 갱신
 
 ## Phase A Calibration Checklist (Phase B 진입 전 검증)
+
+Calibration Checklist의 검증 항목은 파일 존재 여부, 섹션 존재 여부 등 결정론적 작업이다. CLI 스크립트(`calibration-check.sh` 등)가 있으면 이를 우선 사용하고, 결과만 받아 FAIL 항목을 수정한다.
 
 모든 항목이 충족된 후에 Phase B로 진입한다. 미충족 항목이 있으면 해당 단계로 돌아가 보완한 후 재검증한다.
 
@@ -314,5 +462,7 @@ MEDIUM → 기록만 하고 구현 시 참고
 | 5 | End State Files Changed 테이블 존재 | File \| Action \| Summary 형식 | → Step 1-B |
 | 6 | End State Behavior Changes 존재 | Before → After 형식 | → Step 1-B |
 | 7 | Test Targets 섹션 존재 | 테스트 대상 파일 패턴 명시 | → Step 1-B |
+| 8 | Done-When Checks 존재 | 각 Unit별 기계적 검증 조건 명시 | → Step 1-B |
+| 9 | Behavioral Checks 존재 | Behavior Changes의 검증 가능 항목이 Done-When Behavioral Checks에 포함 | → Step 1-B |
 
 누락 항목 발견 시 사용자에게 보고하지 않고 자동으로 해당 단계를 재실행하여 보완한다.

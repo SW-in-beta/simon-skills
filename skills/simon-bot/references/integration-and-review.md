@@ -1,5 +1,19 @@
 # Integration & Review (Detailed Instructions)
 
+## 목차
+- [Integration Stage](#integration-stage-after-all-units-complete)
+  - [커밋 메시지 상세화 (실행 이력 관리)](#커밋-메시지-상세화-실행-이력-관리)
+- [Step 18: Work Report + Draft PR](#step-18-work-report--draft-pr)
+  - [18-A: Report](#18-a-report)
+  - [18-B: Review Sequence 생성](#18-b-review-sequence-생성)
+  - [Findings Pipeline Integration (P-009)](#findings-pipeline-integration-p-009)
+- [Step 19: simon-bot-review 스킬 호출](#step-19-simon-bot-review-스킬-호출)
+- [Step 20: Self-Improvement (회고 기반 스킬 개선)](#step-20-self-improvement-회고-기반-스킬-개선)
+  - [20-A: 피드백 종합](#20-a-피드백-종합)
+  - [20-B: 개선 제안](#20-b-개선-제안)
+  - [20-C: 스킬 업데이트](#20-c-스킬-업데이트)
+- [Retrospective 기록 형식](#retrospective-기록-형식)
+
 ## Integration Stage (after all Units complete)
 
 1. 모든 변경사항은 Startup에서 생성한 worktree의 브랜치에 커밋
@@ -73,174 +87,38 @@ Refs: Unit {N} — {Unit 목적 한줄 요약}
 
 - Save: `.claude/memory/review-sequence.md`
 
-### 18-C: Draft PR 생성
+### Findings Pipeline Integration (P-009)
 
-1. Push branch: `git push -u origin {branch-name}`
-2. Draft PR 생성:
-   ```bash
-   gh pr create --draft \
-     --title "{type}: {feature summary}" \
-     --body-file .claude/reports/{feature-name}-report.md
-   ```
-3. PR URL과 번호 저장: `.claude/memory/pr-info.md`
-4. PR description에 Review Guide 섹션 추가 (review-sequence.md 기반 개요)
-
-## Step 19: PR-Based Code Review
-
-### 19-A: 리뷰 개요 제시 (세션 내)
-
-`.claude/memory/plan-summary.md`와 `review-sequence.md`를 함께 읽어 세션에서 직접 마크다운으로 출력:
-
-- **계획 요약 리마인드**: 원래 계획의 목표 (1-2문장)
-- **구현 매핑 테이블**:
-  ```
-  | 계획 Unit | 구현된 변경 단위 | 핵심 변경 |
-  |-----------|-----------------|----------|
-  ```
-- **변경 단위 간 관계도**: 데이터/호출 흐름 설명
-- **리뷰 순서 안내**: 왜 이 순서로 봐야 하는지
-- **전체 요약 통계**: 변경된 파일 수, 추가/삭제 라인 수, 테스트 커버리지
-
-### 19-B: PR에 인라인 코드 리뷰 작성
-
-review-sequence.md의 각 논리적 변경 단위를 PR 인라인 리뷰 코멘트로 변환한다.
-
-**리뷰 준비:**
-1. PR diff 확인: `gh pr diff {pr_number}`
-2. review-sequence.md 읽기
-3. 각 변경 단위의 핵심 파일/라인 번호 매핑
-
-**각 변경 단위의 핵심 파일에 인라인 코멘트** — 기존 인터랙티브 리뷰와 동일한 수준의 맥락:
-  - **계획 매핑**: "이 변경은 계획의 [Unit N: 제목]을 구현합니다"
-  - **변경 전 상태 (Before)**: 기존 코드의 역할/동작/한계, 또는 "신규 생성"
-  - **변경 내용 (What Changed)**: 구체적으로 어떤 부분을 어떻게 개선/추가했는지
-  - **다른 변경 단위와의 연관**: 이전/이후 변경 단위와의 의존/호출/데이터 흐름 관계
-  - **리뷰 포인트**: 특별히 주의 깊게 봐야 할 부분
-  - **전문가 우려사항 반영**: Step 4-B/7의 우려가 어떻게 반영되었는지
-  - **전문가 토론 맥락**: `.claude/memory/expert-discussions/`에서 관련 토론 발췌 (있으면)
-  - **트레이드오프**: 설계 결정과 그 이유, 고려한 대안
-
-변경 단위당 대표 파일 1-2개에 집중하여 풍부한 맥락을 담고, 나머지 파일은 간단한 역할 설명만 추가한다.
-
-**리뷰 제출:**
-```bash
-gh api repos/{owner}/{repo}/pulls/{pr_number}/reviews \
-  --method POST \
-  --input .claude/memory/review-payload.json
-```
-
-**review-payload.json 구조:**
-```json
-{
-  "body": "",
-  "event": "COMMENT",
-  "comments": [
-    {
-      "path": "src/example.go",
-      "line": 42,
-      "body": "**[변경 단위 1: 제목]**\n\n계획 매핑: ...\n변경 전 상태: ...\n..."
-    }
-  ]
-}
-```
-
-### 19-CI: CI Watch (Background)
-
-Draft PR 생성 및 인라인 리뷰 작성 후, 사용자가 리뷰하는 동안 CI를 모니터링하고 실패 시 자동 수정한다.
-사용자가 리뷰에 집중하는 시간을 낭비하지 않기 위해, CI 안정화를 병렬로 처리하는 것이 목적이다.
-
-**Background Agent 시작:**
-
-19-B 완료 직후, background agent(`Agent(run_in_background=true)`)를 시작한다.
-Agent에 전달할 컨텍스트:
-- PR 번호 (`.claude/memory/pr-info.md`)
-- 브랜치명 (`.claude/memory/branch-name.md`)
-- 프로젝트 빌드/테스트 명령 (`.claude/workflow/config.yaml`)
-- 현재 worktree 경로
-
-**CI 모니터링 루프 (max 3 cycles):**
-
-1. CI 상태 확인:
-   ```bash
-   gh pr checks {pr_number} --watch --fail-fast
-   ```
-   `--watch`가 지원되지 않으면 30초 간격 polling:
-   ```bash
-   gh pr checks {pr_number}
-   ```
-2. 모든 체크 통과 → CI Watch 종료, 결과 기록
-3. CI 실패 시:
-   a. 실패한 run의 로그 확인:
-      ```bash
-      gh run view {run_id} --log-failed
-      ```
-   b. 실패 유형 분류:
-      - **BUILD**: 컴파일/빌드 에러
-      - **TEST**: 테스트 실패
-      - **LINT**: 린트/포맷/타입체크 에러
-      - **ENV**: CI 환경 문제 (의존성 설치 실패 등)
-   c. **ENV 유형은 수정하지 않는다** — 코드 변경으로 해결 불가, 결과에 기록만
-   d. 진단 → 수정 → 커밋 (메시지: `fix(ci): {수정 내용}`) → 푸시
-   e. PR에 코멘트로 수정 내용 요약:
-      ```bash
-      gh pr comment {pr_number} --body "**CI Fix**: {실패 유형} - {수정 요약}\n\nCommit: {hash}"
-      ```
-   f. CI 재실행 대기 → 1번으로 복귀
-
-**결과 저장:** `.claude/memory/ci-watch-result.md`
+review-sequence.md 작성 시, Step 7의 `review-findings.md`에서 CRITICAL/HIGH findings를 구조화된 형태로 포함한다:
 
 ```markdown
-# CI Watch Result
-- Status: PASS / FAIL / IN_PROGRESS
-- Total cycles: N
-- Fixes applied:
-  1. {type}: {description} (commit: {hash})
-- Remaining failures: (있으면 유형과 로그 요약)
+### {변경 단위명}
+**전문가 검증 완료 이슈:**
+| ID | Severity | File:Line | Issue | Verification | Acceptance |
+|----|----------|-----------|-------|-------------|------------|
+| {finding_id} | {severity} | {file:line} | {issue 요약} | {VERIFIED/UNVERIFIED} | {status} |
 ```
 
-### 19-C: PR 피드백 루프
+이 매핑은 Step 19(simon-bot-review)에서 인라인 코멘트 생성의 입력이 된다. findings의 FINDING_ID, SEVERITY, FILE:LINE, EVIDENCE 정보가 손실되지 않도록 한다.
 
-1. 사용자에게 알림:
-   > "Draft PR에 코드 리뷰를 작성했습니다: {PR_URL}
-   > PR에서 리뷰를 확인하시고, 궁금한 점이나 수정 요청을 코멘트로 남겨주세요.
-   > 피드백이 준비되면 말씀해주세요.
-   > (CI를 모니터링하고 있습니다 — 실패하면 자동으로 수정합니다.)"
+## Step 19: simon-bot-review 스킬 호출
 
-2. 사용자가 돌아오면:
-   - **CI Watch 결과 확인**: `.claude/memory/ci-watch-result.md` 읽기
-   - CI Watch가 아직 실행 중이면 현재 상태를 사용자에게 보고
-   - CI fix로 변경된 부분이 있으면 사용자에게 요약 제시
-   - PR 코멘트 읽기:
-   ```bash
-   # 인라인 리뷰 코멘트 (코드에 달린 댓글)
-   gh api repos/{owner}/{repo}/pulls/{pr_number}/comments
-   # 일반 PR 코멘트
-   gh api repos/{owner}/{repo}/issues/{pr_number}/comments
-   ```
+Step 18-B 완료 후, `simon-bot-review` 스킬을 호출하여 Draft PR 생성부터 인라인 코드 리뷰, CI Watch, 피드백 루프, 최종 마무리까지 위임한다.
 
-3. 피드백 분류 및 처리:
-   - **질문**: PR 코멘트로 답변 (`gh api` reply)
-   - **수정 요청**: 코드 수정 → 커밋 → 푸시 → PR 코멘트로 "수정 완료" 답변
-   - **승인/OK**: 해당 코멘트 resolve 처리
+simon-bot-review는 `.claude/memory/review-sequence.md`를 감지하여 CONNECTED 모드로 동작하며, 아래 산출물을 활용한다:
+> **Blind-First 2-Pass**: CONNECTED 모드에서 simon-bot-review는 review-sequence.md를 읽기 전에 diff를 먼저 독립 분석하여, 구현자 프레이밍에 anchoring되지 않는 독립적 리뷰를 수행한다 (`context-separation.md` 참조).
+- `.claude/memory/review-sequence.md` (Step 18-B 산출물)
+- `.claude/memory/branch-name.md`
+- `.claude/reports/{feature-name}-report.md` (Step 18-A 산출물)
+- `.claude/memory/plan-summary.md` (계획 매핑용)
 
-4. 수정 사항이 있으면:
-   - 변경 커밋 + push
-   - 수정 내용을 PR 코멘트로 요약
-   - 사용자에게 알림: "피드백 반영 완료했습니다. PR에서 확인해주세요."
-
-5. **반복**: 사용자가 "LGTM" / "approve" / PR ready 전환할 때까지
-
-### 19-D: 최종 마무리
-
-사용자가 리뷰를 승인하면:
-
-1. PR 상태 확인 — 사용자 요청에 따라:
-   - Ready 전환: `gh pr ready {pr_number}`
-   - Draft 유지: 그대로 둠
-2. **피드백 영속 기록**: `.claude/memory/feedback.md`
-3. **Retrospective 기록**: `.claude/memory/retrospective.md` (아래 형식 참조)
-4. **Success Criteria 최종 검증**: `.claude/memory/success-criteria.md`
-5. Update: `CONTEXT.md` — 최종 상태 갱신
+simon-bot-review가 처리하는 항목:
+- Draft PR 생성 + Review Guide 섹션 추가
+- 인라인 코드 리뷰 코멘트 작성 (변경 단위별, 풍부한 맥락 포함)
+- CI Watch (background agent)
+- 사용자 PR 피드백 수집 → 수정 → 인라인 리뷰 재작성 → CI 재검증 루프
+- 최종 마무리 (PR ready 전환, feedback.md, retrospective.md, CONTEXT.md 갱신)
+- Completion Summary 출력
 
 ## Step 20: Self-Improvement (회고 기반 스킬 개선)
 

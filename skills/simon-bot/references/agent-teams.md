@@ -72,6 +72,22 @@ Code Design Team → Plan Review Team → Expert Review Team → (Phase B) → I
 2. TaskCreate의 첫 번째 Task에 "이전 팀 handoff 검토"를 추가
 3. handoff에 미해결 사항이 있으면 새 팀의 초기 토론 주제로 설정
 
+## Agent Team 토론 종료 프로토콜 (P-005)
+
+토론이 정상적으로 합의에 도달하지 못하는 경우를 대비한 종료 시나리오별 행동 규칙.
+
+| 시나리오 | 조건 | 행동 |
+|---------|------|------|
+| **정상 합의** | 모든 팀원이 결론에 동의 | 정상 종료 → 합의 결과를 산출물에 반영 |
+| **부분 합의** | Max iteration 도달 + 일부 항목만 합의 | 합의 항목은 반영, 미합의 항목은 severity 한 단계 하향 후 기록 |
+| **합의 없음** | Max iteration 도달 + 전체 미합의 | 리더가 단독 판단, Decision Journal에 `[Decision] 리더 단독 판단 — {근거}` 기록 |
+| **교착** | 2회 연속 동일 논점 반복 | 즉시 리더 판단으로 전환, 토론 종료 |
+
+**적용 규칙:**
+- 교착 감지: 연속 2회의 토론 라운드에서 동일 논점이 새로운 논거 없이 반복되면 교착으로 판정
+- 리더 단독 판단 시 반드시 근거를 Decision Journal에 기록하여 추적 가능성 확보
+- 미합의 항목의 severity 하향은 "증거 불충분"을 반영한 보수적 판단
+
 ## Fallback: Agent Teams 미활성 시
 
 Agent Teams 기능이 비활성(`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` 미설정)인 환경에서는 일반 subagent 기반 대체 방식을 사용한다.

@@ -1,6 +1,8 @@
 ---
 name: simon-bot-report
 description: "사전 분석 보고서 작성 — 코드베이스를 전문가팀 토론 구조로 분석하여 RFC, 현황 분석서, 또는 사용자 지정 양식의 문서를 생성합니다. Use when: (1) 새 기능 도입 전 RFC 작성 (\"RFC 써줘\", \"기술 제안서 만들어줘\"), (2) 기존 시스템 현황 분석 (\"코드 분석해줘\", \"현황 파악해줘\", \"아키텍처 리뷰\"), (3) 기술적 의사결정을 위한 사전 조사 (\"기술 조사해줘\"), (4) 커스텀 양식의 기술 문서 작성. 코드 변경 없이 분석만 필요할 때 이 스킬을 사용하세요."
+compatibility:
+  tools: [Agent, AskUserQuestion, TeamCreate, SendMessage]
 ---
 
 # simon-bot-report
@@ -13,29 +15,39 @@ You are executing the **simon-bot-report** skill. This skill analyzes a codebase
 
 **This is NOT a post-implementation report. It is a PRE-work analysis document** (RFC, 현황 분석, 기술 제안서 등).
 
-### Step 0: Input Collection
+### Session Isolation Protocol
+
+런타임 산출물을 홈 디렉토리에 세션별로 격리 저장한다. 모든 `.claude/reports/` 경로를 `{SESSION_DIR}/reports/`로 해석한다.
+
+**Step 0에서 SESSION_DIR 결정:**
+```bash
+PROJECT_SLUG=$(git rev-parse --show-toplevel | tr '/' '-')
+SESSION_ID="report-$(date +%Y%m%d-%H%M%S)"
+SESSION_DIR="${HOME}/.claude/projects/${PROJECT_SLUG}/sessions/${SESSION_ID}"
+mkdir -p "${SESSION_DIR}/reports"
+```
+
+프로젝트의 `.claude/workflow/` (config, scripts)는 공유 설정이므로 프로젝트 디렉토리에서 그대로 읽는다.
+
+### Step 0: Input Collection (P-001 AI-First Draft)
 
 **0-A: 워크플로 설정 확인**
 - `.claude/workflow/config.yaml`이 존재하면 읽기 (language, experts 설정 활용)
 - 없으면 기본값 사용 (language: ko)
 
-**0-B: 사용자 입력 수집** (AskUserQuestion)
+**0-B: AI-First Draft 입력 수집**
 
-질문 1 — **문서 유형 선택**:
-- **RFC (기술 제안서)**: 새 기능/변경에 대한 배경, 제안, 대안 비교, 리스크 분석
-- **현황 분석서**: 기존 코드/시스템 현황 파악, 문제점 분석, 개선 방향 제시
-- **커스텀 양식**: 사용자가 직접 양식/섹션을 지정
+사용자 요청에서 문서 유형, 분석 주제, 분석 범위를 AI가 자동 추론하고 한 번에 제시한다. 3-4회의 AskUserQuestion을 1회로 축소.
 
-질문 2 — **분석 주제**: 자연어로 분석할 주제 설명
-- 예: "인증 시스템의 토큰 관리 현황 분석"
-- 예: "11번가 피드 처리 워크플로 통합을 위한 RFC"
+```
+[Default] 보고서 설정:
+- 문서 유형: {RFC|현황 분석서|커스텀} — {추론 근거}
+- 분석 주제: {주제 요약}
+- 분석 범위: {자동 탐색|특정 경로}
+- 변경하려면 알려주세요.
+```
 
-질문 3 — **분석 범위** (선택사항):
-- 특정 파일이나 디렉토리를 지정할 수 있음
-- 지정 없으면 주제에서 자동 탐색
-
-질문 4 (커스텀 양식 선택 시) — **양식 지정**:
-- 원하는 섹션 목록이나 참고할 템플릿 파일 경로
+사용자가 교정하면 반영, 교정 없으면 기본값으로 진행. 커스텀 양식의 경우에만 양식 세부사항을 추가 질문.
 
 **기록:**
 - `.claude/reports/input-{topic-slug}.md`에 입력 내용 저장
@@ -118,77 +130,9 @@ You are executing the **simon-bot-report** skill. This skill analyzes a codebase
 
 **목적:** simon-bot Step 4-B의 도메인팀 Agent Team 토론 구조를 활용하여 심층 분석
 
-**config.yaml의 experts 설정 참조.** 없으면 기본 전문가 사용.
+> **Reference Loading**: [domain-teams.md](references/domain-teams.md) 읽기
 
-**단일 통합 전문가 팀 생성** (Agent Teams 제약: 세션당 1팀):
-
-`TeamCreate(team_name="domain-expert-review", description="도메인 전문가 통합 리뷰 팀")`
-
-활성화된 도메인의 전문가를 하나의 팀에 모두 포함시킨다. 도메인팀별 구성원은 동일하되, 하나의 공유 작업 목록에서 도메인별로 작업을 분리한다.
-
-팀원 spawn (병렬, `team_name="domain-expert-review"`):
-
-- **Data 서브그룹** (auto-detect — DB/캐시/스토리지 관련 코드 감지 시):
-  - rdbms-expert, cache-expert, nosql-expert
-  - 토론 초점: 데이터 일관성, 캐시 전략, 스토리지 정합성
-
-- **Integration 서브그룹** (auto-detect — API/비동기/외부연동 감지 시):
-  - sync-api-expert, async-expert, external-integration-expert, messaging-expert
-  - 토론 초점: 동기/비동기 경계, 에러 전파, 장애 격리
-
-- **Safety 서브그룹** (always):
-  - appsec-expert, stability-expert
-  - 토론 초점: 보안 경계, 장애 복구, 입력 검증
-
-- **Ops 서브그룹** (auto-detect — 인프라/성능/동시성 관련 코드 감지 시):
-  - infra-expert, observability-expert, performance-expert, concurrency-expert
-  - 토론 초점: 운영 안정성, 관측 가능성, 성능 병목
-
-- **Code Design 서브그룹** (always — Step 2 결과 활용):
-  - convention-expert, idiom-expert, design-pattern-expert, testability-expert
-  - 토론 초점: 레포 컨벤션 준수, 설계 패턴, 테스트 가능성
-  - Step 2의 `.claude/reports/code-design-{topic-slug}.md` 활용
-
-> **Agent Teams Fallback**: Agent Teams 미활성 시, 각 전문가를 개별 `Agent(subagent_type="general-purpose")` subagent로 spawn하고, 결과를 오케스트레이터가 취합하여 교차 검증한다.
-
-**환각 방지 원칙 (모든 전문가 에이전트에 적용):**
-- 읽지 않은 코드에 대해 추측하지 않는다. 파일은 반드시 Read 도구로 열어본 후에 의견을 제시한다.
-- 코드를 직접 확인하지 못한 부분에 대해서는 "미확인" 또는 "추가 확인 필요"로 명시한다.
-
-**Agent Teams Fallback**: Agent Teams가 비활성 상태이면 `~/.claude/skills/simon-bot/references/agent-teams-fallback.md`의 subagent fallback을 적용한다.
-
-**도메인 서브그룹별 Shared Tasks (3단계 토론):**
-- Task "{domain}-분석": 각 teammate가 독립적으로 주제 관련 코드 검토 → 도메인별 findings 작성
-- Task "{domain}-토론": 다른 teammate의 findings를 읽고 직접 반박/보강 토론
-- Task "{domain}-합의": 팀 합의 도출 → 서브그룹별 findings 작성 (CRITICAL/HIGH/MEDIUM severity)
-
-**CRITICAL Severity Voting 검증 (Safety Team):**
-- Task 3에서 CRITICAL severity 후보가 나오면, Safety Team이 해당 항목에 대해 2-3회 독립 분석을 수행한다.
-- 각 독립 분석은 코드를 다시 Read로 읽고, 이전 분석 결과를 참조하지 않은 상태에서 severity를 판정한다.
-- 독립 분석 결과가 일관되게 CRITICAL로 판정되는 경우에만 CRITICAL을 확정한다.
-- Voting 합의 실패 시 (예: 3회 중 1회만 CRITICAL) severity를 HIGH로 재평가하고, 재평가 근거를 findings에 기록한다.
-- 이 검증은 CRITICAL의 남발을 방지하고, 정말 중대한 이슈만 CRITICAL로 분류되도록 하기 위함이다.
-
-**팀에 전달할 컨텍스트:**
-- Step 1의 탐색 결과 (`.claude/reports/exploration-{topic-slug}.md`)
-- Step 2의 코드 설계 분석 (`.claude/reports/code-design-{topic-slug}.md`)
-- 분석 주제 설명
-
-**중간 보고 (Progressive Disclosure) — 서브그룹별 완료 시:**
-- 각 서브그룹이 "{domain}-합의" Task를 마칠 때마다, 사용자에게 서브그룹별 핵심 finding 1줄 요약을 출력한다.
-  - 예: "Safety 서브그룹 완료: 입력 검증 누락 1건 CRITICAL, 세션 관리 이슈 1건 HIGH"
-  - 예: "Data 서브그룹 완료: 캐시 무효화 전략 부재 1건 HIGH"
-- 이 중간 출력은 진행 상황 프리뷰이며, 최종 보고서가 정본이다.
-
-**Lead의 Cross-team Synthesis:**
-- 5개 서브그룹의 findings를 통합
-- 도메인 간 충돌 식별
-- 최종 통합 분석 작성
-
-**각 findings 출력 형식:**
-- **발견사항**: CRITICAL / HIGH / MEDIUM 심각도 (팀 합의 기반)
-- **권장사항**: 구체적 주의점이나 개선 방향
-- **토론 근거**: 어떤 전문가가 어떤 논거로 해당 severity에 합의했는지
+6개 도메인 전문가 팀(Data, Integration, Safety, Ops, Code Design)이 각자의 관점에서 코드베이스를 분석한다. 팀 구성과 각 도메인의 분석 항목은 domain-teams.md 참조.
 
 **Save:** `.claude/reports/expert-findings-{topic-slug}.md`
 
@@ -202,6 +146,10 @@ You are executing the **simon-bot-report** skill. This skill analyzes a codebase
 - 커스텀 → 사용자가 지정한 양식/섹션 사용
 
 **4-B: 문서 작성**
+
+> **Reference Loading**: Step 4-B 진입 시 [examples.md](references/examples.md) 읽기
+
+- 작성 전 [예시 문서](references/examples.md)를 읽어 기대 톤과 구체성 수준을 확인한다
 - Spawn `writer`:
   - 입력: Step 1 탐색 결과 + Step 2 코드 설계 분석 + Step 3 전문가 토론 결과
   - 템플릿의 플레이스홀더를 실제 분석 내용으로 채움
@@ -281,7 +229,7 @@ config.yaml이 없어도 기본값으로 동작합니다.
 
 `~/.claude/skills/simon-bot/references/forbidden-rules.md`의 3계층 규칙(ABSOLUTE / CONTEXT-SENSITIVE / AUDIT-REQUIRED)을 전체 적용한다. 추가로:
 
-- 코드를 수정하지 않는다 (읽기 전용 분석). 이 스킬의 목적은 사전 분석이므로, 코드를 변경하면 분석 결과의 객관성을 잃는다.
+- 코드를 수정하지 않는다 (읽기 전용 분석). 이 스킬의 목적은 사전 분석이므로, 코드를 변경하면 분석 결과의 객관성을 잃는다. 전문가 에이전트 spawn 시 도구 범위를 Read/Glob/Grep으로 제한한다 (P-011).
 - 외부 시스템에 접근하지 않는다. 분석 대상은 로컬 코드베이스에 한정된다.
 - 실제 DB나 API를 호출하지 않는다. 운영 환경에 영향을 줄 수 있는 행위를 방지하기 위함이다.
 - 분석 결과는 `.claude/reports/`에만 저장한다. 산출물의 위치를 일원화하여 추적과 관리를 용이하게 한다.
