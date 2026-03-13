@@ -226,6 +226,10 @@ executor가 구현을 완료하면, Step 6으로 넘기기 전에 plan-summary.m
 
 - Save: `.claude/memory/unit-{name}/implementation.md`
 
+### Unit Retrospective Checkpoint
+
+Unit의 마지막 Step 완료 시 (SMALL: Step 8, STANDARD+: Step 17), **Phase-End Auto-Retrospective** 프로토콜을 실행한다 (SKILL.md Cross-Cutting Protocol 참조). 해당 Unit 구현 중 축적된 사용자 피드백에서 반복 패턴을 탐지하고, 필요 시 boost-capture를 백그라운드로 트리거한다.
+
 ## Step 6 이후: Verification
 
 Step 6부터 Step 17까지의 검증 단계는 [phase-b-verification.md](phase-b-verification.md)를 참조한다.

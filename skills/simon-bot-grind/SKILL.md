@@ -106,6 +106,10 @@ For detailed 10-attempt ladder + error classification tree, read [grind-error-re
 
 For detailed protocols, read [grind-cross-cutting.md](references/grind-cross-cutting.md).
 
+## Cross-Cutting: Phase-End Auto-Retrospective
+
+simon-bot의 Phase-End Auto-Retrospective 프로토콜을 상속한다. 동일 시점(Phase A 완료, Unit 완료, Integration 완료)에서 user-feedback-log.md를 스캔하고, 패턴 감지 시 boost-capture를 백그라운드로 자동 트리거한다. grind의 retry가 많을수록 사용자 교정 빈도도 높아지므로, Phase-end 회고의 가치가 더욱 크다.
+
 ## Cross-Cutting: Docs-First Protocol
 
 simon-bot의 Docs-First Protocol을 상속한다 (`~/.claude/skills/simon-bot/references/docs-first-protocol.md` 참조). 재시도 맥락에서 특히 중요: 학습 데이터 기반 기억으로 구현했다가 실패한 경우, 재시도 전에 반드시 공식 문서를 조회하여 정확한 API/설정을 확인한다.

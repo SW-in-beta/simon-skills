@@ -24,6 +24,7 @@
 6. `/simplify` 스킬 실행: 통합된 전체 변경 코드의 재사용성, 품질, 효율성 검토
 7. Save: `.claude/memory/integration-result.md`
 8. Update: `CONTEXT.md` — Integration 완료 표시, 성공 기준 중간 갱신
+9. **Integration Retrospective Checkpoint**: **Phase-End Auto-Retrospective** 프로토콜을 실행한다 (SKILL.md Cross-Cutting Protocol 참조). Phase B-E 전체에서 축적된 사용자 피드백에서 반복 패턴을 탐지하고, 필요 시 boost-capture를 백그라운드로 트리거한다.
 
 ### 커밋 메시지 상세화 (실행 이력 관리)
 
@@ -126,15 +127,19 @@ simon-bot-review가 처리하는 항목:
 
 이 단계의 목적: simon-bot/simon-bot-grind가 매 사용마다 조금씩 더 나아지는 자기 개선 루프를 만드는 것. 사용자가 반복적으로 같은 불편을 겪거나, 워크플로의 특정 부분이 계속 마찰을 일으킨다면, 그건 스킬 자체를 고쳐야 한다는 신호다.
 
+> **Phase-End Auto-Retrospective와의 관계**: Phase 경계에서 이미 캡처된 인사이트(`~/.claude/boost/insights/`)와 retrospective.md의 Phase-End Checkpoint 기록을 먼저 확인한다. 이미 캡처된 패턴은 중복 분석하지 않고, Step 20은 **Phase 간 교차 패턴** (여러 Phase에 걸쳐 반복되는 문제)에 집중한다. 컨텍스트 부족으로 Step 20이 실행되지 않아도, 핵심 인사이트는 Phase-end에서 이미 캡처된 상태이므로 안전하다.
+
 ### 20-A: 피드백 종합
 
 1. `.claude/memory/user-feedback-log.md` 전체 읽기
-2. 패턴 식별:
+2. `~/.claude/boost/insights/`에서 이번 세션에서 Phase-End Auto-Retrospective가 캡처한 인사이트 확인 — 이미 캡처된 패턴을 식별하여 중복 분석을 방지한다
+3. 패턴 식별 (이미 캡처된 패턴 제외):
+   - **Phase 간 교차 패턴**: 여러 Phase에 걸쳐 반복된 문제 (Phase-end에서 개별적으로는 감지되지 않았지만 전체를 보면 드러나는 패턴)
    - **반복 교정**: 사용자가 2회 이상 같은 유형의 수정을 요청한 패턴
    - **워크플로 마찰**: 특정 단계에서 반복적으로 불만/지연이 발생한 패턴
    - **선호도 패턴**: 사용자가 일관되게 선호하는 방식 (코드 스타일, 커뮤니케이션 방식 등)
    - **과잉 엔지니어링**: 불필요하다고 지적된 단계나 검증
-3. 각 패턴을 분류:
+4. 각 패턴을 분류:
    - `CONFIG`: config.yaml에 옵션 추가로 해결 가능
    - `WORKFLOW`: 워크플로 단계/순서 변경 필요
    - `CAPABILITY`: 새 기능/도구 필요
