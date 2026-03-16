@@ -204,7 +204,7 @@ For detailed process (위임 프로토콜, Agent Team 활용, Failure Recovery) 
 
 전담 QA팀이 **통합 수준** 검증에 집중한다 (개별 Feature 테스트는 Phase 4에서 완료).
 
-**핵심 활동:** Test Plan 수립 → Integration Testing → Performance Testing → Security Audit (OWASP Top 10)
+**핵심 활동:** Test Plan 수립 → **Code Pattern Scan** → Integration Testing → Performance Testing → Security Audit (OWASP Top 10)
 **검증:** TRP (R1-QA Self, R2-Backend+Frontend Cross, R3-CTO Lead 프로덕션 레디니스)
 이슈: CRITICAL/HIGH → 즉시 수정, MEDIUM → 사용자 판단.
 

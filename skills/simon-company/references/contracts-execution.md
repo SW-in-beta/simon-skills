@@ -215,6 +215,11 @@ DoR을 통과하지 않은 Feature는 Sprint에 포함하지 않는다.
 | 5 | TRP R1-R3 통과 | 검토 기록 |
 | 6 | 기술 부채 0건 또는 명시적 기록 | Self-Review |
 | 7 | 코드 커밋 완료 | Git 확인 |
+| 7a | **에러 처리 안전성**: 모든 catch 블록이 에러를 로깅하고 호출자에게 전파하는가? (silent fail 금지 — catch 후 빈 값/undefined 반환 금지) | Self-Review + grep 검증 |
+| 7b | **타입 안전성**: `any` 타입 사용이 0건인가? (불가피한 경우 `// eslint-disable-next-line @typescript-eslint/no-explicit-any` + 사유 주석 필수) | Self-Review + grep 검증 |
+| 7c | **리소스 정리**: 모든 subscription/listener/timer에 대응하는 cleanup 코드가 있는가? (useEffect return, unsubscribe, clearInterval 등) | Self-Review |
+| 7d | **입력 경계값 검증**: 외부 입력(API 파라미터, 사용자 입력, 환경 변수)에 범위/형식 검증이 있는가? | Self-Review |
+| 7e | **에러 경로 테스트**: 주요 함수의 에러 경로(네트워크 실패, 잘못된 입력, 권한 부족 등)에 대한 테스트가 존재하는가? | 테스트 파일 확인 |
 | 8 | **spec.md의 해당 User Story AC 전체 충족 (SDD)** | Self-Review — Task Spec의 Spec Reference AC와 구현 대조 |
 | 9 | **result.md를 Structured Result Template으로 작성** | Self-Review |
 | 10 | **Sprint Shared Context의 Team Progress 업데이트** (Integration Notes, Discovered Constraints) | Self-Review |

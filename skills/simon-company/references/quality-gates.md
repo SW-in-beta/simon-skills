@@ -255,11 +255,16 @@ DevOps (활성 시):
 - [ ] Task Spec의 Acceptance Criteria를 모두 충족하는가?
 - [ ] DoD 기준을 모두 충족하는가? (테스트 커버리지 80%+, 기술 부채 0건 또는 기록)
 - [ ] 처음 사용하는 API/라이브러리/프레임워크 설정에 대해 공식 문서를 조회했는가? **(Docs-First)** — 조회한 문서 소스를 result.md에 기록
+- [ ] **[코드 안전성] catch 블록에서 에러를 삼키는 패턴(silent fail)이 없는가?** — `catch` 후 빈 배열/null/undefined 반환 시 반드시 에러 로깅 + 호출자 전파 필요
+- [ ] **[코드 안전성] `any` 타입 사용이 0건인가?** — 불가피한 경우 사유 주석 필수. `unknown` + 타입 가드로 대체 가능한지 먼저 검토
+- [ ] **[코드 안전성] 모든 subscription/listener/timer에 cleanup 코드가 있는가?** — React useEffect return, Supabase channel.unsubscribe(), clearInterval 등
+- [ ] **[코드 안전성] 외부 입력에 경계값 검증이 있는가?** — API 파라미터의 숫자 범위, 문자열 최대 길이, enum 허용값 검증
+- [ ] **[코드 안전성] 주요 함수의 에러 경로에 대한 테스트가 존재하는가?** — 네트워크 실패, 잘못된 입력, 권한 부족 시나리오 테스트
 
 **R2 (관련 팀 Cross-Review):**
 - [ ] 계약대로 연동이 가능한가? (실제 호출/응답 형식 확인)
 - [ ] 공유 타입이 올바르게 사용되었는가?
-- [ ] 에러 처리가 계약과 일치하는가?
+- [ ] 에러 처리가 계약과 일치하는가? — (1) Contract에 정의된 에러 코드가 모두 구현되었는가? (2) **에러가 silent fail 없이 호출자까지 전파되는가?** (3) 에러 응답 형식이 계약과 일치하는가?
 - [ ] 내 팀 Feature와 충돌하는 변경이 없는가?
 - [ ] **result.md의 Integration Notes를 확인하고, 내 팀의 구현과 정합성이 맞는가?**
 - [ ] **Sprint Shared Context에 기록된 Discovered Constraints가 내 팀 코드에 영향을 주지 않는가?**
@@ -287,6 +292,8 @@ DevOps (활성 시):
 - [ ] 엣지 케이스 테스트가 포함되었는가?
 - [ ] 성능 테스트 기준이 Success Criteria와 일치하는가?
 - [ ] 보안 테스트가 OWASP Top 10을 커버하는가?
+- [ ] **코드 패턴 스캔(5-A2)이 완료되고 모든 항목이 PASS인가?** — FAIL 항목은 수정 후 재스캔 완료
+- [ ] **통합 테스트가 Feature 간 연동을 실제로 검증하는가?** — 단위 테스트만으로는 불충분, API 호출 → DB 반영 → 이벤트 전파 등 흐름 검증
 
 **R2 (Backend+Frontend Cross-Review):**
 - [ ] 테스트 시나리오가 실제 사용 패턴을 반영하는가?

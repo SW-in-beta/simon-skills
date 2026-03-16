@@ -56,6 +56,31 @@ QA Lead가 PRD 기반 테스트 전략을 수립한다:
 
 Save: `.claude/company/quality/test-plan.md`
 
+### 5-A2: Code Pattern Scan (자동화 품질 스캔)
+
+QA 에이전트가 코드베이스 전체에 대해 자동화된 패턴 스캔을 수행한다. Phase 4에서 개별 Feature 수준으로 검증했더라도, 전체 코드베이스 수준의 일관성은 여기서 확인한다.
+
+**필수 스캔 항목:**
+
+| # | 스캔 대상 | 검색 패턴 (예시) | 허용 기준 | 검증 방법 |
+|---|----------|----------------|----------|----------|
+| 1 | Silent fail | `catch` 블록 내 빈 반환(`return []`, `return null`, `return undefined`) 또는 에러 미전파 | 0건 (불가피 시 사유 주석 필수) | grep/AST 스캔 |
+| 2 | any 타입 사용 | `:\s*any`, `as any`, `<any>` | 0건 (불가피 시 eslint-disable + 사유 주석) | grep 카운트 |
+| 3 | Cleanup 누락 | `subscribe(`, `addEventListener(`, `setInterval(` 대비 `unsubscribe(`, `removeEventListener(`, `clearInterval(` 누락 | 모든 구독에 대응 해제 존재 | grep 대조 |
+| 4 | 입력 미검증 API | API 핸들러에서 `req.body`, `req.params`, `req.query` 사용 시 검증(zod, joi, 조건문) 없이 직접 사용 | 모든 외부 입력에 검증 존재 | 코드 리뷰 |
+| 5 | console.log 잔존 | `console.log(` (디버깅 코드 잔존) | 0건 (의도적 로깅은 logger 사용) | grep 카운트 |
+
+**스캔 결과 보고 형식:**
+
+| 항목 | 발견 건수 | 위치 | 판정 |
+|------|----------|------|------|
+| Silent fail | 0 | - | PASS |
+| any 타입 | 3 | src/api/auth.ts:45, ... | FAIL |
+
+**FAIL 항목**: 담당 팀에 수정 요청 → 수정 후 재스캔.
+
+Save: `.claude/company/quality/code-pattern-scan.md`
+
 ### 5-B: Integration Testing
 
 **5-B-1: Feature 간 연동 검증**
