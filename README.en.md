@@ -149,12 +149,16 @@ Past feedback is stored in `.claude/memory/retrospective.md` and automatically r
 
 Handles PR creation and code review after work is complete:
 
-- **Draft PR creation** — auto-generates PR based on change analysis
-- **Inline code review** — analyzes diff and writes GitHub inline comments
-- **CI Watch** — monitors CI pipeline and responds to failures
-- **Feedback loop** — applies fixes based on review comments and re-verifies
+- **Draft PR creation** — auto-generates PR based on change analysis with Review Guide section
+- **Blind-First 2-Pass review** — analyzes diff independently before consulting review-sequence.md to avoid anchoring bias
+- **Existing pattern scan** — proactively searches the codebase for existing alternatives to newly introduced patterns
+- **Impact analysis pass** — identifies unchanged code that may be affected by changes (1-depth caller/consumer search)
+- **Large PR handling** — 100+ file PRs classified as Core/Support/Generated, 80% focus on core files
+- **CI Watch** — monitors CI pipeline and auto-fixes failures (max 3 cycles)
+- **Comment Auto-Watch** — polls PR comments every minute, auto-applies new feedback
+- **Feedback loop** — code fix → commit → inline review rewrite → CI re-check
 
-Uses `review-sequence.md` from simon-bot if available; otherwise performs independent review at the same quality level.
+In STANDALONE mode, 3 Agent Teams (architect, writer, impact-analyzer) run parallel analysis to self-generate the review-sequence.
 
 </details>
 
