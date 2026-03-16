@@ -72,6 +72,8 @@ For detailed instructions, read [standalone-analysis.md](references/standalone-a
 
 ## Step 1: Draft PR 생성
 
+> **핵심 제약**: PR은 반드시 **Draft** 상태로 생성한다. Draft 상태는 리뷰 워크플로의 전제 조건이며, Step 5에서 사용자 승인 후에만 Ready로 전환한다.
+
 1. 브랜치명 확인: `.claude/memory/branch-name.md` 또는 현재 브랜치 (`git branch --show-current`)
 2. 브랜치 push:
    ```bash
@@ -80,14 +82,21 @@ For detailed instructions, read [standalone-analysis.md](references/standalone-a
 3. Report 파일 확인:
    - `.claude/reports/{feature-name}-report.md` 존재 → `--body-file`로 사용
    - 미존재 → review-sequence.md 기반으로 간략 요약 생성하여 사용
-4. Draft PR 생성:
+4. **Draft PR 생성** — `--draft` 플래그는 **필수**다. 일반 PR로 생성하면 안 된다:
    ```bash
    gh pr create --draft \
      --title "{type}: {feature summary}" \
      --body-file {report-path}
    ```
-5. PR URL과 번호 저장: `.claude/memory/pr-info.md`
-6. PR description에 **Review Guide** 섹션 추가:
+5. **[GATE — Draft 상태 검증]** PR 생성 직후 Draft 상태를 확인한다. Draft가 아니면 즉시 전환한다:
+   ```bash
+   IS_DRAFT=$(gh pr view {pr_number} --json isDraft --jq '.isDraft')
+   if [ "$IS_DRAFT" != "true" ]; then
+     gh pr ready {pr_number} --undo
+   fi
+   ```
+6. PR URL과 번호 저장: `.claude/memory/pr-info.md`
+7. PR description에 **Review Guide** 섹션 추가:
    - 논리적 변경 단위 수 + 각 단위 한줄 요약
    - 리뷰 순서 안내 (왜 이 순서인지)
    - 추가 맥락 (있으면)
