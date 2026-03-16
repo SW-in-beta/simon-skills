@@ -156,6 +156,7 @@ Handles PR creation and code review after work is complete:
 - **Large PR handling** — 100+ file PRs classified as Core/Support/Generated, 80% focus on core files
 - **CI Watch** — monitors CI pipeline and auto-fixes failures (max 3 cycles)
 - **Comment Auto-Watch** — polls PR comments every minute, auto-applies new feedback
+- **Expert-verified feedback loop** — spawns domain expert Agents to verify user comments before acting (AGREE/PARTIAL/COUNTER verdict)
 - **Feedback loop** — code fix → commit → inline review rewrite → CI re-check
 
 In STANDALONE mode, 3 Agent Teams (architect, writer, impact-analyzer) run parallel analysis to self-generate the review-sequence.
