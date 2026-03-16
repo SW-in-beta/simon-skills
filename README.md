@@ -160,6 +160,7 @@ Phase 4 진입 시 PM은 Phase 1-3의 과정을 컨텍스트에서 제거하고 
 - **대규모 PR 처리** — 100+ 파일 PR은 Core/Support/Generated로 분류, 핵심 파일에 80% 집중
 - **CI Watch** — CI 파이프라인 모니터링 및 실패 자동 수정 (max 3 cycles)
 - **Comment Auto-Watch** — 1분 간격 PR 댓글 자동 감지, 새 피드백 즉시 반영
+- **전문가 검증 피드백 루프** — 사용자 코멘트에 대해 도메인 전문가 Agent를 호출하여 검증 후 처리 (AGREE/PARTIAL/COUNTER verdict)
 - **피드백 루프** — 코드 수정 → 커밋 → 인라인 리뷰 재작성 → CI 재확인
 
 STANDALONE 모드에서는 3개 Agent Team(architect, writer, impact-analyzer)이 병렬 분석하여 review-sequence를 자체 생성합니다.
