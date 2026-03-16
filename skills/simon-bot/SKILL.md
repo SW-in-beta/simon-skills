@@ -365,6 +365,8 @@ Each Unit: isolated git worktree. Independent Units: parallel.
 
 ## Integration & Review
 
+> **INSTRUCTION (모든 경로 필수)**: Integration → Step 18 → Step 19는 SMALL/STANDARD/LARGE **모든 경로**에서 반드시 실행한다. SMALL path가 skip하는 것은 Step 9-16(Refinement Cycle)뿐이다. Step 18-19를 건너뛰면 인라인 코드 리뷰가 누락되어 PR 품질이 보장되지 않는다.
+
 For detailed instructions, read [integration-and-review.md](references/integration-and-review.md).
 
 **Integration Stage** — 모든 Unit 완료 후 브랜치 커밋, 충돌 해결, build + test 검증

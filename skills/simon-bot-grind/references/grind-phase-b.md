@@ -148,6 +148,8 @@ CONTEXT.md 추가 항목:
 
 ## Steps 18-20 Overrides
 
+> **[GATE — 필수 실행]** Step 18-19는 SMALL/STANDARD/LARGE **모든 경로**에서 반드시 실행한다. grind 모드에서도 예외 없음. Step 19는 simon-bot-review 스킬을 호출하여 Draft PR 생성 + 인라인 리뷰를 위임한다. 직접 `gh pr create`를 실행하는 것은 금지다.
+
 ### Step 18 추가 내용
 - **18-A Report 열일 Summary section**: total retries, strategy pivots, accepted trade-offs, failure patterns, escalation reports, retry budget 사용량
 - **18-B Review Sequence 추가**: strategy pivots, accepted trade-offs, retry history per change unit

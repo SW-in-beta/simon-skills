@@ -46,6 +46,8 @@ Refs: Unit {N} — {Unit 목적 한줄 요약}
 
 ## Step 18: Work Report + Draft PR
 
+> **[GATE — 필수 실행]** Step 18-19는 SMALL/STANDARD/LARGE **모든 경로**에서 반드시 실행한다. 경로나 변경 규모에 관계없이 skip 불가. PR 생성은 Step 19에서 simon-bot-review 스킬이 담당한다 — simon-bot/grind가 직접 `gh pr create`를 실행하는 것은 금지다.
+
 **IMPORTANT: Step 18은 반드시 foreground에서 실행한다.**
 
 > **Background Agent 사용 기준 (전체 워크플로 공통)**:

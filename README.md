@@ -245,6 +245,7 @@ expert_panel:
 - 실제 서버 접근 — `ssh`, `scp`, `sftp`
 - 시크릿 커밋 — `.env`, 자격 증명, API 키
 - 실제 외부 시스템을 사용한 테스트 — mock/stub만 허용
+- simon-bot/grind에서 직접 `gh pr create` 실행 — simon-bot-review 스킬을 통해서만 PR 생성
 </details>
 
 ---
