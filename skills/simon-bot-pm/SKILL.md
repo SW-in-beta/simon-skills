@@ -221,6 +221,8 @@ Save: `.claude/pm/verification.md`
 
 Final Report → Guided Review → **Code Review (simon-bot-review)** → Completion Summary → Finalization(커밋, PR 생성).
 
+> **INSTRUCTION (Draft PR 필수)**: PR 생성은 반드시 `simon-bot-review` 스킬을 통해 수행한다. PM이 직접 `gh pr create`를 실행하는 것은 금지다. simon-bot-review가 Draft PR 생성 + 인라인 코드 리뷰를 담당한다.
+
 **simon-bot-review 연결**: Guided Review 완료 후, PR 생성 전에 `simon-bot-review` 스킬을 호출하여 Draft PR + 인라인 코드 리뷰를 수행한다. PM이 관리하는 프로젝트도 simon-bot 직접 실행과 동일한 수준의 코드 리뷰를 받아야 하기 때문이다. simon-bot-review는 STANDALONE 모드로 동작하며, diff 분석 → review-sequence 자체 생성 → 인라인 리뷰를 수행한다.
 
 <!-- Decomposition Note: Phase 6은 독립 실행 가능. 입력=verification.md+progress.md, 출력=PR+retrospective.md. -->

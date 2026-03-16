@@ -38,5 +38,5 @@ Features: {completed}/{total} 완료
 
 - 최종 수정사항 커밋
 - AskUserQuestion: "PR을 생성할까요?"
-- PR 생성 시 `/git-push-pr` 활용
+- PR 생성은 `simon-bot-review` 스킬을 호출하여 위임한다 (Draft PR 생성 + 인라인 리뷰). PM이 직접 `gh pr create`를 실행하지 않는다.
 - `.claude/pm/retrospective.md`에 회고 기록
