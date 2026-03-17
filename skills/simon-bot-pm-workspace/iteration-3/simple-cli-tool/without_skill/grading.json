@@ -1,0 +1,22 @@
+{
+  "eval_id": 3,
+  "eval_name": "simple-cli-tool",
+  "config": "without_skill",
+  "expectations": [
+    {
+      "text": "이 요청이 전체 프로젝트 관리가 아닌 단일 기능임을 명시적으로 언급한다",
+      "passed": false,
+      "evidence": "응답은 곧바로 md-toc CLI 도구 구현 계획으로 들어가며, 이 요청이 '단일 기능'이라는 점을 명시적으로 언급하지 않는다. 요청의 범위에 대한 분석이나 판단 자체가 전혀 없다."
+    },
+    {
+      "text": "simon-bot을 명시적으로 언급하며 리다이렉트를 제안한다",
+      "passed": false,
+      "evidence": "응답 전체에서 'simon-bot'이라는 단어가 한 번도 등장하지 않으며, 다른 도구나 워크플로우로의 리다이렉트 제안도 없다."
+    },
+    {
+      "text": "Scope Guard 기준 (기능 수, 파일 수, 의존성 등)을 근거로 들어 왜 PM이 과한지 설명한다",
+      "passed": false,
+      "evidence": "응답에 'Scope Guard'라는 개념이 전혀 언급되지 않는다. 기능 수, 파일 수, 의존성 등의 기준으로 PM이 과한지 여부를 분석하는 내용도 없다. 응답은 순수하게 기술적 구현 계획만 제시한다."
+    }
+  ]
+}

@@ -125,7 +125,7 @@ CONNECTED 모드에서는 **Blind-First 2-Pass**를 적용한다:
 - Pass 1 (Blind): diff만으로 독립 분석 + **독립 severity 판정** + 기존 패턴 스캔 + 공식 문서 검증
 - Pass 2 (Informed): review-sequence.md와 대조 + severity 불일치 시 [SEVERITY-DISPUTED] 태깅
 
-각 변경 단위의 대표 파일 1-2개에 집중하여 인라인 코멘트를 작성하고, 영향 분석 Pass로 변경되지 않았지만 영향받는 코드를 식별한다. Review Summary Body에 Architecture Impact 섹션을 포함한다 (STANDARD+ 경로).
+각 변경 단위의 대표 파일 1-2개에 집중하여 인라인 코멘트를 작성하고, 영향 분석 Pass로 변경되지 않았지만 영향받는 코드를 식별하여 **해당 파일에 `[영향 분석: ...]` 양식의 인라인 코멘트를 작성한다** (review-payload.json의 comments 배열에 포함). Review Summary Body에 Architecture Impact 섹션과 영향 분석 요약을 포함한다 (STANDARD+ 경로).
 
 상세 절차, 코멘트 양식, 대규모 PR 처리, fallback은 review-strategy.md 참조.
 

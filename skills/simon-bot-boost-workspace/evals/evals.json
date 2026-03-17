@@ -1,0 +1,23 @@
+{
+  "skill_name": "simon-bot-boost",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "이 글 보고 simon-bot 스킬 개선해줘: https://www.anthropic.com/engineering/building-effective-agents",
+      "expected_output": "Anthropic의 agent 패턴(prompt chaining, routing, orchestrator-workers 등)을 분석하고 simon-bot 스킬들의 구체적 개선 제안을 structured report로 생성",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "이 레포 참고해서 simon-bot 개선점 찾아줘: https://github.com/anthropics/claude-code-sdk-python",
+      "expected_output": "GitHub 레포의 코드/패턴을 분석하고 simon-bot 에이전트 실행 방식의 개선 제안을 structured report로 생성",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "이 프롬프트 엔지니어링 가이드 보고 simon-bot 프롬프트 품질 개선해줘: https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview",
+      "expected_output": "프롬프트 엔지니어링 베스트 프랙티스를 분석하고 simon-bot 스킬들의 지시문 품질 개선 제안을 structured report로 생성",
+      "files": []
+    }
+  ]
+}

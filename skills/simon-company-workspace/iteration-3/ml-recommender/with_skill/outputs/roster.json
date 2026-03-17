@@ -1,0 +1,55 @@
+{
+  "project_name": "RecSys - 사용자 행동 기반 상품 추천 시스템",
+  "project_type": "greenfield",
+  "execution_mode": "auto",
+  "teams": {
+    "pm": {
+      "active": true,
+      "lead": "PM",
+      "reason": "항상 활성 — 요구사항 정의, PRD 관리"
+    },
+    "cto": {
+      "active": true,
+      "lead": "CTO",
+      "reason": "항상 활성 — 기술 아키텍처, ML+Backend+Frontend 통합 아키텍처 결정"
+    },
+    "design": {
+      "active": true,
+      "lead": "Design Lead",
+      "reason": "관리자 대시보드 UI 필요 — 추천 성능 지표 모니터링 화면 설계"
+    },
+    "frontend": {
+      "active": true,
+      "lead": "Frontend Lead",
+      "reason": "관리자 대시보드 웹 인터페이스 구현 필요"
+    },
+    "backend": {
+      "active": true,
+      "lead": "Backend Lead",
+      "reason": "REST API 기반 추천 결과 서빙, 사용자 행동 수집 API, 관리 API 필요"
+    },
+    "qa": {
+      "active": true,
+      "lead": "QA Lead",
+      "reason": "항상 활성 — 추천 품질 검증, API 통합 테스트, 성능 테스트"
+    },
+    "dba": {
+      "active": true,
+      "lead": "DBA",
+      "reason": "사용자/상품/행동 로그/추천 결과 데이터 저장 필요 — 대규모 행동 로그 최적화"
+    },
+    "devops": {
+      "active": true,
+      "lead": "DevOps Lead",
+      "reason": "ML 모델 서빙 인프라, CI/CD, 모니터링 파이프라인 필요"
+    },
+    "ml": {
+      "active": true,
+      "lead": "ML Lead",
+      "reason": "Collaborative Filtering 기반 추천 모델 설계, 학습 파이프라인, 모델 서빙"
+    }
+  },
+  "decision_trail": [
+    "[Decision] 전체 팀 활성화 — REST API(Backend) + 대시보드(Design/Frontend) + CF 모델(ML) + 행동 데이터(DBA) + 서빙 인프라(DevOps)가 모두 필요한 대규모 프로젝트"
+  ]
+}

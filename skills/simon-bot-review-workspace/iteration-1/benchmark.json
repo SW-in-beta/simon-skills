@@ -1,0 +1,175 @@
+{
+  "metadata": {
+    "skill_name": "simon-bot-review",
+    "skill_path": "/Users/simon.lee/.claude/skills/simon-bot-review",
+    "executor_model": "claude-opus-4-6",
+    "analyzer_model": "claude-opus-4-6",
+    "timestamp": "2026-03-09T12:00:00Z",
+    "evals_run": ["standalone-mode", "connected-mode", "feedback-loop"],
+    "runs_per_configuration": 1
+  },
+  "runs": [
+    {
+      "eval_id": 1,
+      "eval_name": "standalone-mode",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 107.6,
+        "tokens": 30213,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "STANDALONE 모드를 올바르게 감지한다", "passed": true, "evidence": "Mode Detection에서 review-sequence.md 미존재 → STANDALONE 감지"},
+        {"text": "architect와 writer agent를 spawn한다", "passed": true, "evidence": "Step 0-B에서 2개 Agent 병렬 spawn"},
+        {"text": "review-sequence.md를 생성한다", "passed": true, "evidence": "Step 0-C에서 통합 생성"},
+        {"text": "STANDALONE 양식(변경 동기)을 사용한다", "passed": true, "evidence": "Step 2에서 STANDALONE 양식 + 변경 동기 필드 사용"},
+        {"text": "standalone-analysis.md를 읽는다", "passed": true, "evidence": "Step 0-A~0-D 구조가 standalone-analysis.md와 정확히 일치"}
+      ]
+    },
+    {
+      "eval_id": 1,
+      "eval_name": "standalone-mode",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.0,
+        "passed": 0,
+        "failed": 5,
+        "total": 5,
+        "time_seconds": 72.1,
+        "tokens": 14028,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "STANDALONE 모드를 올바르게 감지한다", "passed": false, "evidence": "모드 감지 개념 없음"},
+        {"text": "architect와 writer agent를 spawn한다", "passed": false, "evidence": "agent spawn 없음"},
+        {"text": "review-sequence.md를 생성한다", "passed": false, "evidence": "review-sequence.md 미생성"},
+        {"text": "STANDALONE 양식(변경 동기)을 사용한다", "passed": false, "evidence": "구조화된 양식 없음"},
+        {"text": "standalone-analysis.md를 읽는다", "passed": false, "evidence": "스킬 없으므로 reference 접근 불가"}
+      ]
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "connected-mode",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 114.7,
+        "tokens": 26012,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "CONNECTED 모드를 올바르게 감지한다", "passed": true, "evidence": "review-sequence.md 존재 → CONNECTED 모드 확정"},
+        {"text": "Step 0을 건너뛴다", "passed": true, "evidence": "Step 0 SKIP 명시"},
+        {"text": "기존 report를 PR description에 활용한다", "passed": true, "evidence": "--body-file로 report 사용"},
+        {"text": "CONNECTED 양식(계획 매핑)을 사용한다", "passed": true, "evidence": "CONNECTED 양식 + 계획 매핑 필드 사용"},
+        {"text": "inline-review-format.md를 읽는다", "passed": true, "evidence": "CONNECTED 양식 구조 정확히 일치"}
+      ]
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "connected-mode",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.0,
+        "passed": 0,
+        "failed": 5,
+        "total": 5,
+        "time_seconds": 72.9,
+        "tokens": 14194,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "CONNECTED 모드를 올바르게 감지한다", "passed": false, "evidence": "실행 계획 미생성"},
+        {"text": "Step 0을 건너뛴다", "passed": false, "evidence": "실행 계획 미생성"},
+        {"text": "기존 report를 PR description에 활용한다", "passed": false, "evidence": "실행 계획 미생성"},
+        {"text": "CONNECTED 양식(계획 매핑)을 사용한다", "passed": false, "evidence": "실행 계획 미생성"},
+        {"text": "inline-review-format.md를 읽는다", "passed": false, "evidence": "스킬 없으므로 reference 접근 불가"}
+      ]
+    },
+    {
+      "eval_id": 3,
+      "eval_name": "feedback-loop",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 101.4,
+        "tokens": 24490,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "PR 코멘트를 gh api로 수집한다", "passed": true, "evidence": "pulls/comments + issues/comments 두 API 호출"},
+        {"text": "코드 수정 후 커밋 + 푸시한다", "passed": true, "evidence": "4-B에서 수정→커밋→푸시"},
+        {"text": "수정 반영 양식으로 인라인 리뷰를 재작성한다", "passed": true, "evidence": "4-C에서 수정 반영 양식 사용"},
+        {"text": "CI Watch를 재시작한다", "passed": true, "evidence": "4-D에서 background agent 재시작"},
+        {"text": "기존 코멘트를 resolve 처리한다", "passed": true, "evidence": "4-C에서 resolve 처리 명시"}
+      ]
+    },
+    {
+      "eval_id": 3,
+      "eval_name": "feedback-loop",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.4,
+        "passed": 2,
+        "failed": 3,
+        "total": 5,
+        "time_seconds": 50.8,
+        "tokens": 13014,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "PR 코멘트를 gh api로 수집한다", "passed": true, "evidence": "gh api pulls/42/comments 사용"},
+        {"text": "코드 수정 후 커밋 + 푸시한다", "passed": true, "evidence": "Step 7에서 commit+push"},
+        {"text": "수정 반영 양식으로 인라인 리뷰를 재작성한다", "passed": false, "evidence": "구조화된 양식 없이 일반 코멘트만"},
+        {"text": "CI Watch를 재시작한다", "passed": false, "evidence": "CI Watch 개념 없음"},
+        {"text": "기존 코멘트를 resolve 처리한다", "passed": false, "evidence": "resolve 처리 없음"}
+      ]
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {"mean": 1.0, "stddev": 0.0, "min": 1.0, "max": 1.0},
+      "time_seconds": {"mean": 107.9, "stddev": 6.7, "min": 101.4, "max": 114.7},
+      "tokens": {"mean": 26905, "stddev": 2880, "min": 24490, "max": 30213}
+    },
+    "without_skill": {
+      "pass_rate": {"mean": 0.13, "stddev": 0.19, "min": 0.0, "max": 0.4},
+      "time_seconds": {"mean": 65.3, "stddev": 10.9, "min": 50.8, "max": 72.9},
+      "tokens": {"mean": 13745, "stddev": 531, "min": 13014, "max": 14194}
+    },
+    "delta": {
+      "pass_rate": "+0.87",
+      "time_seconds": "+42.6",
+      "tokens": "+13160"
+    }
+  },
+  "notes": [
+    "with_skill이 모든 eval에서 100% pass rate 달성 (15/15 assertions 통과)",
+    "without_skill은 feedback-loop에서만 2개 assertion 통과 (PR 코멘트 수집, 커밋+푸시) — 이 2개 assertion은 스킬 없이도 가능한 기본 동작이므로 discriminating power가 낮음",
+    "connected-mode without_skill은 실행 계획 자체를 생성하지 못함 — 기존 artifacts를 활용하는 워크플로는 스킬 가이드 없이 불가능",
+    "with_skill은 평균 42.6초 더 소요되고 토큰을 약 2배 사용하지만, pass rate는 0.87 더 높음 — 구조화된 워크플로의 비용 대비 가치가 명확",
+    "standalone-mode의 'standalone-analysis.md를 읽는다' assertion은 구조적 일치로 추론 — 트랜스크립트 레벨 검증이 더 정확할 수 있음"
+  ]
+}

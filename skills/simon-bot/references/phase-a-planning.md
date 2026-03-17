@@ -154,6 +154,7 @@ AI의 실수를 가장 빠르게 잡아내는 것은 자동화된 검증이다. 
 - Test: `make test` / `go test ./...`
 - Lint: `make lint` / `golangci-lint run`
 - Typecheck: (해당 시)
+- Coverage: `go test -coverprofile=coverage.out ./...` / `pytest --cov` (해당 시)
 - All-in-one: `make verify` (있으면)
 ```
 
@@ -254,6 +255,7 @@ explore-medium과 analyst에게 다음 리서치 프레임워크를 적용한다
   - [ ] 빌드 성공 (verify-commands.md의 Build 명령)
   - [ ] 해당 Unit 테스트 전체 통과 (verify-commands.md의 Test 명령, 대상 경로 필터)
   - [ ] 린트/타입체크 통과 (verify-commands.md의 Lint/Typecheck 명령)
+  - [ ] 테스트 커버리지 ≥ 80% (verify-commands.md의 Coverage 명령, 해당 시)
   - [ ] plan-summary.md의 해당 Unit Code Changes 항목 전부 구현 확인
   ```
 

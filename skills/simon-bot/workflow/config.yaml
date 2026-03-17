@@ -1,0 +1,225 @@
+# simon-bot Workflow Configuration
+# Modify this file to customize the workflow behavior.
+
+# ============================================
+# Language Policy
+# ============================================
+language: ko                    # Report and documentation language (ko/en)
+
+# ============================================
+# Model Policy
+# ============================================
+model_policy: default           # 세션 기본 모델 사용
+# All agents use the session's default model
+
+# ============================================
+# Base Branch (worktree 생성 기준)
+# ============================================
+base_branch:
+  name: auto                     # auto = main or master 자동 감지
+  remote: origin                 # Remote name
+  always_fetch: true             # worktree 생성 전 항상 fetch
+
+# ============================================
+# Branch Naming
+# ============================================
+# 브랜치명은 Startup Step 3에서 사용자에게 직접 입력받음
+# 입력받은 브랜치명으로 worktree 생성 및 PR 생성에 사용
+
+# ============================================
+# Unit Limits (PR reviewer friendly)
+# ============================================
+unit_limits:
+  max_files: 5                  # Max files per Unit
+  max_lines: 200                # Max changed lines per Unit
+
+# ============================================
+# Loop Limits
+# ============================================
+loop_limits:
+  critic_planner: 3             # Step 2: critic ↔ planner max iterations
+  step4b_critical: 2            # Step 4-B: CRITICAL concerns → plan revision max loops
+  step7b_recheck: 1             # Step 7-B: missed concern fix → re-review max loops
+  step7_8: 2                    # Step 7-8: review ↔ regression max loops
+  step16: 3                     # Step 16: MEDIUM issue resolution max iterations
+  step6_executor: 3             # Step 6: executor auto-fix max attempts
+
+# ============================================
+# Issue Threshold
+# ============================================
+issue_threshold: HIGH           # Auto-fix threshold (CRITICAL and HIGH auto-fixed)
+
+# ============================================
+# Code Size Thresholds (Step 9)
+# ============================================
+size_thresholds:
+  function_lines: 50            # Max lines per function
+  file_lines: 300               # Max lines per file
+  params: 5                     # Max parameters per function
+  nesting: 3                    # Max nesting depth
+
+# ============================================
+# Expert Panel Configuration (Step 4-B Domain Teams)
+# ============================================
+expert_panel:
+  # Team activation rules per review path
+  team_activation:
+    SMALL: [safety, code-design]          # always teams only
+    STANDARD: [safety, code-design, auto]  # always + auto-detected
+    LARGE: [safety, code-design, auto, extended]
+
+  domain_teams:
+    data:
+      activation: auto_detect
+      min_active: 2
+      detect_keywords: [database, sql, query, migration, redis, cache, mongo, storage, orm]
+      members:
+        - rdbms-expert        # always in team
+        - cache-expert         # always in team
+        - nosql-expert         # always in team
+
+    integration:
+      activation: auto_detect
+      min_active: 2
+      detect_keywords: [api, rest, grpc, websocket, kafka, rabbitmq, async, webhook, http]
+      members:
+        - sync-api-expert
+        - async-expert
+        - external-integration-expert
+        - messaging-expert
+
+    safety:
+      activation: always
+      members:
+        - appsec-expert        # always
+        - stability-expert     # always
+        - auth-expert          # optional (auto-detect within team)
+        - infrasec-expert      # optional (auto-detect within team)
+
+    ops:
+      activation: auto_detect
+      min_active: 2
+      detect_keywords: [docker, kubernetes, ci, deploy, performance, concurrency, metric, monitoring]
+      members:
+        - infra-expert
+        - observability-expert
+        - performance-expert
+        - concurrency-expert
+
+    code-design:
+      activation: always
+      members:
+        - convention-expert    # always
+        - idiom-expert         # always
+        - design-pattern-expert  # auto-detect within team (optional)
+        - testability-expert     # auto-detect within team (optional)
+
+  # ── Quick Reference (SKILL.md / phase-a-planning.md 참조) ──
+  # domain_teams summary:
+  #   data:        min_active: 2, members: [rdbms, cache, nosql]
+  #   integration: min_active: 2, members: [sync-api, async, external-integration, messaging]
+  #   safety:      always: [appsec, stability], optional: [auth, infrasec]
+  #   ops:         min_active: 2, members: [infra, observability, performance, concurrency]
+  #   code-design: always: [convention, idiom], optional: [design-pattern, testability]
+  # team_activation:
+  #   SMALL: [safety, code-design]  # always 멤버만
+  #   STANDARD: [safety, code-design, auto-detect]
+  #   LARGE: [all]
+  discussion_rounds: 2
+
+# ============================================
+# PR Configuration
+# ============================================
+pr:
+  draft: true                   # Always create as Draft PR
+
+# ============================================
+# Test Environment
+# ============================================
+test_env:
+  check_before_test: true        # Check test environment before running tests
+  skip_on_missing: true          # Skip tests if environment not ready (true = skip, false = fail)
+
+# ============================================
+# Test Configuration
+# ============================================
+test:
+  # NEVER use real external systems
+  mock_only: true
+  allowed_test_deps:
+    - in-memory DB (SQLite, etc.)
+    - testcontainers
+    - mock/stub libraries
+    - MSW, nock
+    - memfs
+    - localhost test servers
+
+# ============================================
+# Forbidden Commands (ABSOLUTE)
+# ============================================
+commands:
+  forbidden:
+    # Git destructive
+    - git push --force
+    - git push -f
+    - git merge main
+    - git merge master
+
+    # System destructive
+    - rm -rf
+    - chmod 777
+
+    # Code execution risk
+    - eval
+    - curl | sh
+    - wget | sh
+
+    # DB destructive
+    - DROP TABLE
+    - DROP DATABASE
+    - TRUNCATE
+
+    # External system access (real)
+    - curl (real external endpoints)
+    - wget (real external endpoints)
+    - mysql (real DB)
+    - psql (real DB)
+    - redis-cli (real DB)
+    - mongosh (real DB)
+    - ssh (real servers)
+    - scp (real servers)
+    - sftp (real servers)
+
+    # Security
+    - .env commit
+    - credentials commit
+    - secrets commit
+
+  # Auto-generated in Step 1-A based on project stack
+  allowed: []
+  # Example (auto-filled):
+  # - npm install / npm test / npm run build
+  # - pip install / pytest
+  # - go build / go test
+
+# ============================================
+# Review Paths (determined in Step 0)
+# ============================================
+review_paths:
+  SMALL:
+    steps: [5, 6, 7, 8, 17]
+    description: "Quick implementation with essential verification"
+  STANDARD:
+    steps: [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
+    description: "Full pipeline with all quality checks"
+  LARGE:
+    steps: [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
+    extra: ["extended failure mode analysis"]
+    description: "Full pipeline with extended analysis"
+
+# ============================================
+# Scope Challenge Thresholds (Step 0)
+# ============================================
+scope_challenge:
+  file_warning: 8               # Warn if > 8 files changed
+  class_warning: 2              # Warn if > 2 new classes

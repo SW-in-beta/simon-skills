@@ -1,0 +1,58 @@
+{
+  "project_name": "Picstory - 소셜 미디어 웹앱",
+  "project_type": "greenfield",
+  "teams": {
+    "pm": {
+      "active": true,
+      "lead": "PM",
+      "reason": "항상 활성 — 요구사항 정의, 사용자 인터뷰, PRD 관리"
+    },
+    "cto": {
+      "active": true,
+      "lead": "CTO",
+      "reason": "항상 활성 — 기술 아키텍처 결정, 기술 스택 선택, 팀간 기술 조율"
+    },
+    "design": {
+      "active": true,
+      "lead": "Design Lead",
+      "reason": "웹앱 UI/UX 필요 — 피드, 프로필, 업로드 등 다수 화면 설계 필요"
+    },
+    "frontend": {
+      "active": true,
+      "lead": "Frontend Lead",
+      "reason": "웹앱 사용자 인터페이스 구현 — React 기반 반응형 UI"
+    },
+    "backend": {
+      "active": true,
+      "lead": "Backend Lead",
+      "reason": "REST API 필요 — 인증, 사진 업로드, 팔로우, 좋아요/댓글, 알림 등 비즈니스 로직"
+    },
+    "qa": {
+      "active": true,
+      "lead": "QA Lead",
+      "reason": "항상 활성 — E2E 테스트, 성능 테스트, 보안 기본 검증"
+    },
+    "dba": {
+      "active": true,
+      "lead": "DBA",
+      "reason": "사용자, 게시물, 팔로우, 좋아요, 댓글, 알림 등 복잡한 관계형 데이터 모델 필요"
+    },
+    "devops": {
+      "active": true,
+      "lead": "DevOps Lead",
+      "reason": "Docker 컨테이너화, CI/CD 파이프라인, 이미지 저장소(S3) 연동 필요"
+    },
+    "ml": {
+      "active": false,
+      "reason": "피드 알고리즘이 단순 최신순으로 ML 불필요"
+    }
+  },
+  "decision_trail": [
+    "[Decision] Design팀 활성화 — 소셜 미디어 앱으로 피드, 프로필, 업로드 등 다수 UI 화면 필요",
+    "[Decision] Frontend팀 활성화 — 웹앱으로 반응형 UI 구현 필요",
+    "[Decision] Backend팀 활성화 — 인증, 사진 업로드, 소셜 기능 등 서버사이드 로직 필요",
+    "[Decision] DBA팀 활성화 — User, Post, Follow, Like, Comment, Notification 등 복잡한 관계형 데이터",
+    "[Decision] DevOps팀 활성화 — 이미지 스토리지, 컨테이너화, CI/CD 필요",
+    "[Decision] ML팀 비활성화 — 피드가 단순 최신순이므로 추천 알고리즘 불필요"
+  ]
+}

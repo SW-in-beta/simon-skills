@@ -1,0 +1,12 @@
+{
+  "eval_id": 1,
+  "eval_name": "greenfield-go-api",
+  "prompt": "Go로 REST API 서버를 만들고 싶어. 사용자 관리, 게시판, 알림 기능이 필요해. 기술 스택은 Go + Gin + PostgreSQL로 하고 싶어.",
+  "assertions": [
+    {"id": "phase0-greenfield-autodetect", "text": "Phase 0에서 프로젝트 유형을 greenfield로 자동 판별하고 확인만 한다"},
+    {"id": "execution-mode-question", "text": "자동 진행 vs 승인 후 진행 실행 모드 선택 질문을 한다"},
+    {"id": "spec-what-focus", "text": "Feature Specification(WHAT)을 먼저 작성하고, 기술 결정(HOW)과 분리한다"},
+    {"id": "user-story-priorities", "text": "User Story에 우선순위(P1/P2/P3)를 부여하거나 Given/When/Then 수용 시나리오를 포함한다"},
+    {"id": "expert-panel-validation", "text": "CTO/Architect 에이전트가 사용자 지정 스택(Go+Gin+PostgreSQL)을 검증하거나 보완 추천한다"}
+  ]
+}

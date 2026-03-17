@@ -1,0 +1,37 @@
+{
+  "eval_id": 1,
+  "eval_name": "social-media-app",
+  "configuration": "with_skill",
+  "expectations": [
+    {
+      "text": "roster.json 파일이 생성되고 Design, Frontend, Backend, DBA 팀이 활성화됨",
+      "passed": true,
+      "evidence": "roster.json 존재. design.active: true, frontend.active: true, backend.active: true, dba.active: true 모두 확인됨"
+    },
+    {
+      "text": "User Story에 INVEST 기준이 적용됨 (Independent, Valuable, Small, Testable 등의 관점이 반영됨)",
+      "passed": true,
+      "evidence": "spec.md의 모든 P1 User Story(US-001~US-010)에 'INVEST 검증' 라인이 포함되어 I(독립)/N(협상가능)/V(가치)/E(추정)/S(작음)/T(테스트가능) 각 항목 평가가 명시됨"
+    },
+    {
+      "text": "Story Map이 Activity → Task → Story 계층 구조로 생성됨",
+      "passed": true,
+      "evidence": "story-map.md에 5개 Activity(가입/인증, 콘텐츠 공유, 소셜 활동, 프로필/설정, 발견) → Tasks → Stories(US-001~US-016) 계층 구조가 ASCII 다이어그램으로 명시됨"
+    },
+    {
+      "text": "Walking Skeleton이 식별됨 (핵심 흐름의 최소 구현이 Release 1 또는 Sprint 1으로 지정)",
+      "passed": true,
+      "evidence": "story-map.md에 'Walking Skeleton (Sprint 1 목표)' 섹션과 'Release 1: Walking Skeleton (Sprint 1)' 테이블이 존재. US-001→US-002→US-003→US-004→US-008 핵심 흐름이 정의됨"
+    },
+    {
+      "text": "spec.md 또는 story-map.md 파일이 생성됨",
+      "passed": true,
+      "evidence": "outputs 디렉토리에 spec.md와 story-map.md 두 파일 모두 존재함"
+    },
+    {
+      "text": "constitution.md 파일이 생성됨",
+      "passed": true,
+      "evidence": "outputs 디렉토리에 constitution.md 파일이 존재하며 Core Principles(5개), Quality Gates, Constraints, DoR, DoD 섹션을 포함함"
+    }
+  ]
+}

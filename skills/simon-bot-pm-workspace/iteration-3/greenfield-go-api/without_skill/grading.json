@@ -1,0 +1,32 @@
+{
+  "eval_id": 1,
+  "eval_name": "greenfield-go-api",
+  "config": "without_skill",
+  "expectations": [
+    {
+      "text": "Phase 0에서 프로젝트 유형을 greenfield로 자동 판별하고 확인만 한다",
+      "passed": false,
+      "evidence": "응답에 'Phase 0'이나 프로젝트 유형 판별 단계가 전혀 없다. greenfield라는 단어도 언급되지 않으며, 프로젝트 유형을 분류하거나 사용자에게 확인을 구하는 절차 없이 곧바로 API 서버 설계(프로젝트 구조, 의존성, DB 설계 등)로 진입한다."
+    },
+    {
+      "text": "자동 진행 vs 승인 후 진행 실행 모드 선택 질문을 한다",
+      "passed": false,
+      "evidence": "실행 모드 선택에 대한 질문이 전혀 없다. 응답 전체에서 자동 진행/승인 후 진행 같은 실행 모드 개념이 언급되지 않으며, 마지막에 '어떤 부분부터 코드 작성을 시작할까요?'라는 일반적 후속 질문만 존재한다."
+    },
+    {
+      "text": "Feature Specification(WHAT)을 먼저 작성하고, 기술 결정(HOW)과 분리한다",
+      "passed": false,
+      "evidence": "WHAT과 HOW가 분리되지 않고 혼합되어 있다. 응답은 섹션 1부터 프로젝트 구조(HOW)와 핵심 의존성(HOW)으로 시작하며, API 엔드포인트(섹션 4)와 알림 시나리오(섹션 7) 등 기능적 내용도 DB 스키마, 아키텍처 패턴 등 기술 결정과 뒤섞여 있다. 별도의 Feature Specification 문서나 섹션이 존재하지 않는다."
+    },
+    {
+      "text": "User Story에 우선순위(P1/P2/P3)를 부여하거나 Given/When/Then 수용 시나리오를 포함한다",
+      "passed": false,
+      "evidence": "응답 전체에 User Story가 존재하지 않는다. P1/P2/P3 우선순위 분류도 없고, Given/When/Then 형식의 수용 시나리오도 없다. 기능은 API 엔드포인트 테이블과 알림 트리거 테이블로만 나열되어 있을 뿐이다."
+    },
+    {
+      "text": "CTO/Architect 에이전트가 사용자 지정 스택(Go+Gin+PostgreSQL)을 검증하거나 보완 추천한다",
+      "passed": false,
+      "evidence": "CTO나 Architect 에이전트에 의한 기술 스택 검증 과정이 없다. 응답 첫 줄에 '좋은 기술 스택 선택이네요'라는 간단한 코멘트만 있을 뿐, 스택 선택에 대한 트레이드오프 분석, 대안 비교, 구조화된 검증 프로세스가 전혀 없다. 섹션 2에서 추가 라이브러리(GORM, JWT 등)를 나열하지만 이는 architect의 검증이 아닌 단순 설계 제안이다."
+    }
+  ]
+}

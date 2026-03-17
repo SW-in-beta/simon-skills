@@ -1,0 +1,32 @@
+{
+  "eval_id": 1,
+  "eval_name": "greenfield-go-api",
+  "config": "with_skill",
+  "expectations": [
+    {
+      "text": "Phase 0에서 프로젝트 유형을 greenfield로 자동 판별하고 확인만 한다",
+      "passed": true,
+      "evidence": "Section '0-A: 프로젝트 유형 판별' states: 'Greenfield 프로젝트로 판별했습니다' with reasoning, then asks '프로젝트 유형: Greenfield (새 프로젝트) 로 진행합니다. 맞으시죠?' — auto-detected and requested confirmation only."
+    },
+    {
+      "text": "자동 진행 vs 승인 후 진행 실행 모드 선택 질문을 한다",
+      "passed": true,
+      "evidence": "Section '0-B: 실행 모드 선택' explicitly offers two options: '1. 자동 진행: 완료 즉시 다음 작업으로 자동 진행 (중간 보고만)' and '2. 승인 후 진행: 각 기능 완료 시 결과를 보고하고 승인 후 다음 작업 진행'."
+    },
+    {
+      "text": "Feature Specification(WHAT)을 먼저 작성하고, 기술 결정(HOW)과 분리한다",
+      "passed": true,
+      "evidence": "The response explicitly states: '답변을 바탕으로 Feature Specification (WHAT) 문서를 작성하겠습니다. 기술 스택은 Go + Gin + PostgreSQL 선호사항을 기록해두었고, Spec 작성 후 전문가 패널(CTO Agent + Dev Lead Agent)이 해당 스택의 적합성을 검증하고 필요한 보완 사항을 추천할 예정입니다.' — WHAT (Feature Spec) is done first, HOW (tech validation) is deferred to after."
+    },
+    {
+      "text": "User Story에 우선순위(P1/P2/P3)를 부여하거나 Given/When/Then 수용 시나리오를 포함한다",
+      "passed": true,
+      "evidence": "Round 4 includes a priority classification table with 'Must-have (P1)' containing '회원가입/로그인, 게시글 CRUD, 댓글, 인앱 알림' and 'Nice-to-have (P2)' containing '좋아요, 검색, 프로필 이미지, 이메일 알림', plus 'Out of scope'. Priority levels P1/P2 are explicitly assigned to features."
+    },
+    {
+      "text": "CTO/Architect 에이전트가 사용자 지정 스택(Go+Gin+PostgreSQL)을 검증하거나 보완 추천한다",
+      "passed": false,
+      "evidence": "The response mentions the plan: 'Spec 작성 후 전문가 패널(CTO Agent + Dev Lead Agent)이 해당 스택의 적합성을 검증하고 필요한 보완 사항을 추천할 예정입니다.' However, no actual CTO/Architect validation or supplementary recommendations appear in this response. The stack validation is only promised as a future step — it was not performed within this response."
+    }
+  ]
+}

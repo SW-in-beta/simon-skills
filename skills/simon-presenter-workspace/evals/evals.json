@@ -1,0 +1,23 @@
+{
+  "skill_name": "simon-presenter",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "cheer93 프로젝트를 시연해줘. 이 앱은 마라톤 실시간 응원 플랫폼이야. 투자자한테 보여줄 거라서 최대한 인상적으로 부탁해.",
+      "expected_output": "프로젝트 심층 분석 (discovery.md) + 시연 시나리오 계획서. CONNECTED 모드로 simon-company 산출물 활용. 라우트맵, 셀렉터, 코드 플로우, 환경 점검 결과, 시나리오 순서가 포함되어야 함.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "cheer93 데모 보여줘. 특히 실시간 위치 추적이랑 응원 기능 위주로. 더미 데이터도 필요할 거야.",
+      "expected_output": "실시간 기능 중심 시연 계획. WebSocket/SSE 모킹 계획, GPS 좌표 스트리밍 더미 데이터 생성 계획, 실시간 알림 시나리오가 포함되어야 함.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "/simon-presenter cheer93 프로젝트 시연 준비해줘. 환경 세팅부터 확인해줘.",
+      "expected_output": "환경 점검 중심 결과. Supabase 설정, 환경 변수 (.env.local), Docker 필요 여부, 카카오 OAuth 키 확인, 포트 가용성 등을 점검하고 누락 항목별 조치 방안 제시.",
+      "files": []
+    }
+  ]
+}

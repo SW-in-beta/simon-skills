@@ -1,0 +1,32 @@
+{
+  "eval_id": 3,
+  "eval_name": "ml-recommender",
+  "configuration": "with_skill",
+  "expectations": [
+    {
+      "text": "roster.json에 ML 팀이 활성화됨",
+      "passed": true,
+      "evidence": "roster.json의 ml 팀이 active: true로 설정됨. lead: 'ML Lead', reason: 'Collaborative Filtering 기반 추천 모델 설계, 학습 파이프라인, 모델 서빙'"
+    },
+    {
+      "text": "roster.json에 Backend, Frontend(대시보드), DBA 팀이 활성화됨",
+      "passed": true,
+      "evidence": "backend(active: true, 'REST API 기반 추천 결과 서빙'), frontend(active: true, '관리자 대시보드 웹 인터페이스 구현 필요'), dba(active: true, '대규모 행동 로그 최적화') 모두 활성화됨"
+    },
+    {
+      "text": "ML 관련 User Story가 포함됨 (추천 모델, 학습 파이프라인, 피처 엔지니어링 등)",
+      "passed": true,
+      "evidence": "US-003: CF 모델 학습(ALS 기반 Matrix Factorization), 학습 파이프라인(트리거/상태/이력 관리), User-Item 상호작용 매트릭스 생성 및 전처리 단계 포함. US-002: 모델 서빙 및 Cold Start Fallback. US-013(P3): 하이브리드 모델"
+    },
+    {
+      "text": "Story Map이 생성됨 (Activity → Task → Story 계층 구조)",
+      "passed": true,
+      "evidence": "story-map.md 파일에 4개 Activity(데이터 수집/관리, 추천 서빙, 모델 관리, 모니터링/분석) → Task(상품 등록, 개인화 추천 요청 등) → Story(US-001~US-014, P1/P2/P3 우선순위별) 계층 구조가 명확히 정의됨"
+    },
+    {
+      "text": "spec.md 파일이 생성됨",
+      "passed": true,
+      "evidence": "spec.md 파일이 존재하며 Overview, Vision, Target Users, User Stories(14개), Functional Requirements(13개), Non-Functional Requirements(7개), Key Entities, Success Criteria를 포함하는 완전한 사양서"
+    }
+  ]
+}
