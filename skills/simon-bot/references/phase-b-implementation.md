@@ -12,6 +12,7 @@ Each Unit runs in an **isolated git worktree**. Independent Units run in **paral
 - [Step 5: Implementation (TDD 필수)](#step-5-implementation-tdd-필수)
   - [기존 구현 참조 (P-013)](#기존-구현-참조-p-013)
   - [TDD Cycle (RED → GREEN → REFACTOR)](#tdd-cycle-red--green--refactor)
+  - [Test Case Summary 생성 (Step 5c-post)](#test-case-summary-생성-step-5c-post)
   - [Test-Spec Alignment Gate (STANDARD+ 경로)](#test-spec-alignment-gate-standard-경로)
   - [Agent 출력물 검증 게이트](#agent-출력물-검증-게이트)
   - [Inline Issue Capture (P-010)](#inline-issue-capture-p-010)
@@ -167,6 +168,7 @@ TDD 사이클을 따르는 이유: 테스트를 먼저 작성하면 요구사항
 - **Step 5a: RED** — 실패하는 테스트 먼저 작성하고, 테스트가 실패하는지 확인한다
 - **Step 5b: GREEN** — 테스트를 통과시키는 최소한의 구현 코드를 작성하고, 테스트 통과를 확인한다
 - **Step 5c: REFACTOR** — 테스트 통과 상태를 유지하며 코드를 정리한다. 불필요하면 skip
+- **Step 5c-post: Test Case Summary** — 아래 [Test Case Summary 생성](#test-case-summary-생성-step-5c-post) 섹션 참조
 - **Step 5d: VERIFY** — 전체 테스트 스위트를 실행한다. 모든 테스트가 통과한 후에 다음 단계로 진행한다
 - **Step 5e: Working Example Spot-check** — Unit 구현 완료 후, plan-summary.md의 Behavior Changes에서 핵심 시나리오 1개를 선택하여 실제 동작을 확인한다 (테스트 통과 ≠ 실제 동작). CLI 실행, curl dry-run, 또는 사용 예제 코드 실행으로 검증. 실패 시 Step 5b로 회귀.
 
@@ -182,17 +184,58 @@ TDD 사이클을 따르는 이유: 테스트를 먼저 작성하면 요구사항
 
 - Run via tmux: build + test + typecheck simultaneously
 
+### Test Case Summary 생성 (Step 5c-post)
+
+REFACTOR 이후 테스트 구조가 안정된 시점에서, 각 테스트의 분류를 `.claude/memory/unit-{name}/test-case-summary.md`에 기록한다. 이 요약은 Step 18-B(review-sequence)와 simon-bot-review의 인라인 코멘트에서 소비되므로, 리뷰어가 테스트 코드를 열지 않고도 커버리지 충분성을 판단할 수 있게 하는 핵심 산출물이다.
+
+```markdown
+# Test Case Summary: Unit {name}
+
+## 테스트 파일: {test_file_path}
+
+### Happy Path (정상 동작 검증)
+- `{test_function_name}`: {검증 내용 1줄 설명}
+
+### Edge Cases (경계 조건 검증)
+- `{test_function_name}`: {검증 내용 1줄 설명}
+
+### Error Cases (에러 처리 검증)
+- `{test_function_name}`: {검증 내용 1줄 설명}
+
+### Boundary (경계값 검증)
+- `{test_function_name}`: {검증 내용 1줄 설명}
+```
+
+**분류 기준**:
+- **Happy Path**: AC의 Behavioral Checks에서 정상 흐름에 해당하는 시나리오
+- **Edge Case**: 정상 범위이지만 특이한 입력/상태 (빈 리스트, 최대값, 동시 호출 등)
+- **Error Case**: 명시적 에러 발생이 기대되는 시나리오 (잘못된 입력, 권한 없음 등)
+- **Boundary**: 경계값 (0, -1, MAX_INT, 빈 문자열 등)
+
+빈 카테고리는 생략한다. 테스트가 여러 카테고리에 걸치면 주된 목적 기준으로 하나만 선택한다. executor가 테스트를 방금 작성한 시점이므로 추가 분석 없이 즉시 기록 가능하다.
+
 ### Test-Spec Alignment Gate (STANDARD+ 경로)
 
 TDD RED(Step 5a) 직후, GREEN(Step 5b) 전에 fresh `test-alignment-checker` subagent가 테스트와 AC의 정합성을 독립 검증한다. 동일 executor가 테스트 + 구현 모두 작성하면 해석 편향이 양쪽에 동일하게 반영되어 "self-congratulation machine"이 된다 — 구현 코드가 없는 시점에서 테스트의 AC 정합성을 검증하여 이를 방지한다.
 
 - **트리거**: STANDARD+ 경로에서만 적용. SMALL 경로는 skip
 - **전달**: plan-summary.md의 Acceptance Criteria(Mechanical + Behavioral Checks) + 작성된 테스트 코드. 구현 코드 없음 (아직 미작성)
-- **프롬프트**: "이 테스트들이 Acceptance Criteria의 모든 시나리오를 정확하게 커버하는지 검증하세요. (1) 누락된 AC 시나리오, (2) AC 해석의 정확성 (예: '5회 실패' = 연속? 누적?), (3) edge case 커버리지를 확인하세요."
+- **프롬프트**: "이 테스트들이 Acceptance Criteria의 모든 시나리오를 정확하게 커버하는지 검증하세요. (1) 누락된 AC 시나리오, (2) AC 해석의 정확성 (예: '5회 실패' = 연속? 누적?), (3) edge case 커버리지를 확인하세요. (4) 각 테스트 함수를 Happy Path / Edge Case / Error Case / Boundary로 분류하고, 아래 포맷으로 정리하세요."
 - **결과**:
   - 모든 AC 커버 → Step 5b(GREEN)로 진행
   - 누락/해석 오류 발견 → executor에게 테스트 보완 지시 (max 2회)
 - **Save**: `.claude/memory/unit-{name}/test-alignment-check.md`
+- **산출물 포맷** — 포맷을 명시하지 않으면 자유형식 텍스트가 산출되어 하류 파이프라인에서 활용이 어렵다:
+  ```markdown
+  ## Test Coverage Summary
+  | 테스트 함수 | 검증 유형 | 대응 AC | 시나리오 설명 |
+  |------------|----------|--------|-------------|
+  | test_example | happy path | AC-1 | 정상 입력으로 처리 성공 |
+
+  ## 커버리지 판정
+  - Happy path: {N}개 / Edge case: {N}개 / Error case: {N}개
+  - 누락 시나리오: {있으면 나열, 없으면 "없음"}
+  ```
 
 ### Agent 출력물 검증 게이트
 
@@ -231,7 +274,7 @@ verify-commands.md의 명령 실행 → 결과를 .claude/memory/unit-{name}/gro
 
 executor가 구현을 완료하면, Step 6으로 넘기기 전에 plan-summary.md의 Acceptance Criteria와 대조한다:
 1. **Code Changes** 목록의 각 항목이 구현되었는지 확인
-2. **Tests** 목록의 테스트가 작성되었는지 확인
+2. **Tests** 목록의 테스트가 작성되었는지 확인하고, 각 검증 유형(happy path / edge case / error case)이 최소 1개 이상 존재하는지 확인한다. happy path만 있고 edge/error case가 없으면 보완한다
 3. **Quality Gates** 조건을 충족하는지 확인
 4. 누락 항목이 있으면 자체적으로 보완한 후 Step 6으로 진행
 

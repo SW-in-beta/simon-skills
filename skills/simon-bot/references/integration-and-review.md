@@ -87,6 +87,7 @@ Refs: Unit {N} — {Unit 목적 한줄 요약}
 - **다른 변경 단위와의 연관**: 의존/호출/데이터 흐름 관계
 - **전문가 우려사항 반영**: Step 4-B/7에서 관련 우려 반영 내용
 - **트레이드오프**: 설계 결정과 그 이유
+- **테스트 커버리지 요약**: `.claude/memory/unit-{name}/test-case-summary.md`에서 해당 변경 단위의 테스트 분류를 발췌. 어떤 시나리오가 Happy Path로 검증되고, 어떤 시나리오가 Edge/Error Case로 검증되는지 포함한다. test-case-summary.md가 없으면 테스트 코드를 직접 분석하여 동등한 분류를 생성한다. (예: "Happy Path 2개, Edge Case 3개, Error Case 1개 — 빈 입력, 최대 길이 초과, DB 타임아웃 등 검증")
 - **영향 분석**: 변경되지 않았지만 영향받을 수 있는 코드. 변경된 함수의 직접 호출자, 인터페이스 소비자, 공유 상태 독자, 데이터 흐름 하류를 1-depth로 Grep 탐색하여 식별한다. 각 항목에 파일:라인, 영향받는 이유, 필요 조치를 포함한다.
 
 - Save: `.claude/memory/review-sequence.md`
