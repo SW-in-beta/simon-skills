@@ -270,7 +270,8 @@ ARC-AGI에서 영감을 받은 반복 개선 루프. 기존 Steps 9-16의 개별
 - Spawn **fresh `production-readiness-auditor`** subagent: **plan-summary.md + 최종 git diff + verify-commands.md만** 전달. 중간 과정 산출물(inline-issues.md, review-findings.md, 토론 기록)은 **의도적으로 제외**
 - 프롬프트: "당신은 이 코드를 처음 보는 시니어 엔지니어입니다. 프로덕션 배포 전 최종 검증을 수행하세요. **반드시 Success Criteria의 각 항목에 대해 Verdict 테이블 형식(PASS/FAIL/NEEDS-HUMAN-REVIEW)으로 판정하세요.** '전반적으로 양호합니다' 같은 요약 판정은 금지합니다."
 - 별도로 `security-reviewer` (fresh subagent)를 parallel spawn — 보안 관점 독립 검증
-- Final checklist: requirements met, build passes, tests pass, no security issues
+- **테스트 커버리지 검증**: `verify-commands.md`에 커버리지 측정 명령이 있으면 실행하여 80% 이상인지 확인. 미달 시 FAIL 판정하고 커버리지가 부족한 모듈을 리포트에 명시
+- Final checklist: requirements met, build passes, tests pass, coverage ≥ 80%, no security issues
 - NEEDS-HUMAN-REVIEW 판정이 있으면 PENDING 항목을 사용자에게 일괄 제시
 - Minor: executor fix. Major: → relevant Phase. Critical: → Step 1-B
 - Save: `.claude/memory/unit-{name}/final-check.md`

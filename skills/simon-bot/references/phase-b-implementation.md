@@ -152,6 +152,21 @@ plan-summary.md의 Files Changed 테이블과 code-design-analysis.md가 아래 
 - **Plan Immutability**: Phase A에서 확정된 `plan-summary.md`는 Phase B 이후 암묵적으로 변경할 수 없다. 변경이 필요한 경우 다음 절차를 따른다: (1) 변경 사유를 `.claude/memory/plan-amendments.md`에 기록, (2) 영향받는 Unit/Step 식별, (3) 사용자에게 변경 승인 요청 (AskUserQuestion), (4) 승인 후 plan-summary.md와 관련 memory 파일 일괄 갱신. 이 절차 없이 계획을 조용히 변경하면 Acceptance Criteria와 실제 구현이 괴리되어 Step 17에서 대규모 재작업이 발생한다.
 - **Step Progress Pulse (P-007)**: 각 Step 완료 시 사용자에게 1줄 상태를 출력한다 (AskUserQuestion이 아닌 단순 텍스트 출력이므로 사용자를 중단시키지 않는다). 형식: `[Step {N}/{total}] {Step명} 완료 — {핵심 결과 요약}`. 예: `[Step 7/17] Expert Review 완료 — CRITICAL 0, HIGH 2, MEDIUM 5`. Phase B-E 시작 시 예상 Step 수를 안내한다: `{경로} 경로: Steps 5-{N} ({M} steps)`.
 
+  **2-Tier Pulse (FAIL/HIGH+ 시 자동 확장)**:
+
+  Tier 1(항상 출력)은 기존 형식을 유지한다. FAIL/CRITICAL/HIGH가 있을 때만 Tier 2(3-5줄 상세)를 자동 추가하여, 사용자가 memory 파일을 직접 읽지 않고도 핵심 이슈와 처리 결과를 파악할 수 있게 한다.
+
+  ```
+  Tier 1: [Step 7/17] Expert Review 완료 — CRITICAL 0, HIGH 2, MEDIUM 5
+  Tier 2 (HIGH+ 있을 때만):
+    - [Performance] N+1 쿼리 — internal/repo/user.go:47 → eager loading 적용 완료
+    - [Security] Rate limiting 부재 — internal/handler/auth.go:23 → middleware 추가 완료
+  ```
+
+  auto-resolve된 항목은 `→ {수정 내용} 완료`로 표시한다. 미해결 항목은 `→ [미해결] {사유}` 태그를 붙인다.
+
+  Tier 2가 5줄을 초과할 경우, CRITICAL/HIGH만 포함하고 나머지는 `  + MEDIUM {N}건 (상세: unit-{name}/review-findings.md)` 1줄로 요약한다.
+
 ## Pre-Step: Test Environment Setup
 
 - Run `.claude/workflow/scripts/setup-test-env.sh`
