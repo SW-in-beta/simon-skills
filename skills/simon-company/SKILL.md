@@ -55,6 +55,8 @@ compatibility:
 
 ## Cross-Cutting Protocols
 
+> **Shared Protocols**: `~/.claude/skills/_shared/preamble.md` 읽기 — Session Isolation, Error Resilience, Forbidden Rules, Agent Teams, Cognitive Independence 공통 프로토콜 포함.
+
 > **Reference Loading**: [cross-cutting-protocols.md](references/cross-cutting-protocols.md) 읽기
 
 Sprint 실행 전반에 걸친 공통 프로토콜. Shared Context, Conflict Resolution, Quality Gates, Context Window Management 포함.

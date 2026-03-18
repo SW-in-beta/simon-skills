@@ -81,6 +81,21 @@ WorkflowError
 
 **혼합 상황 판별:** 에러 메시지에 여러 패턴이 있으면 ENV_INFRA → WORKFLOW_ERROR → CODE_LOGIC 순으로 우선 처리한다. 인프라가 안 되면 코드 수정도 의미 없기 때문이다.
 
+### 에러 출력 형식 (Next Action Guide)
+
+에러 분류 후, 복구 행동을 에러 메시지 자체에 내장한다. compaction 후에도 error-resilience.md를 다시 읽지 않고 즉시 복구를 시작할 수 있다:
+
+형식: `[{TYPE}/{SUBTYPE}] {에러 요약} — Next: {1차 행동}`
+
+예시:
+- `[CODE_LOGIC/BUILD_FAILURE] compilation failed — Next: Read error output → fix code → re-run build`
+- `[CODE_LOGIC/TEST_FAILURE] test assertion failed — Next: Check implementation against plan → fix code → re-run test`
+- `[ENV_INFRA/NETWORK_ERROR] connection refused — Next: Check Docker/DB status → restart if needed → retry`
+- `[ENV_INFRA/TOOL_ERROR] command not found — Next: Check tool installation → install if missing → retry`
+- `[WORKFLOW_ERROR/STATE_CORRUPTION] state file parse error — Next: Re-read file → fix or regenerate → continue`
+
+내부 스택 트레이스는 포함하지 않는다. 행동 가이드만 전달한다.
+
 ## ENV_INFRA 실패 처리 (환경/인프라 자동 복구)
 
 환경 문제는 코드를 고쳐도 해결되지 않으므로, 인프라 복구에 집중한다. 위의 에러 분류 트리에서 하위 유형(TOOL_UNAVAILABLE, NETWORK_ERROR, RESOURCE_LIMIT, PERMISSION_ERROR)을 먼저 식별한 후, 해당 유형의 1차/2차 복구 전략을 시도한다. 하위 유형별 전략으로 해결되지 않으면 아래 Ladder로 에스컬레이션한다.

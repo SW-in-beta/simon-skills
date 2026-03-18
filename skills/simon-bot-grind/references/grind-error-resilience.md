@@ -49,6 +49,21 @@ ERROR
 
 에러 분류 트리의 키워드 매칭은 결정론적 작업이다. CLI 스크립트(`classify-error.sh` 등)가 있으면 키워드 기반 자동 분류를 먼저 수행하고, LLM은 분류 결과만 받아 복구 전략을 선택한다. grind의 재시도가 최대 10회이므로, 매번 에러 로그를 LLM이 읽는 것보다 CLI로 분류 결과만 받는 것이 컨텍스트 절약에 효과적이다.
 
+
+### 에러 출력 형식 (Next Action Guide)
+
+에러 분류 후, 복구 행동을 에러 메시지 자체에 내장하여 compaction 후에도 레퍼런스 없이 복구 가능하게 한다:
+
+형식: `[{TYPE}/{SUBTYPE}] {에러 요약} — Next: {1차 행동}`
+
+예시:
+- `[CODE_LOGIC/BUILD_FAILURE] compilation failed at handler.go:47 — Next: Read error output → fix code → re-run build`
+- `[CODE_LOGIC/TEST_FAILURE] expected 200 got 404 — Next: Check route definition → fix handler → re-run test`
+- `[ENV_INFRA/NETWORK_ERROR] connection refused on port 5432 — Next: Check Docker/DB status → restart if needed → retry`
+- `[WORKFLOW_ERROR/STATE_CORRUPTION] workflow-state.json parse error — Next: Re-read file → fix JSON → continue`
+
+이 형식은 Recovery Ladder의 1차 행동을 에러 메시지에 포함하므로, LLM이 error-resilience.md를 다시 읽지 않아도 즉시 복구를 시작할 수 있다.
+
 ## ENV_INFRA 실패 처리 (최대 10회)
 
 | 시도 | 복구 전략 |

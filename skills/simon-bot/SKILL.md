@@ -45,6 +45,10 @@ workflow-state.json이 없으면 Startup부터 시작한다.
 - 중단/에러: `blocked: true`, `blocked_reason` 기록
 - SMALL path에서 Steps 9-16 skip 시: `skipped_steps`에 기록, `skip_reason` 명시
 
+### Cross-Session State
+
+세션 간 구조화된 상태를 `~/.claude/projects/{slug}/state/`에 jsonl로 관리한다. Startup에서 유효 항목만 로딩하여 이전 세션의 이슈를 사전 인지한다 (상세: `cross-cutting-protocols.md`의 Cross-Session State 섹션 참조).
+
 ## Cross-Cutting Protocols
 
 이 섹션의 프로토콜은 두 종류로 나뉜다:
@@ -55,28 +59,17 @@ workflow-state.json이 없으면 Startup부터 시작한다.
 
 LLM은 두 종류를 구분하지 못하면 모든 것을 Guidance로 취급하여 중요한 게이트를 건너뛸 수 있다. Instruction을 명시적으로 식별하여 준수율을 높인다.
 
-### Error Resilience
+> **Shared Protocols**: `~/.claude/skills/_shared/preamble.md` 읽기 — Session Isolation, Error Resilience, Forbidden Rules, Agent Teams, Cognitive Independence 공통 프로토콜 포함.
 
-모든 실패를 ENV_INFRA / CODE_LOGIC / WORKFLOW_ERROR로 분류한 후 자동 복구한다. 사용자가 명시적으로 중단을 요청하지 않는 한 워크플로를 중단하지 않는다.
-For detailed protocol, read [error-resilience.md](references/error-resilience.md).
+### Session Isolation Protocol (확장)
 
-### Session Isolation Protocol
-
-동시에 여러 세션이 같은 레포에서 작업할 때 런타임 파일의 충돌을 방지한다. 세션별 런타임 데이터를 홈 디렉토리에 격리 저장한다.
 For detailed protocol (SESSION_DIR 결정, 경로 매핑, PM 파견 시 결과 경로), read [cross-cutting-protocols.md](references/cross-cutting-protocols.md).
 
-### Agent Teams
-
-이 워크플로는 Agent Teams 기능을 우선 사용한다 (`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` 필요). TeamCreate 실패 시 subagent 기반 fallback으로 자동 전환한다.
+### Agent Teams (확장)
 
 For lifecycle, rules, fallback, termination protocol details, read [agent-teams.md](references/agent-teams.md).
 
 Agent Team 운영 중 오케스트레이터는 TaskList를 주기적으로 확인하여 사용자에게 진행 상황을 보고한다. 상세 프로토콜은 `agent-teams.md`의 Heartbeat Protocol 섹션 참조.
-
-### Cognitive Independence
-
-검증 에이전트가 진정한 독립성을 유지하려면 구조적 분리(별도 subagent)만으로 부족하다 — 인지적 독립(Blind-First, Adversarial Default, Fresh Subagent, What-not-Why Handoff)이 필요하다.
-For detailed protocol, read [context-separation.md](references/context-separation.md).
 
 ### Decision Journal
 
@@ -135,6 +128,20 @@ For detailed protocol, read [context-separation.md](references/context-separatio
 
 `workflow/scripts/`의 스크립트는 구조화된 출력, 파이프 호환, 자기 문서화, 컨텍스트 전처리를 따른다.
 For detailed principles, read [cross-cutting-protocols.md](references/cross-cutting-protocols.md).
+
+### Phase Progress Dashboard (Guidance)
+
+Phase 전환 시 사용자에게 시각적 진행 상황을 제공한다:
+
+```
+=== Progress ===
+[######....] Step {current}/{total} ({percent}%)
+Phase A: DONE | Phase B: IN PROGRESS | Integration: PENDING
+Tests: {pass}/{total} | Build: {status}
+===
+```
+
+ship 모드: Phase 전환 시에만. guided 모드: AskUserQuestion 응답 시에도. interactive 모드: 매 Step 완료 시.
 
 ### Stop-and-Fix Gate
 
@@ -265,10 +272,57 @@ Step 20(마지막 단계)에 도달하지 못하더라도 사용자 피드백이
 형식: `[Handoff] {현재 스킬} → {다음 스킬}: {목적 1줄 설명}`
 예시: `[Handoff] simon-bot → simon-bot-review: Draft PR 생성 및 코드 리뷰 진행합니다.`
 
+### Handoff Manifest (Instruction)
+
+스킬 전환 시 `{SESSION_DIR}/memory/handoff-manifest.json`을 생성하여 컨텍스트 전달을 결정론적으로 보장한다:
+
+```json
+{
+  "from_skill": "simon-bot",
+  "to_skill": "simon-bot-review",
+  "trigger_step": "Step 19",
+  "transfer_files": ["review-sequence.md", "branch-name.md", "{feature-name}-report.md", "plan-summary.md"],
+  "block_files": ["implementation.md (추론 과정)", "inline-issues.md (해석 부분)"],
+  "context_note": "CONNECTED 모드. Blind-First 2-Pass 적용됨.",
+  "session_dir": "{SESSION_DIR}"
+}
+```
+
+수신 스킬은 이 manifest를 자동 파싱하여 transfer_files만 로딩하고, block_files는 로딩하지 않는다.
+What-not-Why Handoff 규칙이 manifest에 내장되어 Cognitive Independence 위반을 구조적으로 방지한다.
+
+### AskUserQuestion Standard Format (Guidance)
+
+모든 AskUserQuestion 호출에 아래 구조를 따른다. 사용자가 20분 동안 안 봤다고 가정하고, 맥락을 다시 제공한다:
+
+```
+[Context] {프로젝트명} / {브랜치} / Step {N}: {Step명}
+{현재 상황 1줄 요약}
+---
+[Recommendation] {추천 선택지} — {이유} (Completeness: N/10)
+[Options]
+A) {옵션} (human: ~X / CC: ~Y turns)
+B) {옵션} (human: ~X / CC: ~Y turns)
+C) {옵션}
+```
+
+Completeness 점수: 10=모든 edge case, 7=happy path only, 3=significant deferral. 5 이하면 flag.
+Effort 이중 스케일: 사용자가 AI 활용 비용을 체감할 수 있도록 항상 human/CC 양쪽 제시.
+
 ### Docs-First Protocol
 
 라이브러리·DB·프레임워크·외부 서비스 사용 시 공식 문서를 먼저 조회한다.
 For detailed protocol (적용 기준, 도구 우선순위, 조회 불가 시 대응), read [docs-first-protocol.md](references/docs-first-protocol.md).
+
+### Interaction Mode
+
+config.yaml의 `interaction_mode` 설정에 따라 사용자 인터랙션 수준을 조절한다:
+
+- **ship**: test failure, build failure, CRITICAL security finding, merge conflict에서만 정지. 나머지는 AI 자동 결정 + Decision Journal 기록. "한 번 입력 후 PR URL까지."
+- **guided** (기본값): 핵심 판단점(경로 선택, CRITICAL 이슈)에서만 AskUserQuestion. 대부분 자동 진행.
+- **interactive**: 모든 AskUserQuestion 유지. 현재 동작과 동일.
+
+Startup에서 `config.yaml`의 `interaction_mode`를 읽고, 없으면 `guided`를 기본값으로 사용한다.
 
 ## Startup
 

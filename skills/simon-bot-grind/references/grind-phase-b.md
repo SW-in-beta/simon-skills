@@ -82,6 +82,18 @@ CONTEXT.md 추가 항목:
 - **Loop 9**: Scope reduction — fix most critical regression, document rest
 - **Loop 10**: Last stand → escalation report + AskUserQuestion
 
+
+#### Blame Protocol (grind 강화)
+
+regression 실패 발견 시, base branch에서 동일 테스트를 실행하여 원인을 증명한다:
+
+1. `git stash` → base branch checkout → 동일 테스트 실행
+2. base에서도 실패 → `[PRE-EXISTING]` — 무관함이 증명됨
+3. base에서 통과 → `[INTRODUCED]` — 반드시 수정 필요
+4. 검증 불가 → `[UNVERIFIED]` + 리스크로 명시
+
+**grind 특화**: 10회 재시도 압력 하에서 "기존 결함" 합리화가 빈번하게 발생할 수 있다. WTF-Likelihood에 "[UNVERIFIED] regression 무시" 이벤트를 +10%로 반영하여 폭주를 감지한다.
+
 ## Step 9: File/Function Splitting
 
 - **Save checkpoint** before splitting: `git tag checkpoint-step9`

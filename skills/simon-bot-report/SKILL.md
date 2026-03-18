@@ -15,19 +15,19 @@ You are executing the **simon-bot-report** skill. This skill analyzes a codebase
 
 **This is NOT a post-implementation report. It is a PRE-work analysis document** (RFC, 현황 분석, 기술 제안서 등).
 
-### Session Isolation Protocol
+> **도구 제한**: 이 스킬은 분석용이다. 프로젝트 소스 코드를 Edit/Write하지 않는다. 보고서 파일(`{SESSION_DIR}/reports/`)만 Write한다.
 
-런타임 산출물을 홈 디렉토리에 세션별로 격리 저장한다. 모든 `.claude/reports/` 경로를 `{SESSION_DIR}/reports/`로 해석한다.
+> **Shared Protocols**: `~/.claude/skills/_shared/preamble.md` 읽기 — Session Isolation, Error Resilience, Forbidden Rules, Agent Teams, Cognitive Independence 공통 프로토콜 포함.
 
-**Step 0에서 SESSION_DIR 결정:**
+### Session Isolation Protocol (확장 — Report 전용)
+
+Report 세션의 SESSION_DIR은 타임스탬프 기반으로 결정한다:
 ```bash
 PROJECT_SLUG=$(git rev-parse --show-toplevel | tr '/' '-')
 SESSION_ID="report-$(date +%Y%m%d-%H%M%S)"
 SESSION_DIR="${HOME}/.claude/projects/${PROJECT_SLUG}/sessions/${SESSION_ID}"
 mkdir -p "${SESSION_DIR}/reports"
 ```
-
-프로젝트의 `.claude/workflow/` (config, scripts)는 공유 설정이므로 프로젝트 디렉토리에서 그대로 읽는다.
 
 ### Step 0: Input Collection (P-001 AI-First Draft)
 

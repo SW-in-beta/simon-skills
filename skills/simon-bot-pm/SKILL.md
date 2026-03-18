@@ -47,6 +47,8 @@ compatibility:
 
 ## Cross-Cutting Protocols
 
+> **Shared Protocols**: `~/.claude/skills/_shared/preamble.md` 읽기 — Session Isolation, Error Resilience, Forbidden Rules, Agent Teams, Cognitive Independence 공통 프로토콜 포함.
+
 ### Decision Trail
 
 주요 판단 지점에서 사용자에게 1줄 판단 근거를 함께 제시한다. PM이 왜 그렇게 결정했는지 투명하게 보여주어야 사용자가 방향을 교정할 수 있다.
@@ -59,11 +61,9 @@ compatibility:
 
 형식 예시: `[판단] F3를 simon-bot-grind로 할당 — 외부 API 3개 연동 + 기존 코드 광범위 수정`
 
-### Session Isolation Protocol
+### Session Isolation Protocol (확장 — PM 전용)
 
-동시에 여러 PM 세션이 같은 레포에서 작업할 때 `.claude/pm/` 하위 런타임 파일의 충돌을 방지한다. 세션별 런타임 데이터를 홈 디렉토리에 격리 저장한다.
-
-**Phase 0에서 SESSION_DIR 결정:**
+PM 세션의 SESSION_DIR은 브랜치명 대신 타임스탬프 기반으로 결정한다:
 ```bash
 PROJECT_SLUG=$(git rev-parse --show-toplevel | tr '/' '-')
 SESSION_ID="pm-$(date +%Y%m%d-%H%M%S)"
@@ -78,14 +78,9 @@ echo "${SESSION_DIR}" > "${SESSION_DIR}/pm/session-path.txt"
 |-------------|--------------|
 | `.claude/pm/*` | `{SESSION_DIR}/pm/*` |
 
-프로젝트의 `.claude/workflow/` (config, scripts)는 공유 설정이므로 프로젝트 디렉토리에서 그대로 읽는다.
-
 **Bot 파견 시 결과 경로 전달**: simon-bot에게 Feature 구현을 위임할 때, 결과 파일 경로 `{SESSION_DIR}/pm/tasks/{task-id}/result.md`를 명시적으로 전달한다. Bot은 자체 `{SESSION_DIR}/memory/`에 작업하되, 완료 시 결과를 PM이 지정한 경로에 기록한다.
 
-### Error Resilience
-
-모든 실패를 자동 진단/복구한다. 사용자가 명시적으로 중단을 요청하지 않는 한 워크플로를 계속 진행한다.
-실패 분류: ENV_INFRA (환경/인프라) vs CODE_LOGIC (코드/로직). 각각 다른 복구 전략 적용.
+### Error Resilience (확장 — PM Phase별)
 
 **Phase별 복구 전략:**
 

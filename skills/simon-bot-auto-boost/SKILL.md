@@ -158,20 +158,11 @@ coding agent skills workflow automation {year}
 
 ## Phase 3: 전문가 패널 분석
 
-simon-bot-boost의 6인 전문가 패널과 동일한 구조를 사용한다.
-
-**전문가 구성:**
-1. **Workflow Architect** — 워크플로 구조, 단계 순서, 게이트 설계
-2. **Prompt Engineer** — 프롬프트 품질, 지시문 명확성, 예시 적절성
-3. **Innovation Scout** — 새로운 기법, 패턴, 도구 활용 가능성
-4. **Quality & Safety Guardian** — 에러 처리, 안전장치, 엣지케이스
-5. **DX Specialist** — 개발자 경험, 피드백 루프, 사용 편의성
-6. **Skill Craft Specialist** — 스킬 구조, progressive disclosure, 트리거링
-   > Skill Craft Specialist는 분석 전 `~/.claude/skills/simon-bot-boost/references/skill-best-practices.md`를 읽는다.
+> **Reference Loading**: `~/.claude/skills/_shared/expert-panel-boost.md` 읽기 — 6인 전문가 패널 구성, 분석 항목, 토론 프로토콜, Agent Teams Fallback 포함.
 
 **실행:**
-- Agent Team 사용 가능 → TeamCreate로 팀 토론 (3라운드: 독립 분석 → 교차 토론 → 합의 도출)
-- Agent Team 사용 불가 → 6개 Agent를 병렬 spawn, 결과를 `~/.claude/boost/expert-findings/auto-{timestamp}/`에 기록 후 오케스트레이터가 통합
+- Agent Team 사용 가능 -> TeamCreate로 팀 토론 (3라운드: 독립 분석 -> 교차 토론 -> 합의 도출)
+- Agent Team 사용 불가 -> 6개 Agent를 병렬 spawn, 결과를 `~/.claude/boost/expert-findings/auto-{timestamp}/`에 기록 후 오케스트레이터가 통합
 
 **각 전문가에게 제공하는 컨텍스트:**
 - 소스 요약본 (Phase 2)

@@ -1,0 +1,10 @@
+# Local eval data
+*-workspace/
+evals/
+
+# Meta skill (not part of the repo)
+skills/simon-bot-sync/
+
+# Non-target skills
+skills/simon-bot-sandbox/
+skills/simon-bot-sandbox-workspace/

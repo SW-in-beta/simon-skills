@@ -6,6 +6,18 @@
 - [Docs-First Protocol](#docs-first-protocol)
 - [Context Window Management](#context-window-management)
 
+## Clean Working Tree Check
+
+Startup에서 worktree 생성 전에 working tree의 clean 여부를 검증한다:
+
+```bash
+if [ -n "$(git status --porcelain 2>/dev/null)" ]; then
+  echo "[Working Tree] 미커밋 변경사항이 있습니다."
+fi
+```
+
+dirty 상태 감지 시: ship 모드에서는 경고만 출력하고 계속 진행. guided/interactive 모드에서는 AskUserQuestion으로 확인.
+
 ## Session Isolation Protocol
 
 동시에 여러 세션이 같은 레포에서 작업할 때 `.claude/` 하위 런타임 파일의 충돌을 방지한다. 세션별 런타임 데이터를 홈 디렉토리에 격리 저장한다.
@@ -45,6 +57,18 @@ mkdir -p "${SESSION_DIR}/memory" "${SESSION_DIR}/reports"
 
 For detailed protocol (적용 기준, 도구 우선순위, 조회 불가 시 대응), read [docs-first-protocol.md](docs-first-protocol.md).
 
+
+### Cross-Session State
+
+세션 간 구조화된 상태를 `~/.claude/projects/{slug}/state/`에 jsonl로 관리한다:
+
+- `reviews.jsonl`: 리뷰 결과 (severity, file, finding, resolution, timestamp, expires_at)
+- `decisions.jsonl`: 아키텍처 결정 (decision, rationale, rejected_alternatives, timestamp)
+- `test-insights.jsonl`: 반복 실패 패턴, 환경 의존 테스트 목록
+
+**유효기간**: 7일. Startup에서 유효 항목만 로딩하여 이전 세션의 이슈를 사전 인지한다.
+**기록 시점**: Step 완료 시 해당 Step의 판단/결과를 append한다.
+**포맷**: 한 줄에 하나의 JSON 객체. jq로 필터링 가능.
 ## Context Window Management
 
 컨텍스트 윈도우가 자동 압축(compact)되므로, 토큰 예산 걱정으로 작업을 조기에 중단하지 않는다. 압축이 발생해도 `.claude/memory/`에 상태가 저장되어 있으므로 작업을 계속 진행한다.

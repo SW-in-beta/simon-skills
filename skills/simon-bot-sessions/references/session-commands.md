@@ -83,6 +83,27 @@ ls -1d "${SESSIONS_DIR}"/*/ 2>/dev/null
 
 ### Step 2: 작업 선택 (AskUserQuestion)
 
+#### Resume Default 자동 진행
+
+가장 흔한 시나리오("이어서 계속 진행")에서 불필요한 AskUserQuestion을 제거한다:
+
+**자동 진행 조건** (모두 충족 시):
+- 탐지된 세션이 1개
+- 세션 상태가 정상 (blocked=false)
+- 마지막 활동이 24시간 이내
+
+위 조건이 충족되면 AskUserQuestion 없이 자동 resume:
+```
+[Resume] {branch} — Step {N}/{total}에서 이어갑니다 ({Step명})
+변경하려면 알려주세요.
+```
+
+**AskUserQuestion 유지 조건** (하나라도 해당 시):
+- 탐지된 세션이 2개 이상
+- 세션 상태가 blocked
+- 마지막 활동이 24시간 초과
+- 이전 세션에서 에러로 중단됨
+
 파악된 상태에 따라 적절한 질문을 한다:
 
 **워크트리/브랜치가 여러 개인 경우:**

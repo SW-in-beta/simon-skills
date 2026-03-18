@@ -8,6 +8,8 @@ compatibility:
 
 # simon-bot Sessions
 
+> **도구 제한**: 이 스킬은 세션 관리용이다. 프로젝트 소스 코드를 Edit/Write하지 않는다. 세션 메타데이터 파일만 수정한다.
+
 작업 세션 관리 스킬. **Git 이력을 1차 소스(SSoT)**로 활용하여 작업 현황을 파악하고 이전 작업을 대화형으로 재개합니다.
 
 > **Why: Git 이력을 SSoT로 사용하는 이유** — 워크트리는 삭제될 수 있고 메모리 파일은 불완전할 수 있지만, 커밋 히스토리는 영구적이기 때문이다. 어떤 소스가 유실되더라도 git log만 있으면 작업 흐름을 재구성할 수 있다.
@@ -18,11 +20,13 @@ compatibility:
 
 스크립트 경로: `~/.claude/skills/simon-bot/workflow/scripts/manage-sessions.sh`
 
-### Session Isolation Protocol
+> **Shared Protocols**: `~/.claude/skills/_shared/preamble.md` 읽기 — Session Isolation, Error Resilience, Forbidden Rules, Agent Teams, Cognitive Independence 공통 프로토콜 포함.
+
+### Session Isolation Protocol (확장 — Sessions 전용)
 
 > **Why: 홈 디렉토리에 격리하는 이유** — 프로젝트 디렉토리에 저장하면 git에 의도치 않게 포함되거나, worktree 삭제 시 세션 데이터가 함께 사라지기 때문이다. 홈 디렉토리의 고정 경로에 격리하면 워크트리 생명주기와 무관하게 세션 데이터가 보존된다.
 
-simon-* 스킬들은 런타임 데이터를 프로젝트 디렉토리가 아닌 홈 디렉토리에 세션별로 격리 저장한다. 세션 탐지 시 아래 두 곳을 모두 스캔해야 한다:
+세션 탐지 시 아래 두 곳을 모두 스캔해야 한다:
 
 **세션 데이터 위치:**
 ```bash

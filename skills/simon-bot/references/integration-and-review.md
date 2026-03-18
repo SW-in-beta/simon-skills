@@ -109,7 +109,9 @@ review-sequence.md 작성 시, Step 7의 `review-findings.md`에서 CRITICAL/HIG
 
 ## Step 19: simon-bot-review 스킬 호출
 
-Step 18-B 완료 후, `simon-bot-review` 스킬을 호출하여 Draft PR 생성부터 인라인 코드 리뷰, CI Watch, 피드백 루프, 최종 마무리까지 위임한다.
+Step 18-B 완료 후, simon-bot-review 스킬 호출 전에 `{SESSION_DIR}/memory/handoff-manifest.json`을 생성한다 (SKILL.md의 Handoff Manifest 참조). transfer_files에 review-sequence.md, branch-name.md, {feature-name}-report.md, plan-summary.md를 포함하고, block_files에 implementation.md, inline-issues.md를 포함하여 Cognitive Independence를 구조적으로 보장한다.
+
+그 후 `simon-bot-review` 스킬을 호출하여 Draft PR 생성부터 인라인 코드 리뷰, CI Watch, 피드백 루프, 최종 마무리까지 위임한다.
 
 **simon-bot-review 중단 시 복구 책임**: simon-bot-review 실행 중 push 실패, API 오류 등으로 흐름이 중단되면, 문제 해결 후 simon-bot-review의 잔여 워크플로(특히 Step 2 인라인 리뷰, Step 3 CI Watch)를 자동 재개해야 한다. PR 생성만으로 Step 19가 "완료"되지 않는다 — simon-bot-review의 Completion Summary가 출력될 때까지가 Step 19의 범위다.
 

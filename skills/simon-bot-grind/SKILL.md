@@ -22,9 +22,11 @@ compatibility:
 - **체크포인트/롤백** for safe experimentation
 - **Confidence Scoring & Assumption Registry** — structured user interviews
 
-### Session Isolation Protocol
+> **Shared Protocols**: `~/.claude/skills/_shared/preamble.md` 읽기 — Session Isolation, Error Resilience, Forbidden Rules, Agent Teams, Cognitive Independence 공통 프로토콜 포함.
 
-simon-bot의 Session Isolation Protocol을 상속한다. Startup에서 SESSION_DIR을 동일하게 결정하고, 모든 `.claude/memory/` 경로를 `{SESSION_DIR}/memory/`로 해석한다. grind 전용 파일(`failure-log.md`, `checkpoints.md`, `assumptions-registry.md`, `escalation-report.md`)도 동일하게 `{SESSION_DIR}/memory/`에 저장한다.
+### Session Isolation Protocol (확장)
+
+grind 전용 파일(`failure-log.md`, `checkpoints.md`, `assumptions-registry.md`, `escalation-report.md`)도 동일하게 `{SESSION_DIR}/memory/`에 저장한다.
 
 ## Grind Config Overrides
 
