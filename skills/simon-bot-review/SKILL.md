@@ -80,7 +80,17 @@ For detailed instructions, read [standalone-analysis.md](references/standalone-a
 > **핵심 제약**: PR은 반드시 **Draft** 상태로 생성한다. Draft 상태는 리뷰 워크플로의 전제 조건이며, Step 5에서 사용자 승인 후에만 Ready로 전환한다.
 
 1. 브랜치명 확인: `.claude/memory/branch-name.md` 또는 현재 브랜치 (`git branch --show-current`)
-2. 브랜치 push:
+2. **[GATE — 기존 PR 감지]** 현재 브랜치에 이미 PR이 존재하는지 확인한다:
+   ```bash
+   EXISTING_PR=$(gh pr view --json number,isDraft,url --jq '{number: .number, isDraft: .isDraft, url: .url}' 2>/dev/null)
+   ```
+   - **PR 없음** (`gh pr view` 실패) → 3번(브랜치 push)으로 진행
+   - **PR 있고 Draft 상태** → PR 번호/URL 저장 후 7번(PR URL 저장)으로 건너뛰기
+   - **PR 있고 일반(Ready) 상태** → 즉시 Draft로 전환 후 7번으로 건너뛰기:
+     ```bash
+     gh pr ready {pr_number} --undo
+     ```
+3. 브랜치 push:
    ```bash
    git push -u origin {branch-name}
    ```
@@ -88,24 +98,24 @@ For detailed instructions, read [standalone-analysis.md](references/standalone-a
    - hooks 차단(exit 2) → 차단 사유 확인 후 사용자에게 보고. 사용자가 수동으로 push하면 push 성공을 확인하고 **Step 1의 나머지 하위 단계(3~7)부터 자동 재개**한다.
    - 인증/네트워크 실패 → Error Resilience의 ENV_INFRA/NETWORK_ERROR 절차 적용. 복구 성공 시 push 재시도 후 Step 1 계속 진행.
    - **핵심 규칙**: push 실패로 사용자에게 안내한 후, 사용자가 문제를 해결하면 **Step 2(인라인 리뷰)까지의 전체 잔여 워크플로를 자동 재개**한다. "PR 생성까지만 진행하고 멈추는" 것은 금지 — 인라인 리뷰, CI Watch, 피드백 루프까지가 하나의 완결 단위다.
-3. Report 파일 확인:
+4. Report 파일 확인:
    - `.claude/reports/{feature-name}-report.md` 존재 → `--body-file`로 사용
    - 미존재 → review-sequence.md 기반으로 간략 요약 생성하여 사용
-4. **Draft PR 생성** — `--draft` 플래그는 **필수**다. 일반 PR로 생성하면 안 된다:
+5. **Draft PR 생성** — `--draft` 플래그는 **필수**다. 일반 PR로 생성하면 안 된다:
    ```bash
    gh pr create --draft \
      --title "{type}: {feature summary}" \
      --body-file {report-path}
    ```
-5. **[GATE — Draft 상태 검증]** PR 생성 직후 Draft 상태를 확인한다. Draft가 아니면 즉시 전환한다:
+6. **[GATE — Draft 상태 검증]** PR 생성 직후 Draft 상태를 확인한다. Draft가 아니면 즉시 전환한다:
    ```bash
    IS_DRAFT=$(gh pr view {pr_number} --json isDraft --jq '.isDraft')
    if [ "$IS_DRAFT" != "true" ]; then
      gh pr ready {pr_number} --undo
    fi
    ```
-6. PR URL과 번호 저장: `.claude/memory/pr-info.md`
-7. PR description에 **Review Guide** 섹션 추가:
+7. PR URL과 번호 저장: `.claude/memory/pr-info.md`
+8. PR description에 **Review Guide** 섹션 추가:
    - 논리적 변경 단위 수 + 각 단위 한줄 요약
    - 리뷰 순서 안내 (왜 이 순서인지)
    - 추가 맥락 (있으면)

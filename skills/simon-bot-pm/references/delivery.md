@@ -38,5 +38,11 @@ Features: {completed}/{total} 완료
 
 - 최종 수정사항 커밋
 - AskUserQuestion: "PR을 생성할까요?"
-- PR 생성은 `simon-bot-review` 스킬을 호출하여 위임한다 (Draft PR 생성 + 인라인 리뷰). PM이 직접 `gh pr create`를 실행하지 않는다.
+- **[GATE — PR 직접 생성 금지]** PM이 `gh pr create`를 직접 실행하는 것은 금지다. PR 생성은 반드시 `simon-bot-review` 스킬 호출을 통해 수행한다. 이 GATE를 위반하면 Draft 상태 불일치, 인라인 리뷰 누락이 발생한다.
+  - 사전 검증: `simon-bot-review` 호출 전에, 현재 브랜치에 이미 PR이 존재하는지 확인한다:
+    ```bash
+    EXISTING_PR=$(gh pr view --json number,isDraft --jq '{number, isDraft}' 2>/dev/null || echo "none")
+    ```
+  - PR이 이미 있으면: `simon-bot-review`에 기존 PR 정보를 전달하여 Draft 전환 + 리뷰를 수행하도록 한다.
+  - PR이 없으면: `simon-bot-review`가 Draft PR을 새로 생성한다.
 - `.claude/pm/retrospective.md`에 회고 기록
