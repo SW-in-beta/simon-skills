@@ -25,7 +25,7 @@
 각 finding은 반드시 아래 요소를 포함한다:
 
 1. **구체적 코드 위치**: `파일:줄` 형식 (예: `internal/auth/handler.go:47`)
-2. **근거**: 추측이 아닌 증거. OBSERVE → TRACE → HYPOTHESIZE → VERIFY 프로세스를 거친 결과
+2. **근거**: 추측이 아닌 증거. OBSERVE → TRACE → HYPOTHESIZE → VERIFY 프로세스를 거친 결과 (분석 프로세스 상세: `expert-output-schema.md`의 Analysis Process 참조)
 3. **영향 범위**: 어떤 엔드포인트/모듈/사용자가 영향받는지 구체적 명시
 4. **수정 방향**: 구체적 수정 방안 (`RECOMMENDATION` 필드)
 

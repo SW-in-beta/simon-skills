@@ -47,7 +47,7 @@ ERROR
 
 분류 후 해당 유형(ENV_INFRA / CODE_LOGIC / WORKFLOW_ERROR)의 복구 전략을 적용한다. **모호한 경우 ENV_INFRA → WORKFLOW_ERROR → CODE_LOGIC 순으로 우선 처리한다** (simon-bot 기본 프로토콜과 동일).
 
-에러 분류 트리의 키워드 매칭은 결정론적 작업이다. CLI 스크립트(`classify-error.sh` 등)가 있으면 키워드 기반 자동 분류를 먼저 수행하고, LLM은 분류 결과만 받아 복구 전략을 선택한다. grind의 재시도가 최대 10회이므로, 매번 에러 로그를 LLM이 읽는 것보다 CLI로 분류 결과만 받는 것이 컨텍스트 절약에 효과적이다.
+에러 분류 트리의 키워드 매칭은 결정론적 작업이다. CLI 스크립트(`classify-error.sh`)로 키워드 기반 자동 분류를 먼저 수행하고, LLM은 분류 결과만 받아 복구 전략을 선택한다. grind의 재시도가 최대 10회이므로, 매번 에러 로그를 LLM이 읽는 것보다 CLI로 분류 결과만 받는 것이 컨텍스트 절약에 효과적이다.
 
 
 ### 에러 출력 형식 (Next Action Guide)
