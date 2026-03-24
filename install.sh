@@ -67,6 +67,7 @@ install_global() {
     install_skill "simon-bot-boost"
     install_skill "simon-bot-boost-capture"
     install_skill "simon-bot-boost-review"
+    install_skill "simon-bot-ci-fix"
     install_skill "simon-bot-grind"
     install_skill "simon-bot-pm"
     install_skill "simon-bot-report"

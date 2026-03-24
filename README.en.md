@@ -70,6 +70,7 @@ Then in Claude Code:
 | `/simon-bot-boost` | Read external resources and improve simon-bot's own skills |
 | `/simon-bot-boost-capture` | Background capture of skill improvements — record insights without interrupting workflow |
 | `/simon-bot-boost-review` | Review & apply accumulated improvement insights from boost-capture |
+| `/simon-bot-ci-fix` | Auto-fix CI failures — log analysis, error classification, code fix, push (up to 5 cycles) |
 | `/simon-bot-healthcheck` | Skill health dashboard — structural quality verification for the entire simon-bot family |
 | `/simon-company` | Full-stack software company — multi-team collaboration from planning to deployment & ops |
 | `/simon-presenter` | Live demo presenter — run apps with Playwright for interactive demonstrations |
@@ -89,6 +90,7 @@ Then in Claude Code:
 | Auto-search latest trends and improve skills | `/simon-bot-auto-boost` |
 | Note a skill improvement without stopping work | `/simon-bot-boost-capture` |
 | Batch-review and apply accumulated improvements | `/simon-bot-boost-review` |
+| Auto-fix CI failures (PR checks failing) | `/simon-bot-ci-fix` |
 | Check skill quality, verify after boost | `/simon-bot-healthcheck` |
 | Demo a finished app with live browser interaction | `/simon-presenter` |
 
@@ -202,6 +204,18 @@ Runs finished apps with a Playwright headed browser for interactive live demonst
 **simon-bot-boost-capture** — Records skill improvement insights in the background during active work. Captures ideas without interrupting your workflow for later batch processing.
 
 **simon-bot-boost-review** — Reviews and applies accumulated insights from boost-capture. Batch-processes captured improvement proposals into actual skill changes.
+
+</details>
+
+<details>
+<summary><strong>simon-bot-ci-fix</strong></summary>
+
+Auto-fixes CI failures on PRs with specialized recovery strategies per error type:
+
+- **Up to 5 fix cycles** — log analysis, error classification, code fix, push, re-check
+- **Error-type routing** — different strategies for lint, test, build, type-check failures
+- **Dual mode** — auto-invoked by simon-bot-review's CI Watch, or run standalone
+- **Smart diagnosis** — analyzes CI logs to identify root cause before attempting fixes
 
 </details>
 
