@@ -107,6 +107,21 @@ review-sequence.md 작성 시, Step 7의 `review-findings.md`에서 CRITICAL/HIG
 
 이 매핑은 Step 19(simon-bot-review)에서 인라인 코멘트 생성의 입력이 된다. findings의 FINDING_ID, SEVERITY, FILE:LINE, EVIDENCE 정보가 손실되지 않도록 한다.
 
+### gstack 스킬 제안 (Post-Report)
+
+Step 18 완료 후, gstack이 설치되어 있으면(`~/.claude/skills/gstack/SKILL.md` 존재) 현재 프로젝트 상황에 맞는 gstack 스킬을 제안한다:
+
+- **프론트엔드 변경이 포함된 경우**: `/design-review` (시각적 QA — 스크린샷 비교, 간격/정렬 검증)
+- **보안 관련 변경이 포함된 경우**: `/cso` (OWASP + STRIDE 보안 감사)
+- **배포 준비가 된 경우 (PR 이후)**: `/ship` → `/land-and-deploy` → `/canary` (배포 파이프라인)
+- **성능에 민감한 변경인 경우**: `/benchmark` (Core Web Vitals, 번들 사이즈 측정)
+- **대규모 문서 변경이 필요한 경우**: `/document-release` (README/ARCHITECTURE/CHANGELOG 동기화)
+- **디버깅이 필요한 경우**: `/investigate` (4단계 근본 원인 분석)
+
+형식: "gstack 스킬 제안: 이 변경에는 `/design-review`(UI 시각적 QA)가 도움이 될 수 있습니다."
+
+사용자가 거부하면 제안을 중단한다. gstack 미설치 시 이 섹션 전체를 건너뛴다.
+
 ## Step 19: simon-bot-review 스킬 호출
 
 Step 18-B 완료 후, simon-bot-review 스킬 호출 전에 `{SESSION_DIR}/memory/handoff-manifest.json`을 생성한다 (SKILL.md의 Handoff Manifest 참조). transfer_files에 review-sequence.md, branch-name.md, {feature-name}-report.md, plan-summary.md를 포함하고, block_files에 implementation.md, inline-issues.md를 포함하여 Cognitive Independence를 구조적으로 보장한다.
