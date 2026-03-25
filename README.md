@@ -76,6 +76,7 @@ graph LR
 | `/simon-bot-boost-capture` | 작업 중 스킬 개선점 백그라운드 캡처 — 작업 흐름을 멈추지 않고 인사이트 기록 |
 | `/simon-bot-boost-review` | 축적된 개선 인사이트 리뷰 & 적용 — 캡처된 개선안을 검토하고 스킬에 반영 |
 | `/simon-bot-ci-fix` | CI 실패 자동 수정 — 로그 분석, 에러 분류, 코드 수정, 푸시를 최대 5 사이클 반복 |
+| `/simon-bot-healthcheck` | 스킬 건강 상태 대시보드 — 패밀리 전체의 구조적 품질 검증 |
 | `/simon-company` | 풀스택 소프트웨어 회사 — 다중 전문 팀 협업으로 기획부터 배포·운영까지 완성 |
 | `/simon-presenter` | 라이브 데모 프레젠터 — Playwright로 앱을 실제 구동하며 인터랙티브 시연 |
 
@@ -95,6 +96,7 @@ graph LR
 | 작업 중 스킬 개선점 메모 (작업 흐름 유지) | `/simon-bot-boost-capture` |
 | 축적된 개선안 일괄 검토 & 적용 | `/simon-bot-boost-review` |
 | CI 실패 자동 수정 (PR checks 실패) | `/simon-bot-ci-fix` |
+| 스킬 품질 검증 (boost 후 무결성 확인) | `/simon-bot-healthcheck` |
 | 완성된 앱 라이브 데모 시연 | `/simon-presenter` |
 
 ---
