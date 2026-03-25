@@ -117,6 +117,11 @@ EOF
 
 ### Self-Agreement Bias 견제 (COUNTER verdict 전 필수 자문)
 
+> **참조**: 이 견제는 Step 4(피드백 루프)의 전문가 검증에 적용된다.
+> Step 2의 Pass 1(최초 리뷰)에는 별도의 Adversarial Self-Check가 있다
+> (review-strategy.md Pass 1, 6번 참조). 두 메커니즘의 목적은 동일하다 —
+> AI가 자기(또는 동종 AI)가 작성한 코드에 대해 정당화 편향을 갖는 것을 방지한다.
+
 이 코드는 다른 AI 에이전트가 작성한 것이다. 같은 모델이 작성한 코드를 검증할 때, 코드의 접근법에 자연스럽게 동의하는 경향(self-agreement bias)이 존재한다 — 구현자의 추론 패턴과 검증자의 추론 패턴이 동일하기 때문이다.
 
 COUNTER verdict를 내리기 전에 다음을 자문한다:
