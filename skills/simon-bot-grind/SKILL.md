@@ -91,11 +91,13 @@ loop_limits:
 
 | 트리거 | 읽을 파일 |
 |--------|----------|
-| Startup | simon-bot SKILL.md + grind SKILL.md |
+| Startup | grind SKILL.md + simon-bot의 workflow-state.json 스키마 및 Reference Loading Policy 테이블만 참조 (전체 SKILL.md 로딩은 Phase 진입 시) |
 | Phase A 진입 | grind-phase-a.md + simon-bot phase-a-planning.md |
 | Phase B-E 진입 | grind-phase-b.md + simon-bot phase-b-implementation.md |
 | 에러 발생 시 | grind-error-resilience.md |
 | Cross-cutting 참조 시 | grind-cross-cutting.md |
+
+> **Note**: 초기 로딩을 경량화하여 grind의 재시도 집약적 특성에서 컨텍스트를 절약한다.
 
 ## Instructions
 
@@ -108,6 +110,16 @@ You are executing **simon-bot-grind** (열일모드). Follow the simon-bot 19-st
 
 **Anti-Hardcoding Principle: "테스트를 속이지 않는다."**
 재시도가 쌓일수록 "일단 통과만 시키자"는 유혹이 커지지만, 특정 입력값에 대한 하드코딩은 다른 입력에서 깨진다. 항상 일반적 해결책을 구현하고, 테스트가 잘못된 것 같으면 우회하지 말고 보고한다.
+
+### Mini-Contract Protocol
+
+각 Attempt Tier(초기 1-3, 중기 4-6, 후기 7-9) 시작 시 현재 상태를 분석하여 Mini-Contract를 failure-log.md에 기록한다:
+
+```json
+{"tier": 2, "goal": "근본 원인 파악", "success_criteria": ["에러 분류 완료", "재현 테스트 작성"], "exit_condition": "success_criteria 충족 또는 3회 시도 소진"}
+```
+
+Progress Detection이 이 Mini-Contract의 success_criteria를 기준으로 '진전 있음/없음'을 판단한다 — 기계적 비교(실패 수, 에러 메시지)에 목적 기반 판단을 추가하여 '목표 없는 반복'을 방지한다.
 
 ## Cross-Cutting: Error Resilience (Enhanced)
 

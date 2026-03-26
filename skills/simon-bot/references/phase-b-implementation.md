@@ -348,6 +348,17 @@ executor가 구현을 완료하면, Step 6으로 넘기기 전에 plan-summary.m
 
 - Save: `.claude/memory/unit-{name}/implementation.md`
 
+### Complexity Checkpoint (Dynamic Path Upgrade)
+
+Step 5 완료 후, SMALL 경로로 시작한 경우 아래 조건을 확인한다:
+- inline-issues.md에 HIGH+ 이슈 3건 이상
+- TDD 사이클 실패 재시도 3회 이상
+- 구현 과정에서 plan-summary.md에 없는 파일 수정 3개 이상
+
+2개 이상 해당 시 STANDARD 경로 업그레이드를 제안한다. Decision Journal에 기록하고 사용자에게 1줄 통보: `[Decision] SMALL → STANDARD 업그레이드 제안 — {사유}. 거부 시 SMALL 유지.`
+
+사용자가 거부하면 SMALL을 유지하되, Step 17에서 해당 판단을 참조하여 추가 검증 항목을 고려한다.
+
 ### Unit Retrospective Checkpoint
 
 Unit의 마지막 Step 완료 시 (SMALL: Step 8, STANDARD+: Step 17), **Phase-End Auto-Retrospective** 프로토콜을 실행한다 (SKILL.md Cross-Cutting Protocol 참조). 해당 Unit 구현 중 축적된 사용자 피드백에서 반복 패턴을 탐지하고, 필요 시 boost-capture를 백그라운드로 트리거한다.

@@ -92,6 +92,24 @@ simon-bot이 생성하는 주요 산출물의 스타일, 구조, 품질 기준.
 - 기타 개선사항
 ```
 
+## AskUserQuestion Standard Format
+
+모든 AskUserQuestion 호출에 아래 구조를 따른다. 사용자가 20분 동안 안 봤다고 가정하고, 맥락을 다시 제공한다:
+
+```
+[Context] {프로젝트명} / {브랜치} / Step {N}: {Step명}
+{현재 상황 1줄 요약}
+---
+[Recommendation] {추천 선택지} — {이유} (Completeness: N/10)
+[Options]
+A) {옵션} (human: ~X / CC: ~Y turns)
+B) {옵션} (human: ~X / CC: ~Y turns)
+C) {옵션}
+```
+
+Completeness 점수: 10=모든 edge case, 7=happy path only, 3=significant deferral. 5 이하면 flag.
+Effort 이중 스케일: 사용자가 AI 활용 비용을 체감할 수 있도록 항상 human/CC 양쪽 제시.
+
 ## 2. Work Report (Step 18-A) 스타일 가이드
 
 ### 다이어그램
