@@ -49,6 +49,23 @@ ERROR
 
 에러 분류 트리의 키워드 매칭은 결정론적 작업이다. CLI 스크립트(`classify-error.sh`)로 키워드 기반 자동 분류를 먼저 수행하고, LLM은 분류 결과만 받아 복구 전략을 선택한다. grind의 재시도가 최대 10회이므로, 매번 에러 로그를 LLM이 읽는 것보다 CLI로 분류 결과만 받는 것이 컨텍스트 절약에 효과적이다.
 
+### Dual-Hypothesis Diagnosis (CP-003)
+
+에러 분류 완료 직후, 복구 전략 실행 전에 다음을 수행한다. 가장 그럴듯한 가설 하나만 채택하는 단방향 구조에서 발생하는 "같은 접근법의 무의미한 반복"을 사전에 방지하기 위함이다.
+
+```
+## Dual-Hypothesis Diagnosis
+- Correct-Hypothesis: [가장 그럴듯한 실제 원인 + 근거 코드 위치]
+- Wrong-Hypothesis: [그럴듯하지만 실제로는 틀릴 수 있는 가설 + 왜 이것이 함정인지]
+- Discriminating Test: [두 가설을 구별할 수 있는 가장 빠른 검증 방법]
+```
+
+**Discriminating Test를 먼저 실행**하여 어느 가설이 맞는지 확인한 후 수정에 착수한다. 추측 기반 수정은 금지 — 실제 에러 출력(결정론적 근거)에 기반한 가설만 허용한다.
+
+failure-log.md의 각 에러 항목에 Dual-Hypothesis 구조를 포함한다. Tier 전환 시 Wrong-Hypothesis의 함정에 빠진 시도가 있었는지 회고하여 다음 전략에 반영한다.
+
+**Tier 1(Attempt 1-3)**: Feedback-First 원칙에 따라 Dual-Hypothesis를 간소화한다 — Wrong-Hypothesis 1문장, Discriminating Test 1개로 제한. 빠른 피드백을 위해 과도한 분석을 방지한다.
+**Tier 2+(Attempt 4+)**: 완전한 Dual-Hypothesis 구조를 적용한다.
 
 ### 에러 출력 형식 (Next Action Guide)
 

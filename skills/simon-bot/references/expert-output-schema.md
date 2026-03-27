@@ -48,6 +48,7 @@ FILE: {path}:{line}               # 관련 파일과 라인
 ISSUE: (1-2 sentences)            # 발견된 문제
 EVIDENCE: (코드 스니펫 또는 참조)  # 근거
 RECOMMENDATION: (구체적 수정 방안)
+WRONG_FIX_WARNING: (선택, CRITICAL/HIGH만) 수정 시 흔히 빠지는 잘못된 접근법 1-2가지. executor가 권장 수정 방향이 아닌 잘못된 방향으로 수정하여 Step 7-8 재루프가 발생하는 것을 방지한다.
 CROSS_DOMAIN: (다른 도메인에 영향 여부와 대상)
 VERIFICATION_STATUS: PENDING     # Verification Layer 결과: VERIFIED | UNVERIFIED | PENDING
 ACCEPTANCE_STATUS: PENDING       # 수용 추적: PENDING | ACCEPTED | REJECTED | MODIFIED | DEFERRED
@@ -136,6 +137,7 @@ FILE: campaigns/service.py:12
 ISSUE: 루프 내 건별 쿼리로 N+1 문제 발생. advertiser_ids 크기에 비례하여 DB 부하 증가.
 EVIDENCE: for 루프 내 Campaign.objects.filter() 호출
 RECOMMENDATION: advertiser_id__in=advertiser_ids로 단일 쿼리 변환
+WRONG_FIX_WARNING: 단순히 `if token == nil` 체크만 추가하는 것은 서명 검증과 무관 — 이 방식은 토큰 존재 여부만 확인하며, 변조된 토큰도 통과시킨다.
 ```
 - **WHY HIGH**: 프로덕션에서 체감 가능한 성능 저하. 수백 건의 불필요한 쿼리.
 - **WHY NOT CRITICAL**: 데이터 손실/보안 침해 없음. 느릴 뿐 기능적으로 정확함.

@@ -105,6 +105,26 @@ install_global() {
     done
 
     echo "  Workflow files copied to skill directory"
+
+    # Install git pre-commit hook for secret scanning
+    local hook_src="$SCRIPT_DIR/hooks/secret-scan.sh"
+    if [ -f "$hook_src" ]; then
+        # Install pre-commit hook to simon-bot repo (if .git exists)
+        if [ -d "$SCRIPT_DIR/.git/hooks" ]; then
+            cat > "$SCRIPT_DIR/.git/hooks/pre-commit" << 'HOOK_EOF'
+#!/bin/bash
+HOOKS_DIR="$(git rev-parse --show-toplevel)/hooks"
+if [[ -x "$HOOKS_DIR/secret-scan.sh" ]]; then
+    "$HOOKS_DIR/secret-scan.sh"
+else
+    echo "Warning: secret-scan.sh not found at $HOOKS_DIR/secret-scan.sh" >&2
+fi
+HOOK_EOF
+            chmod +x "$SCRIPT_DIR/.git/hooks/pre-commit"
+            echo "  Pre-commit hook: installed (secret scanning)"
+        fi
+    fi
+
     echo ""
 }
 

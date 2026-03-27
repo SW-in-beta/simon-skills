@@ -172,6 +172,17 @@ Task 3 합의 후, executor 전달 전에 CRITICAL/HIGH findings를 **Blind-Firs
 - 독립 분석과 finding이 일치 → `[CONFIRMED]` + `VERIFICATION_STATUS: VERIFIED`
 - 독립 분석에서 해당 이슈 미발견 → 구체적 재현 경로를 제시하여 재판정. 재현 불가 시 → `[DISPUTED]` + MEDIUM으로 하향 + `VERIFICATION_STATUS: UNVERIFIED` + 하향 근거 기록
 
+### CRITICAL 보안 Finding DISPUTED 하향 제한 (CP-007)
+
+Contrastive 기법으로 finding의 "문제가 아닌 이유"를 생성할 때, CRITICAL 보안 finding이 DISPUTED → MEDIUM으로 하향 처리되면 실제 취약점이 묻힐 위험이 있다 — Contrastive Prompting 논문에서 23/120 경우에서 "오답"이 실제 정답이었던 한계에 대응한다.
+
+**규칙**: CRITICAL 보안 finding의 DISPUTED 하향 처리 시 다음을 강제한다:
+1. 하향 근거를 `disputed-downgrade-log.md`에 기록
+2. **사용자 명시 승인** 후에만 하향 확정 (ship 모드에서도 예외 없음)
+3. Step 17에서 `disputed-downgrade-log.md`를 재검토하여 하향 판단이 올바른지 최종 확인
+
+이 규칙은 CRITICAL **보안** finding에만 적용된다. 성능, 코드 품질 등 비보안 CRITICAL finding에는 기존 DISPUTED 프로세스를 유지한다.
+
 executor는 `VERIFIED` findings만 CRITICAL/HIGH로 처리한다. verifier는 finding 생성자와 다른 에이전트여야 한다.
 
 ### Reproducibility Gate (P-007)
@@ -385,4 +396,23 @@ ARC-AGI에서 영감을 받은 반복 개선 루프. 기존 Steps 9-16의 개별
 - Final checklist: requirements met, build passes, tests pass, coverage ≥ 80%, no security issues, all done_when_checks verified
 - NEEDS-HUMAN-REVIEW 판정이 있으면 PENDING 항목을 사용자에게 일괄 제시
 - Minor: executor fix. Major: → relevant Phase. Critical: → Step 1-B
+
+### Contrastive Production Readiness (CP-004)
+
+Step 17을 두 역할로 명시 분리하여 병렬 실행한다. LARGE 경로 후반이나 grind 재시도 후 검증자가 "통과시키고 싶은" 편향을 구조적으로 상쇄하기 위함이다.
+
+**(A) production-readiness-auditor** (기존 역할): G-PROD 체크리스트를 검증하여 "출시 가능한 이유"를 찾는다. 기존 architect + security-reviewer와 동일.
+
+**(B) release-blocker-advocate** (신규 역할): "이 코드를 지금 출시하면 안 되는 이유"를 적극적으로 탐색한다:
+- inline-issues.md에서 미해결 항목 확인
+- expert-plan-concerns.md의 MEDIUM 항목 중 구현에 반영되지 않은 것 검토
+- decision-journal의 기각된 접근법 중 구현에 영향을 줄 수 있는 항목 확인
+- "출시 시 발생 가능한 첫 번째 사고 시나리오" 최대 2개 작성
+
+architect가 두 결과를 최종 조율하여 Finding Acceptance Summary를 생성한다. 순서는 auditor(PASS 판정) 완료 후 advocate(FAIL 이유 탐색) 순으로 진행한다 — "정답 먼저, 오답 나중" 순서 효과 적용.
+
+**advocate 제약**: 이미 `resolved: true`로 표시된 expert-plan-concerns 항목과 inline-issues에서 "즉시 수정"으로 처리된 항목은 제외한다. 최대 2회 iteration으로 제한한다.
+
+**SMALL 경로**: advocate를 skip하고 기존 auditor만 실행한다.
+
 - Save: `.claude/memory/unit-{name}/final-check.md`

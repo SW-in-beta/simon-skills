@@ -230,6 +230,23 @@ explore-medium과 analyst에게 다음 리서치 프레임워크를 적용한다
 
 이 방식은 인터뷰 라운드를 줄이고, 사용자의 인지 부담을 낮추며, 더 정확한 계획서를 빠르게 도출한다.
 
+### Contrastive Self-Check (CP-001)
+
+planner가 AI-First Draft를 생성한 직후, 사용자에게 제시하기 전에 다음을 수행한다. "그럴듯해 보이지만 잘못된 계획"이 critic-planner 루프까지 올라가는 것을 사전에 방지하기 위함이다.
+
+**Step A** — 이 계획이 성공할 가장 강한 이유 3가지 (정답 근거):
+1. 요구사항 충족 근거
+2. 코드베이스 패턴 일치 근거
+3. Unit 분할의 의존성 그래프 부합 근거
+
+**Step B** — 이 계획이 실패할 가장 강한 이유 2가지 (Contrastive Anchors):
+1. 숨겨진 의존성이나 누락된 파일 변경이 있다면?
+2. 요구사항의 어떤 부분이 계획에서 누락되었다면?
+
+Step B의 항목이 타당하면 초안을 수정한 후 사용자에게 제시한다. 수정 후에도 해소되지 않으면 Concerns/Unresolved decisions에 포함한다. plan-summary.md에 `## Contrastive Anchors` 섹션으로 기록하여 Step 2 critic이 antipattern 대조 검증 시 활용한다.
+
+**SMALL 경로**: Step B를 1문장 요약으로 제한하여 Fast Track의 간결성을 유지한다.
+
 ### Interview Guard
 
 - 코드를 먼저 충분히 탐색한 뒤, 코드에서 답할 수 있는 질문은 하지 않는다
@@ -464,6 +481,22 @@ Step 1-B 완료 후, 기술 용어로 작성된 AC가 사용자의 실제 의도
 - [합의]: 최종 결론 + severity + 근거
 ```
 
+### Cross-Examiner Protocol (CP-006)
+
+도메인팀 합의 완료 후, CRITICAL/HIGH findings에 대해 전담 `cross-examiner` 에이전트가 청문회식 반증을 수행한다. Finding 제기자가 자신의 finding을 반증하면 형식적 반론으로 전락할 수 있으므로, 독립 에이전트가 전담하여 Cognitive Independence를 보장한다.
+
+**절차**:
+1. 도메인팀 합의 완료 후, CRITICAL/HIGH findings 목록을 수집
+2. `cross-examiner` subagent를 spawn하여 각 finding에 대해:
+   - "이 concern이 과도하게 평가되었을 반증"을 코드 근거(Read/Grep) 기반으로 탐색
+   - 반증의 최소 요건: 코드에서 확인 가능한 근거 1개 이상
+3. 반증이 성공한 finding은 architect에게 severity 재검토를 제안
+4. 결과를 `expert-plan-concerns.md`의 해당 finding에 `cross_examination` 필드로 추가
+
+**예외**: 수학적으로 명확한 버그(SQL injection 직접 concatenation, 하드코딩된 비밀번호 등)에는 Cross-Examiner를 적용하지 않는다 — 반증의 여지가 없는 명백한 결함에 자원을 낭비하지 않기 위함이다.
+
+**SMALL 경로**: Cross-Examiner를 skip하고 기존 경량 리뷰를 유지한다.
+
 ### Findings 품질 원칙 — "깊이 > 수량" (P-008)
 
 각 전문가 에이전트 prompt에 다음 품질 원칙을 포함:
@@ -488,6 +521,22 @@ Step 1-B 완료 후, 기술 용어로 작성된 AC가 사용자의 실제 의도
 - 문제: 기존 코드에 에러 래핑이 없음 (이번 변경과 무관)
 - → git diff 대상 파일만 검토한다.
 </finding_quality_examples>
+
+**Self-Contrastive Validation (CP-002)**: 각 finding 작성 후, 즉시 다음 두 가지를 생성한다:
+1. **WHY_VALID**: 이 finding이 정당한 이유 (구체적 코드 증거 열거)
+2. **WHY_WRONG**: 이 finding이 잘못된 가능성 (False Positive, ORM/프레임워크가 이미 처리, scope 밖, over-severity 등)
+
+WHY_WRONG 작성 후 반드시 코드에서 직접 확인(Read/Grep)하여 판정한다. 반증이 지지보다 강하면 finding을 폐기하거나 severity를 하향하고, REJECTION_DETAIL에 사유를 기록한다. "추측 기반 반증"은 금지 — 코드 확인 없이 반증을 채택하면 실제 취약점을 놓칠 수 있다.
+
+예시:
+```
+FINDING: JWT 서명 검증 누락
+WHY_VALID: ValidateToken()이 jwt.Parse() 호출 시 signing method 검증 비활성화 (handler.go:47)
+WHY_WRONG: 미들웨어 레이어에서 이미 검증? → middleware/ 확인 필요
+→ 미들웨어 확인 결과: 없음 → finding 유지 (CRITICAL)
+```
+
+**안전 제약**: CRITICAL 보안 finding에서 WHY_WRONG으로 severity를 하향하려면 사용자 명시 승인이 필수다 — 논문의 23/120 오판 위험에 대응.
 
 - MEDIUM findings가 10개 이상이면 architect가 영향도 기준 상위 5개만 활성 처리하고 나머지는 backlog로 분류
 - 핵심 비즈니스 로직 > 내부 유틸리티 순으로 분석 깊이를 조절

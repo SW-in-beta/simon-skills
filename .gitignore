@@ -11,3 +11,11 @@ skills/simon-bot-sync/
 # Non-target skills
 skills/simon-bot-sandbox/
 skills/simon-bot-sandbox-workspace/
+
+# Secret files
+*.env
+*.env.*
+*.pem
+*.key
+*.secret
+*.credentials

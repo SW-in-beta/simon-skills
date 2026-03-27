@@ -110,6 +110,16 @@ C) {옵션}
 Completeness 점수: 10=모든 edge case, 7=happy path only, 3=significant deferral. 5 이하면 flag.
 Effort 이중 스케일: 사용자가 AI 활용 비용을 체감할 수 있도록 항상 human/CC 양쪽 제시.
 
+**Contrastive Recommendation (CP-005)**: 고위험 판단점(Step 0 경로 선택, CRITICAL 이슈 처리, 전략 전환)에서 AskUserQuestion을 호출할 때, 추천 선택지 외에 가장 강력한 대안 1개에 대한 비추천 사유를 함께 제시한다. AskUserQuestion은 이미 워크플로를 멈추는 시점이므로, 여기서 사용자에게 충분한 판단 근거를 제공하는 것이 전체 흐름을 원활하게 한다.
+
+형식:
+```
+[Recommendation] A) STANDARD — 외부 API 연동 포함, 리뷰 품질 보장 필요 (Completeness: 8/10)
+[Not Recommended] B) SMALL — 외부 API 연동 시 SMALL 경로는 Side Effect Check 누락 위험
+```
+
+나머지 AskUserQuestion에서는 기존 형식을 유지한다 — 모든 질문에 Not Recommended를 추가하면 출력이 길어져 핵심 선택지가 묻힌다.
+
 ## 2. Work Report (Step 18-A) 스타일 가이드
 
 ### 다이어그램

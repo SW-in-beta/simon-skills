@@ -71,6 +71,15 @@
 - Step 7 → Step 7 Devil's Advocate 전달 시
 - Step 18 → Step 19 (simon-bot-review) 전달 시 (Blind-First와 결합)
 
+### Contrastive 적용 제한 (CP-007)
+
+Contrastive Prompting(정답/오답 동시 생성) 기법을 Fresh Subagent에 적용할 때 다음 제약을 준수한다. "잘못된 구현 예시"가 이전 에이전트의 실패한 시도를 노출하면 What-not-Why Handoff를 직접 위반하여 인지적 독립성이 파괴되기 때문이다.
+
+**허용**: 현재 구현과 무관한 범용 예시 — 공식 문서, 업계 표준, 프레임워크 best practices에서 인용된 정답/안티패턴 쌍
+**금지**: 현재 구현의 이전 실패 시도를 "잘못된 예시"로 사용하는 것 — 이전 실패 패턴이 Fresh Subagent의 추론을 오염시킬 수 있다
+
+**검증 불가 영역 제한**: 코드로 직접 확인 불가능한 영역(외부 서비스 동작, 운영 환경 의존 부분)에서 AI가 생성한 "틀릴 수 있는 이유"는 검증 수단이 없으므로 채택하지 않는다. `[외부 의존성 — 확인 불가]` 태그를 사용하고 contrastive 검증을 건너뛴다.
+
 ## 비용 가이드라인
 
 Cognitive Independence 적용은 추가 토큰을 소비한다. 다음 기준으로 비용을 통제한다:

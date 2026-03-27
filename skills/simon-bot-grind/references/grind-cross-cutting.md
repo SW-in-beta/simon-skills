@@ -9,7 +9,8 @@
 6. [Progress Pulse (중간 상황 보고)](#progress-pulse-중간-상황-보고)
 7. [Escalation Report Format](#escalation-report-format)
 8. [Agent Teams Fallback](#agent-teams-fallback)
-9. [Docs-First Protocol](#docs-first-protocol)
+9. [Mini-Contract Protocol](#mini-contract-protocol)
+10. [Docs-First Protocol](#docs-first-protocol)
 
 ---
 
@@ -422,6 +423,35 @@ When human escalation is needed, generate `.claude/memory/escalation-report.md`:
 ## Agent Teams Fallback
 
 Agent Teams가 비활성 상태일 때의 대체 전략은 `~/.claude/skills/simon-bot/references/agent-teams.md`의 Fallback 섹션을 따른다. grind의 "절대 멈추지 않는다" 원칙에 따라, Agent Teams 실패는 워크플로 중단 사유가 아니다. failure-log.md에 기록 후 subagent fallback으로 자동 전환한다.
+
+## Mini-Contract Protocol
+
+각 Attempt Tier 시작 시 Mini-Contract를 failure-log.md에 기록한다 (SKILL.md의 Mini-Contract Protocol 참조).
+
+#### Contrastive Mini-Contract (CP-003)
+
+기존 Mini-Contract에 `failure_indicators`와 `failure_hypothesis` 필드를 추가하여, "성공 상태와 실패 상태를 동시에 정의"한다. 성공 기준만 있으면 "성공으로 보이지만 실제로는 실패인 상태"(예: 하드코딩으로 테스트 통과)를 조기 탐지할 수 없다.
+
+```json
+{
+  "tier": 2,
+  "goal": "근본 원인 파악",
+  "success_criteria": ["에러 분류 완료", "재현 테스트 작성"],
+  "failure_indicators": [
+    "동일 에러 메시지가 3회 연속 반복됨",
+    "에러 분류가 UNKNOWN으로 수렴됨",
+    "재현 테스트가 환경 의존적이라 로컬에서 재현 불가"
+  ],
+  "failure_hypothesis": "이 Tier의 시도가 모두 실패한다면, 환경 문제가 아닌 설계 수준 문제일 가능성이 높다. 다음 Tier에서는 아키텍처 수준 접근으로 전환한다",
+  "exit_condition": "success_criteria 충족 또는 3회 시도 소진",
+  "pivot_trigger": "failure_indicators 중 하나라도 2회 연속 발생 시 즉시 전략 전환"
+}
+```
+
+**Tier 1(Attempt 1-3)**: failure_indicators 1-2개만 작성. failure_hypothesis는 생략 가능 — Feedback-First 원칙 유지.
+**Tier 2+(Attempt 4+)**: 완전한 Contrastive Mini-Contract 적용.
+
+Tier 전환 시, 이전 Tier의 `failure_hypothesis`와 실제 실패 원인을 대조하여 예측 정확도를 failure-log.md에 기록한다. 예측이 맞으면 다음 Tier 전략을 자동 구체화하고, 빗나가면 "예상치 못한 실패 원인"으로 분류하여 Progress Pulse에서 1줄 통보한다.
 
 ## Docs-First Protocol
 
