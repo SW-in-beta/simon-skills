@@ -8,6 +8,7 @@ Phase 4에서 각 Feature를 실행하는 상세 프로토콜.
 3. [Task Spec 생성](#task-spec-생성)
 4. [Agent Spawn Protocol](#agent-spawn-protocol)
 5. [그룹 간 통합 검증](#그룹-간-통합-검증)
+   - [브라우저 기반 통합 검증 (선택)](#브라우저-기반-통합-검증-선택)
 6. [Failure Recovery Details](#failure-recovery-details)
 7. [Progress Reporting](#progress-reporting)
 
@@ -179,6 +180,19 @@ F1 완료 → F1 결과를 F4 spec에 반영 → F4 실행
 2. 전체 빌드 확인
 3. 전체 테스트 실행
 4. 충돌 발생 시: `architect` 분석 → `executor` 해결
+
+### 브라우저 기반 통합 검증 (선택)
+
+`config.yaml`의 `browser_verification: true` 설정 시, 그룹 빌드/테스트 통과 후 gstack browse/qa로 실제 UI를 검증한다. "빌드 통과 + 테스트 통과 ≠ 화면 정상" gap을 해소하기 위함이다.
+
+- **도구 우선순위**: gstack browse > Playwright MCP. gstack browse 미설치 시 graceful skip
+- **검증 범위**: 해당 그룹에서 구현한 Feature 중 UI 변경이 포함된 항목만
+- **검증 방식**:
+  1. dev server 실행 확인 (실행 중이 아니면 시작)
+  2. 각 Feature의 Acceptance Criteria 중 UI 관련 항목을 gstack browse로 검증
+  3. gstack qa 스킬이 사용 가능하면 Quick tier QA 실행 (critical/high만)
+  4. FAIL 시 해당 Feature의 executor에게 수정 위임 → 재검증 (max 1회)
+- **결과**: `.claude/pm/tasks/{feature-id}/browser-verification.md`에 기록
 
 ### Re-planning Gate
 

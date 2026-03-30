@@ -274,6 +274,14 @@ Startup 단계는 순서 의존성이 있으므로 순차 실행한다.
    - `.claude/memory/retrospective.md` (있으면)
    - `.claude/project-memory.json` (있으면 Read — 이전 세션에서 학습된 빌드 에러 패턴, 테스트 환경 quirk, 기각된 접근법 포함)
    - `.claude/memory/handoff-manifest.json` (있으면 — P-009 Handoff 감지)
+2-B. **Prior Context Brief** (P-001): 사용자 요청에서 키워드를 추출하고, `~/.claude/projects/{slug}/state/decisions.jsonl`에서 관련 결정사항을 검색하여 Prior Context Brief를 합성한다.
+   ```bash
+   # 키워드 추출 후 jq로 decisions.jsonl 검색
+   jq -s --arg kw "{keyword}" '[.[] | select(.decision | ascii_downcase | contains($kw | ascii_downcase))] | sort_by(.timestamp) | reverse | .[0:5]' decisions.jsonl
+   ```
+   - 매칭 결정이 있으면: `{SESSION_DIR}/memory/prior-context-brief.md`에 요약 저장 — 각 결정의 decision, rationale, rejected_alternatives를 1줄씩 요약
+   - 매칭 결정이 없으면: skip (빈 파일 생성하지 않음)
+   - Phase A Step 1에서 Prior Context Brief를 architect에게 전달하여 이전 결정과 일관된 계획 수립을 유도한다
 3. **브랜치명 자동 생성** (P-001): 사용자 요청에서 브랜치명을 자동 생성한다. 예: "인증 기능 추가해줘" → `feat/add-auth`. AskUserQuestion 없이 통보: `[Default] Branch: feat/add-auth — 변경하려면 알려주세요.` → `.claude/memory/branch-name.md`에 저장
    > **주의**: 이 단계에서는 브랜치명만 결정한다. 실제 git 브랜치 생성은 Phase B Pre-Phase에서 `git fetch origin {base_branch}` 후 `origin/{base_branch}` 기반으로 수행한다. Startup에서 `git checkout -b`로 직접 브랜치를 생성하는 것은 **금지** — stale한 로컬 main을 사용하여 원격에 머지된 커밋을 놓칠 수 있다.
 3-B. **SESSION_DIR 초기화**: 브랜치명 확정 후 세션 디렉토리를 생성한다.
