@@ -1,6 +1,6 @@
 ---
 name: simon-bot
-description: "19-step 딥 워크플로 — 계획, 구현, 검증을 최고 수준의 엄격함으로 수행합니다. Use when: (1) 새 기능/피처 구현 (\"피처 구현해줘\", \"새 기능 만들어줘\", \"코드 작성해줘\"), (2) 전문가 리뷰 패널이 필요한 체계적 계획 수립, (3) git worktree 기반 병렬 실행, (4) PR 전 종합 코드 검증이 필요할 때. 코드 변경이 수반되는 모든 중대한 작업에 이 스킬을 사용하세요. Don't use when: 분석만 필요 → simon-bot-report. 3개+ 기능 프로젝트 관리 → simon-bot-pm. '끝까지 해결해' 등 끈질긴 해결 요청 → simon-bot-grind."
+description: "19-step 딥 워크플로 — 계획, 구현, 검증을 최고 수준의 엄격함으로 수행합니다. Use when: (1) 새 기능/피처 구현 (\"피처 구현해줘\", \"새 기능 만들어줘\", \"코드 작성해줘\"), (2) 전문가 리뷰 패널이 필요한 체계적 계획 수립, (3) git worktree 기반 병렬 실행, (4) PR 전 종합 코드 검증이 필요할 때. 체계적 계획-구현-검증 사이클이 필요한 피처 구현에 적합합니다. Don't use when: 분석만 필요 → simon-bot-report. 3개+ 기능 프로젝트 관리 → simon-bot-pm. '끝까지 해결해' 등 끈질긴 해결 요청 → simon-bot-grind."
 compatibility:
   tools: [Agent, AskUserQuestion, TeamCreate, SendMessage]
   skills: [simplify, git-commit]
