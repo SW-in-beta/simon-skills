@@ -54,6 +54,7 @@ SESSIONS_DIR="${HOME}/.claude/projects/${PROJECT_SLUG}/sessions"
 | 의도 | 키워드 | 실행 |
 |------|--------|------|
 | 작업 현황 | "목록", "list", "현황", "어디까지", "뭐 하고 있었지", args 없음 | `list` flow |
+| 세션 검색 | "검색", "search", "찾기", 키워드 언급 | `search {keyword}` |
 | 세션 상세 | "정보", "info", "상세", 브랜치명 언급 | `info {branch}` |
 | 세션 삭제 | "삭제", "delete", "제거", "정리" | `delete {branch}` |
 | 이어서 작업 | "이어서", "continue", "resume", "피드백" | `resume` flow |

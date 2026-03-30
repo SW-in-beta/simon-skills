@@ -59,7 +59,8 @@ ls -1d "${SESSIONS_DIR}"/*/ 2>/dev/null
   미커밋 변경: {N} files {있으면 주요 변경 파일 나열}
 
 [워크트리 세션]
-  {있으면 목록, 없으면 "(없음)"}
+  {각 워크트리: 번호, 브랜치명, Desc(CONTEXT.md 첫 줄), Path, Last commit, Memory}
+  {없으면 "(없음)"}
 
 [피처 브랜치]
   {main 외 브랜치 + 마지막 커밋, 없으면 "(없음)"}
@@ -72,6 +73,36 @@ ls -1d "${SESSIONS_DIR}"/*/ 2>/dev/null
 
 워크트리/브랜치/미커밋 변경이 모두 없고 마지막 커밋이 최종 완료 성격이면:
 "현재 진행 중인 작업이 없습니다. 새 작업을 시작하시겠어요?"
+
+---
+
+## search 명령 상세
+
+키워드 기반 세션 검색. 브랜치명, 커밋 메시지, CONTEXT.md 내용을 대상으로 검색한다.
+
+```bash
+bash ~/.claude/skills/simon-bot/workflow/scripts/manage-sessions.sh search <keyword>
+```
+
+검색 대상 (우선순위 순):
+1. **워크트리**: 브랜치명, 최근 커밋 10개, CONTEXT.md 내용
+2. **로컬 브랜치**: 브랜치명, 최근 커밋 10개 (워크트리와 중복 제외)
+3. **홈 세션 디렉토리**: 세션명, CONTEXT.md 내용 (워크트리/브랜치와 중복 제외)
+
+출력 형식:
+```
+=== 세션 검색: 'keyword' ===
+
+  [1] branch-name (worktree)
+      Match: branch, commits
+      Last:  abc1234 feat: ... (2 hours ago)
+
+  [2] session-name (archived)
+      Match: CONTEXT.md
+      Desc:  인증 모듈 리팩토링
+
+총 2건
+```
 
 ---
 
@@ -175,12 +206,24 @@ Recent Commits: {최근 커밋 1줄 요약}
 Session Story: {최근 주요 이벤트 3개를 시간순 나열}
 Context Files: {읽은 파일 목록}
 Next Step: Step {N+1} — {description}
+Recommended Action: {상태 기반 추천 — 아래 규칙 참조}
 ===
 ```
 
 - Phase/Step 정보는 `session-meta.json` 우선, 없으면 `CONTEXT.md`에서 추출
 - Test Status는 마지막 테스트 결과가 기록되어 있을 때만 표시
 - Pending Issues가 없으면 해당 줄 생략
+
+**Recommended Action 결정 규칙** (우선순위 순):
+
+| 조건 | 추천 행동 |
+|------|----------|
+| `status: failed` | "실패 원인 분석 필요 — grind 전환 고려" |
+| `pending_issues.critical > 0` | "CRITICAL 이슈 {N}건 해결 우선" |
+| `test_status.passing < test_status.total` | "실패 테스트 {N}건 수정 필요" |
+| Uncommitted changes 존재 | "미커밋 변경사항 확인 후 커밋" |
+| `current_step` 존재 | "Step {N+1} ({description}) 진행" |
+| 그 외 | "이전 작업 계속 진행" |
 
 ### Step 5: 작업 실행
 

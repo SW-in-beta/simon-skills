@@ -117,3 +117,15 @@ skill-name/
 - [ ] SKILL.md에서 각 reference의 로딩 시점이 명시되어 있는가?
 - [ ] 불필요한 reference가 없는가? (참조되지 않는 파일)
 - [ ] 파일명이 내용을 직관적으로 설명하는가?
+
+## 7. Multi-Agent Patterns
+
+스킬이 Agent Teams 또는 Sub-agents를 사용하는 경우의 설계 품질. 에이전트 유형 선택이 잘못되면 검증의 독립성이 훼손되거나 토론의 가치가 손실된다 — `agent-teams.md`의 Agent Selection Framework 참조.
+
+**체크 항목:**
+- [ ] 각 multi-agent Step이 DISCUSSION / VERIFICATION / HYBRID 중 하나로 분류되어 있는가?
+- [ ] VERIFICATION 패턴의 에이전트에 Blind-First 또는 Adversarial Default가 적용되어 있는가? (검증에 Agent Team 사용은 확증 편향 위험)
+- [ ] DISCUSSION 패턴의 에이전트에 역할 분화(Thinking Hats)가 되어 있는가? (Black Hat — 비판 역할 누락 주의)
+- [ ] Agent Team Fallback 시 토론/검증 구분이 유지되는가? (토론 Fallback은 2라운드 시뮬레이션 필요)
+- [ ] 불필요한 multi-agent 사용이 없는가? (Saturation Guard 기준: 5세션+ 추가 발견율 10% 미만 → optional)
+- [ ] Spawn Prompt에 Mode(DISCUSSION/VERIFICATION)가 명시되어 있는가?
