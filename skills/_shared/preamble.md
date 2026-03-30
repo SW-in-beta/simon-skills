@@ -30,11 +30,15 @@ mkdir -p "${SESSION_DIR}/memory" "${SESSION_DIR}/reports"
 hooks.PreToolUse에서 자동 차단된다. 차단 시 에러 메시지를 확인하고 안전한 대안을 탐색한다.
 상세 규칙은 `~/.claude/skills/simon-bot/references/forbidden-rules.md`를 참조한다.
 
-## Agent Teams
+## Agent Teams & Sub-agent Selection
 
-이 워크플로는 Agent Teams 기능을 우선 사용한다 (`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` 필요).
-TeamCreate 실패 시 subagent 기반 fallback으로 자동 전환한다.
-상세 프로토콜은 `~/.claude/skills/simon-bot/references/agent-teams.md`를 참조한다.
+이 워크플로는 Agent Teams와 Sub-agents를 목적에 따라 구분하여 사용한다:
+
+- **Agent Teams**: 서로 다른 관점의 에이전트가 공유 목표를 향해 토론하여 합의를 도출할 때 — 각 팀원이 다른 팀원의 의견을 보고 반응하는 것이 결과 품질을 높이는 경우.
+- **Sub-agents**: 독립적인 분석/검증이 수렴하여 신뢰도를 높일 때 — 각 에이전트가 다른 에이전트의 결론을 모르는 것이 결과 품질을 높이는 경우 (Monte Carlo 원리).
+
+Agent Teams 사용에는 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` 환경변수가 필요하다. TeamCreate 실패 시 subagent 기반 fallback으로 자동 전환한다.
+상세 프로토콜(선택 기준, 생명주기, Fallback)은 `~/.claude/skills/simon-bot/references/agent-teams.md`를 참조한다.
 
 ## Cognitive Independence
 

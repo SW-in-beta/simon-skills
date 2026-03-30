@@ -4,6 +4,42 @@
 
 Agent Teams는 subagent와 달리, 팀원들이 **서로 직접 메시지**를 주고받고, **공유 작업 목록**으로 자체 조율하며, 각자 **독립된 컨텍스트 윈도우**에서 동작합니다.
 
+## Agent Selection Framework
+
+새 multi-agent Step을 설계하거나 기존 Step을 검토할 때, 다음 질문으로 적절한 에이전트 패턴을 결정한다:
+
+**1. 에이전트들이 공유 목표를 향해 서로의 관점을 조율해야 하는가?**
+→ Agent Team (Six Thinking Hats 패턴). 각 팀원이 다른 관점(비판, 안전, DX 등)을 대표하며 실시간 토론으로 합의를 도출한다.
+→ 적용: Steps 1-A, 2-4, 4-B (계획 수립 토론)
+
+**2. 독립적인 확인이 수렴하면 신뢰할 수 있는가?**
+→ 병렬 Sub-agents (Monte Carlo 패턴). 독립된 컨텍스트에서 각각 분석한 결과가 수렴하면 그 결론은 개별 분석보다 신뢰할 수 있다 — 독립 시행의 수렴이 핵심이다.
+→ 적용: Step 6, Step 7 Verification Layer, Step 17 (독립 검증)
+
+**3. 두 가지 모두 필요한가?**
+→ Hybrid: Sub-agent Phase(독립 blind review) → Team Phase(findings 기반 교차 토론).
+→ 적용: Step 7-A (blind review → 교차 토론)
+
+**판단 기준**: "이 에이전트들이 서로의 출력을 보면 더 나은 결과가 나오는가?"
+- YES → Team (토론의 가치 > 독립성 손실)
+- NO → Sub-agent (독립성의 가치 > 토론 부재)
+
+**안전 규칙**: 검증/감사 단계에서 Agent Team의 SendMessage를 통한 의견 교환은 확증 편향(confirmation bias)의 경로가 된다. 한 팀원의 초기 의견이 다른 팀원의 분석 방향을 오염시킬 수 있으므로, 검증이 목적인 단계에서는 Sub-agent를 사용하여 독립성을 구조적으로 보장한다.
+
+**현재 Step별 적용 현황**:
+
+| Step | 패턴 | 유형 | 근거 |
+|------|------|------|------|
+| Step 1-A Code Design Team | Agent Team | DISCUSSION | 컨벤션/패턴 토론 → 공유 합의 |
+| Steps 2-4 Plan Review | Agent Team | DISCUSSION | planner+critic+architect 토론 |
+| Step 4-B Expert Plan Review | Agent Team | DISCUSSION | 5개 도메인팀 교차 토론 |
+| Step 5 executor | Sub-agent | EXECUTION | 독립 구현 |
+| Step 6 alignment-checker | Sub-agent (Fresh) | VERIFICATION | 독립 검증 (Monte Carlo) |
+| Step 7-A impl-review | Hybrid | HYBRID | blind review → 교차 토론 |
+| Step 7 Verification Layer | Sub-agent (verifier) | VERIFICATION | Blind-First 독립 검증 |
+| Step 7 Devil's Advocate | Sub-agent (Fresh) | VERIFICATION | False negative 독립 탐지 |
+| Step 17 production-readiness | Sub-agent (Fresh) | VERIFICATION | 독립 최종 감사 |
+
 ## 제약사항
 
 - 세션당 한 번에 **하나의 팀**만 운영 가능
