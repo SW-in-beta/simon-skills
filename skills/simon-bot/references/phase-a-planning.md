@@ -109,6 +109,7 @@ Step 0에서 SMALL로 판별 시 Phase A를 압축 실행한다:
 3. **Pattern-based search**: 하나의 인스턴스를 발견하면, 동일 패턴이 코드베이스에 다른 곳에도 있는지 검색하여 일관성을 확인한다 ("이것이 유일한 구현인가, 변형이 있는가?")
 4. **Reference chain traversal**: 관련 파일을 찾으면 import/importer를 추적하여 변경 영역의 의존성 그래프를 구축한다
 5. **NEVER 단일 검색으로 결론**: 검색 결과 0건이면 다른 용어로 최소 2회 재시도한 후에 "존재하지 않는다"고 결론낸다
+6. **Data-layer traversal scan (해당 시)**: 새 필드를 여러 레이어에 걸쳐 추가하는 경우, 기존 유사 필드 1개를 선정하여 전체 코드베이스를 grep한다. 결과를 쓰기 경로 / 읽기 경로 / 변환 레이어 / 스키마로 분류하고, 분류된 모든 파일을 plan-summary.md Files Changed에 포함한다.
 
 ### Agent Team: Code Design Team (explore-medium 완료 후)
 
