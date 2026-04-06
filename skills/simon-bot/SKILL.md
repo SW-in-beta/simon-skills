@@ -74,6 +74,9 @@ compaction 후 현재 Step을 기억에 의존하여 이전 Step을 반복하거
 ### G-WF-005: 전문가 finding을 severity 확인 없이 전부 수정
 MEDIUM finding까지 모두 수정하여 scope creep이 발생한다. → CRITICAL → 계획 수정, HIGH → 주의사항 추가, MEDIUM → 기록만.
 
+### G-WF-006: 기존 코드 패턴 불일치를 확인 없이 버그로 단정
+if 브랜치와 else 브랜치에서 다른 변수명 패턴을 발견하고, git blame 확인 없이 "버그"로 단정하여 수정한다. → Intent-Before-Fix Gate (Critical Rules): git blame → git show → 커밋 전체 확인 후 의도적 설계 여부를 판단한 뒤 수정 여부를 결정한다.
+
 ## Cross-Cutting Protocols
 
 > **Shared Protocols**: `~/.claude/skills/_shared/preamble.md` 읽기 — Session Isolation, Error Resilience, Forbidden Rules, Agent Teams, Cognitive Independence 공통 프로토콜 포함.

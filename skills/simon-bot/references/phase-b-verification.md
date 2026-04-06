@@ -160,6 +160,7 @@ Decision Journal 기록: `[Decision] Step 7 Volume-Adaptive — CRITICAL {N}, HI
 전문가 에이전트가 코드를 탐색(Grep/Read)한 후 finding을 작성하기 전에, 다음을 자문한다:
 - 내가 찾은 것이 실제 문제인가, 아니면 컨텍스트 부족으로 인한 오해인가?
 - 이 코드의 의도를 정확히 이해하고 있는가?
+  → 불확실하면 `git blame`으로 작성자/커밋을 확인하고, `git show`로 해당 커밋의 전체 변경을 열람한다. "패턴 불일치 = 버그"로 단정하지 않는다.
 - caller/callee를 확인하면 내 판단이 바뀔 수 있는가?
 
 도구 결과를 받은 직후에 바로 결론을 내리지 않고, 한 번 반성한 후 finding을 작성한다. 이 원칙은 false positive(오진)를 줄이기 위함이다.

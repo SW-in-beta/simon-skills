@@ -171,6 +171,12 @@ plan-summary.md의 Files Changed 테이블과 code-design-analysis.md가 아래 
 - **테스트 격리**: 테스트는 mock/stub으로 외부 의존성을 격리한다. 테스트가 실제 DB나 외부 API를 호출하면 프로덕션 데이터가 손상되거나 의도치 않은 외부 요청이 발생하기 때문이다.
 - Commands: NEVER access real external systems. CONTEXT-SENSITIVE 규칙에 해당하는 경우 SKILL.md의 판단 절차를 따른다.
 - **코드 확인 후 의견**: 파일은 Read로 열어본 후에 의견을 제시한다. 추측 기반 수정은 기존 코드의 숨겨진 의도를 놓쳐 새로운 버그를 만들기 때문이다.
+- **Intent-Before-Fix Gate**: 기존 코드를 "버그"로 판단하여 수정하기 전에 다음을 순서대로 확인한다:
+  1. `git blame {file}` — 해당 라인의 작성자와 커밋 해시 확인
+  2. `git show {commit_hash}` — 커밋 전체를 확인하여 if/else 양쪽에서 동일 작성자가 서로 다른 패턴을 사용했는지 확인
+  3. 커밋 메시지 또는 PR 설명을 읽어 의도 파악
+  4. 같은 커밋/작성자가 if와 else에 다른 패턴을 사용했다면 → 의도적 설계로 가정, 수정 전 decision-journal에 근거 기록 후 사용자에게 확인
+  이 게이트는 리뷰 중 발견된 패턴 불일치(if vs else, A 함수 vs B 함수 등)에 필수 적용한다.
 - **일반적 해결책 우선**: 모든 유효한 입력에 대해 올바르게 동작하는 일반적 해결책을 구현한다. 특정 테스트 입력에 맞춘 하드코딩은 해당 테스트만 통과시키고 실제 문제를 숨기기 때문이다.
 - **Auto-Verification Hook**: 소스코드 파일 수정(Edit/Write) 후 `verify-commands.md`의 빌드/린트 명령을 즉시 실행한다. 실패 시 **Stop-and-Fix Gate 적용** — 수정 완료 전까지 다음 작업 진행 금지. `.md`, `.json` 등 비소스코드는 제외. (SKILL.md Cross-Cutting Protocol 참조)
 - **Step Transition Gate**: Step N에서 Step N+1로 진입하기 전에 `verify-commands.md`의 빌드/린트/테스트를 실행하여 전부 통과해야 한다. 이전 Step의 미수정 실패를 다음 Step으로 넘기면 디버깅이 기하급수적으로 어려워진다. 실패 시 Stop-and-Fix Gate가 자동 발동된다. (SMALL 경로에서도 적용)
