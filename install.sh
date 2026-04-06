@@ -75,9 +75,6 @@ install_global() {
     install_skill "simon-bot-sessions"
     install_skill "simon-company"
     install_skill "simon-presenter"
-    install_skill "simon-bot-healthcheck"
-    install_skill "simon-oncall"
-    install_skill "simon-study"
 
     echo ""
 
