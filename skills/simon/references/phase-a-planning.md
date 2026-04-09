@@ -189,13 +189,23 @@ AI의 실수를 가장 빠르게 잡아내는 것은 자동화된 검증이다. 
 
 환경 정보가 코드 동작에 영향을 줄 수 있는 경우(feature flag, 외부 서비스 URL 등) 추가 항목을 수동으로 기록한다. executor subagent에게 Unit Runbook과 함께 env-context.md를 전달하여 "환경 맹점" 패턴을 방지한다.
 
+### Cross-Session State 디렉토리 보장
+
+Phase A 시작 시 `state/` 디렉토리를 생성한다. gotchas.jsonl, standup.jsonl 등 Cross-Session State 파일의 저장소이다. 이 디렉토리가 없으면 Phase-End Auto-Retrospective와 simon-code-review의 기록이 실패한다.
+
+```bash
+PROJECT_SLUG=$(git rev-parse --show-toplevel 2>/dev/null | tr '/' '-')
+STATE_DIR="${HOME}/.claude/projects/${PROJECT_SLUG}/state"
+mkdir -p "${STATE_DIR}"
+```
+
 ### Gotchas Registry 로딩
 
 `~/.claude/projects/{slug}/state/gotchas.jsonl`이 존재하면 로딩하여 `code-design-analysis.md`에 "Known Gotchas" 섹션으로 포함한다 — 이 프로젝트에서 Claude가 반복적으로 잘못하는 패턴을 사전에 인지하여 동일 실수를 방지한다. gotchas는 프로젝트별로 세션을 거듭하며 축적되는 가장 가치 높은 콘텐츠이다.
 
 ```bash
 # 로딩 예시
-jq -r '.gotcha' gotchas.jsonl 2>/dev/null | head -20
+jq -r '.gotcha' "${STATE_DIR}/gotchas.jsonl" 2>/dev/null | head -20
 ```
 
 executor에게 전달되는 Unit Runbook에도 관련 gotchas를 카테고리로 필터링하여 "주의사항"에 추가한다.

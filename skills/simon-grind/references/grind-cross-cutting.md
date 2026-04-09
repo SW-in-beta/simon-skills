@@ -371,11 +371,12 @@ Every agent output in Phase A must include confidence assessments.
 
 개별 attempt의 턴 수를 추적하여 비정상적으로 긴 시도를 감지한다. retry budget은 "몇 번 재시도했는가"를 추적하지만, 하나의 attempt가 30+턴을 소비하며 같은 방향을 반복하는 것은 감지하지 못한다.
 
-**구현:** budget-tracker.sh를 확장하여 per-attempt 턴 수를 추적한다.
-- 각 attempt 시작 시 턴 카운터 초기화
-- attempt 내에서 매 tool call을 1턴으로 카운트
+**구현:** LLM 자기 모니터링 방식으로 추적한다 — 턴 카운트는 Claude 내부 상태이므로 외부 스크립트로 접근 불가하기 때문이다.
+- 각 attempt 시작 시 `failure-log.md`의 해당 attempt 섹션에 `turns: 0`을 기록한다
+- 주요 tool call(Read/Edit/Write/Bash) 실행 후 카운터를 +1 갱신한다 (Glob/Grep 등 경량 탐색은 제외)
 - `per_attempt_warning_turns` (기본 30) 초과 시: `[Budget] Attempt {N}이 {turns}턴 소비 — 비정상적으로 길다. 전략 전환을 고려하세요.` 경고 출력
 - `total_turns_warning` (기본 200) 초과 시: Progress Pulse Tier 2 발동
+- 이 카운팅은 best-effort이다 — compaction 후 정확한 카운트를 잃을 수 있으나, failure-log.md에 기록된 마지막 값에서 재개한다
 
 이는 경고(soft limit)이지 강제 중단이 아니다 — grind의 "끝까지 물고 늘어진다" 철학과 충돌하지 않으면서 비정상적 소비를 가시화한다. G-WF-008(가설 고착)을 재시도 횟수뿐 아니라 자원 소비 측면에서도 감지할 수 있다.
 

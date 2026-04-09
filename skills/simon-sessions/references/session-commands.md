@@ -235,10 +235,13 @@ Recommended Action: {상태 기반 추천 — 아래 규칙 참조}
 
 ### Gotchas 자동 로딩 (맥락 복원 시)
 
-`~/.claude/projects/{slug}/state/gotchas.jsonl`이 존재하면 로딩한다 — 이전 세션에서 학습된 프로젝트 고유 함정을 재개 시 자동으로 인지한다.
+`~/.claude/projects/{slug}/state/gotchas.jsonl`이 존재하면 로딩한다 — 이전 세션에서 학습된 프로젝트 고유 함정을 재개 시 자동으로 인지한다. 디렉토리가 없으면 생성한다.
 
 ```bash
-jq -r '.gotcha' gotchas.jsonl 2>/dev/null | head -20
+PROJECT_SLUG=$(git rev-parse --show-toplevel 2>/dev/null | tr '/' '-')
+STATE_DIR="${HOME}/.claude/projects/${PROJECT_SLUG}/state"
+mkdir -p "${STATE_DIR}"
+jq -r '.gotcha' "${STATE_DIR}/gotchas.jsonl" 2>/dev/null | head -20
 ```
 
 Context Dashboard에 `Known Gotchas: {N}건` 항목을 추가한다.

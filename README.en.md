@@ -91,6 +91,7 @@ Then in Claude Code:
 | `/simon-ci-fix` | Auto-fix CI failures — log analysis, error classification, code fix, push (up to 5 cycles) |
 | `/simon-company` | Full-stack software company — multi-team collaboration from planning to deployment & ops |
 | `/simon-presenter` | Live demo presenter — run apps with Playwright for interactive demonstrations |
+| `/simon-md-reviewer` | Open a Markdown file in a browser HTML viewer and run an inline-comment review loop |
 
 ### Pick the Right Skill
 
@@ -109,6 +110,7 @@ Then in Claude Code:
 | Batch-review and apply accumulated improvements | `/simon-boost-review` |
 | Auto-fix CI failures (PR checks failing) | `/simon-ci-fix` |
 | Demo a finished app with live browser interaction | `/simon-presenter` |
+| Review a Markdown file with inline browser comments | `/simon-md-reviewer` |
 
 <details>
 <summary><strong>Expert Teams (5 domains, 22 specialists)</strong></summary>

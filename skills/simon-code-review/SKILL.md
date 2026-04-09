@@ -406,3 +406,13 @@ VERDICT는 모든 항목이 CLEARED일 때만 READY TO MERGE. 하나라도 NOT C
 4. CONNECTED 모드인 경우:
    - `.claude/memory/retrospective.md` 기록
    - `CONTEXT.md` 최종 상태 갱신
+5. **Standup Entry 기록** (CONNECTED/INDEPENDENT 모두):
+   세션 요약을 `~/.claude/projects/{slug}/state/standup.jsonl`에 append한다 — 다음 세션의 Startup에서 최근 5개 entry를 자동 로딩하여 이전 세션의 학습과 미해결 결정을 사전 인지한다. Step 20(Self-Improvement)이 컨텍스트 소진으로 실행되지 않아도 standup이 확실히 기록되도록 이 시점(리뷰 완료 직후)에 기록한다.
+   형식:
+   ```json
+   {"skill": "simon", "branch": "{branch}", "date": "YYYY-MM-DD", "status": "completed|partial", "pr": "#{number}", "key_decisions": ["..."], "gotchas_learned": ["..."], "unresolved": ["..."]}
+   ```
+   - `key_decisions`: decision-journal.md에서 주요 결정 2-3개 추출
+   - `gotchas_learned`: 세션 중 발견한 프로젝트 gotcha 요약
+   - `unresolved`: 미해결 이슈 (있으면)
+   - `state/` 디렉토리는 Phase A Startup에서 이미 생성되어 있음. INDEPENDENT 모드에서 디렉토리가 없으면 `mkdir -p`로 생성

@@ -110,6 +110,7 @@ Step 20(마지막 단계)에 도달하지 못하더라도 사용자 피드백이
 
 **실행 절차:**
 
+0. **user-feedback-log.md 존재 확인**: `.claude/memory/user-feedback-log.md`가 없거나 해당 Phase 구간에 기록이 없으면, 이 Phase 동안 발생한 사용자 교정(AskUserQuestion 응답, 계획 거부, 방향 전환 등)을 대화 이력에서 스캔하여 최소한의 로그를 생성한다 — user-feedback-log 기록이 누락된 경우의 폴백이다.
 1. `user-feedback-log.md`에서 해당 Phase 구간의 기록을 스캔한다
 2. 패턴 탐지:
    - **반복 교정** (2건+ 동일 유형 수정 요청) → `AUTO_CAPTURE`
@@ -117,7 +118,9 @@ Step 20(마지막 단계)에 도달하지 못하더라도 사용자 피드백이
    - 패턴 없음 → `SKIP`
 3. `AUTO_CAPTURE` 시:
    - `simon-boost-capture`의 동작을 따라 백그라운드 Agent를 spawn하여 인사이트 리포트를 `~/.claude/boost/insights/`에 저장한다
-   - 포그라운드에서는 1줄 통보만: `[Retro] {Phase} 피드백 {N}건 감지 → 개선 인사이트 캡처 중`
+   - **반복 교정 → Gotchas 직접 기록**: 감지된 반복 교정 패턴이 프로젝트 고유 gotcha이면 `~/.claude/projects/{slug}/state/gotchas.jsonl`에 즉시 append한다 — Step 20 도달 여부와 무관하게 gotcha가 축적된다.
+     형식: `{"id": "G-xxx", "category": "build|convention|test|api|infra", "gotcha": "...", "source_step": "Phase-End:{Phase}", "source_session": "{branch}", "added_at": "YYYY-MM-DD"}`
+   - 포그라운드에서는 1줄 통보만: `[Retro] {Phase} 피드백 {N}건 감지 → 개선 인사이트 캡처 중 (gotcha {M}건 기록)`
    - 사용자 확인 없이 자동 실행 (boost-capture의 스냅샷 확인 단계를 생략)
 4. `SKIP` 시: `[Retro] {Phase} — 개선 패턴 없음` 1줄만 출력하고 즉시 다음 Phase로 진행
 5. retrospective.md에 체크포인트 append:
@@ -127,13 +130,14 @@ Step 20(마지막 단계)에 도달하지 못하더라도 사용자 피드백이
    - **피드백 건수**: {N}건
    - **감지 패턴**: {패턴 요약 또는 "없음"}
    - **캡처**: {boost insight 파일명 또는 "N/A"}
+   - **Gotcha 기록**: {기록 건수}건
    ```
 6. **Agent Self-Reflection** (Phase A 완료 및 Unit 완료 시에만 실행 — Integration 완료 시는 skip):
    현재 Phase에서 에이전트가 겪은 구체적 경험을 3항목으로 구조화한다. user-feedback 기반 패턴 탐지(1-5)와 달리, 이는 에이전트의 내부 경험에서 학습을 추출한다.
    - **Surprise**: 예상과 달랐던 것 (코드 패턴, 빌드 동작, 테스트 결과 등). 예: "Go의 context.WithCancel이 부모 취소 시 자식 goroutine을 즉시 종료하지 않았음"
    - **Pattern Proposal**: `gotchas.jsonl`에 추가할 프로젝트 gotcha 1건. 예: `{"category": "test", "pattern": "testcontainers 포트 바인딩이 CI에서 간헐적 실패", "mitigation": "retry with backoff"}`
    - **Workflow Observation**: 워크플로 단계 중 비효율적이었던 것 1건. 예: "Step 4-B Expert Review에서 Data 전문가의 finding이 항상 0건 — 이 프로젝트에서는 DB 변경이 없어 불필요"
-7. Surprise + Pattern을 `gotchas.jsonl`에 append한다. Workflow Observation은 `retrospective.md`에 기록한다.
+7. Surprise + Pattern을 `~/.claude/projects/{slug}/state/gotchas.jsonl`에 append한다 (Phase A Startup에서 `state/` 디렉토리가 생성되어 있으므로 디렉토리 미존재 문제는 발생하지 않는다). Workflow Observation은 `retrospective.md`에 기록한다.
 
 **Step 20과의 관계**: Phase-end 회고가 이미 캡처한 패턴은 Step 20에서 중복 처리하지 않는다. Step 20은 전체 워크플로를 관통하는 종합 패턴(Phase 간 교차 패턴)에만 집중한다. 컨텍스트 부족으로 Step 20이 실행되지 않아도, 핵심 인사이트는 Phase-end에서 이미 캡처된 상태이므로 안전하다.
 

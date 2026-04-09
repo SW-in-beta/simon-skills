@@ -169,7 +169,8 @@ simon-code-review가 처리하는 항목:
    - `CAPABILITY`: 새 기능/도구 필요
    - `REMOVAL`: 불필요한 단계 제거
 
-- **반복 교정 → Gotchas 자동 변환**: user-feedback-log.md에서 2건+ 동일 유형 수정 요청(반복 교정)이 감지되면, 해당 패턴이 프로젝트 고유 gotcha인지 판단한다. 프로젝트 고유이면 `~/.claude/projects/{slug}/state/gotchas.jsonl`에 append한다 — 형식: `{"id": "G-xxx", "category": "...", "gotcha": "...", "source_step": "Step 20", "source_session": "{branch}", "added_at": "YYYY-MM-DD"}`. project-memory.json의 빌드 에러 패턴과 중복되지 않도록 교차 확인한다.
+- **반복 교정 → Gotchas 자동 변환 (중복 방지)**: Phase-End Auto-Retrospective에서 Phase별 gotcha가 이미 기록되어 있으므로, Step 20에서는 **Phase 간 교차 패턴**에서 도출된 gotcha만 추가한다. `state/` 디렉토리가 없으면 `mkdir -p`로 생성한 뒤 (Step 20은 별도 세션에서 실행될 수 있으므로), 기존 `~/.claude/projects/{slug}/state/gotchas.jsonl`을 읽어 동일 패턴이 없는 경우에만 append한다.
+  형식: `{"id": "G-xxx", "category": "...", "gotcha": "...", "source_step": "Step 20", "source_session": "{branch}", "added_at": "YYYY-MM-DD"}`
 
 ### 20-B: 개선 제안
 
