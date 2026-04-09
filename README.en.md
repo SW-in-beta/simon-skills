@@ -1,10 +1,10 @@
 <div align="center">
 
-# simon-bot
+# simon
 
 **A 19-step autonomous coding pipeline for Claude Code —<br>22 experts, 5 domain teams, zero shortcuts.**
 
-[![GitHub Stars](https://img.shields.io/github/stars/SW-in-beta/simon-bot?style=flat-square)](https://github.com/SW-in-beta/simon-bot/stargazers)
+[![GitHub Stars](https://img.shields.io/github/stars/SW-in-beta/simon?style=flat-square)](https://github.com/SW-in-beta/simon/stargazers)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-compatible-blueviolet?style=flat-square)](https://claude.com/claude-code)
 
@@ -14,9 +14,9 @@
 
 ---
 
-## Why simon-bot?
+## Why simon?
 
-Most AI coding assistants generate code and hope for the best. simon-bot treats every task like a production deployment:
+Most AI coding assistants generate code and hope for the best. simon treats every task like a production deployment:
 
 - **Ship with confidence** — A 19-step pipeline with mandatory TDD, 5 expert-team reviews, and a success-criteria gate means code is verified before you ever see a PR.
 - **Scale without chaos** — Each work unit runs in an isolated git worktree. Parallel execution, zero interference, clean history.
@@ -62,32 +62,32 @@ Reliability is the top priority -- token usage and cost are irrelevant compared 
 ## Quick Start
 
 ```bash
-git clone https://github.com/SW-in-beta/simon-bot.git
-cd simon-bot
+git clone https://github.com/SW-in-beta/simon.git
+cd simon
 ./install.sh
 ```
 
 Then in Claude Code:
 
 ```
-/simon-bot implement user authentication with JWT
+/simon implement user authentication with JWT
 ```
 
 ## Skills
 
 | Skill | What it does |
 |-------|-------------|
-| `/simon-bot` | Full 19-step pipeline — plan, implement, verify, PR |
-| `/simon-bot-grind` | Same pipeline, maximum tenacity — 10x retries, auto-diagnosis, checkpoint policy, strategy pivots |
-| `/simon-bot-pm` | Project manager — PRD-driven planning, distributes tasks to simon-bot instances |
-| `/simon-bot-review` | PR-based code review — Draft PR creation, inline review comments, CI Watch, feedback loop |
-| `/simon-bot-sessions` | List, resume, or clean up worktree-based work sessions |
-| `/simon-bot-report` | Analysis documents (RFC, status report) via expert discussion — no code changes |
-| `/simon-bot-auto-boost` | Auto web search skill improvement — searches latest AI coding agent best practices and auto-improves skills |
-| `/simon-bot-boost` | Read external resources and improve simon-bot's own skills |
-| `/simon-bot-boost-capture` | Background capture of skill improvements — record insights without interrupting workflow |
-| `/simon-bot-boost-review` | Review & apply accumulated improvement insights from boost-capture |
-| `/simon-bot-ci-fix` | Auto-fix CI failures — log analysis, error classification, code fix, push (up to 5 cycles) |
+| `/simon` | Full 19-step pipeline — plan, implement, verify, PR |
+| `/simon-grind` | Same pipeline, maximum tenacity — 10x retries, auto-diagnosis, checkpoint policy, strategy pivots |
+| `/simon-pm` | Project manager — PRD-driven planning, distributes tasks to simon instances |
+| `/simon-code-review` | PR-based code review — Draft PR creation, inline review comments, CI Watch, feedback loop |
+| `/simon-sessions` | List, resume, or clean up worktree-based work sessions |
+| `/simon-report` | Analysis documents (RFC, status report) via expert discussion — no code changes |
+| `/simon-auto-boost` | Auto web search skill improvement — searches latest AI coding agent best practices and auto-improves skills |
+| `/simon-boost` | Read external resources and improve simon's own skills |
+| `/simon-boost-capture` | Background capture of skill improvements — record insights without interrupting workflow |
+| `/simon-boost-review` | Review & apply accumulated improvement insights from boost-capture |
+| `/simon-ci-fix` | Auto-fix CI failures — log analysis, error classification, code fix, push (up to 5 cycles) |
 | `/simon-company` | Full-stack software company — multi-team collaboration from planning to deployment & ops |
 | `/simon-presenter` | Live demo presenter — run apps with Playwright for interactive demonstrations |
 
@@ -95,18 +95,18 @@ Then in Claude Code:
 
 | I want to... | Use |
 |--------------|-----|
-| Build a feature or fix a bug | `/simon-bot` |
-| Tackle something complex that can't fail | `/simon-bot-grind` |
-| Plan and build an entire app | `/simon-bot-pm` |
+| Build a feature or fix a bug | `/simon` |
+| Tackle something complex that can't fail | `/simon-grind` |
+| Plan and build an entire app | `/simon-pm` |
 | Build a large-scale full-stack service (multi-team) | `/simon-company` |
-| Create a PR with inline code review | `/simon-bot-review` |
-| Resume or manage previous sessions | `/simon-bot-sessions` |
-| Get an RFC or analysis without changing code | `/simon-bot-report` |
-| Improve simon-bot from an article or repo | `/simon-bot-boost` |
-| Auto-search latest trends and improve skills | `/simon-bot-auto-boost` |
-| Note a skill improvement without stopping work | `/simon-bot-boost-capture` |
-| Batch-review and apply accumulated improvements | `/simon-bot-boost-review` |
-| Auto-fix CI failures (PR checks failing) | `/simon-bot-ci-fix` |
+| Create a PR with inline code review | `/simon-code-review` |
+| Resume or manage previous sessions | `/simon-sessions` |
+| Get an RFC or analysis without changing code | `/simon-report` |
+| Improve simon from an article or repo | `/simon-boost` |
+| Auto-search latest trends and improve skills | `/simon-auto-boost` |
+| Note a skill improvement without stopping work | `/simon-boost-capture` |
+| Batch-review and apply accumulated improvements | `/simon-boost-review` |
+| Auto-fix CI failures (PR checks failing) | `/simon-ci-fix` |
 | Demo a finished app with live browser interaction | `/simon-presenter` |
 
 <details>
@@ -165,7 +165,7 @@ Past feedback is stored in `.claude/memory/retrospective.md` and automatically r
 </details>
 
 <details>
-<summary><strong>simon-bot-review</strong></summary>
+<summary><strong>simon-code-review</strong></summary>
 
 Handles PR creation and code review after work is complete:
 
@@ -176,7 +176,7 @@ Handles PR creation and code review after work is complete:
 - **Impact analysis pass** — identifies unchanged code that may be affected by changes (1-depth caller/consumer search)
 - **Architecture Impact** — Review Summary includes architecture impact analysis covering dependency direction, module boundaries, extensibility, and data flow (STANDARD+ path)
 - **Large PR handling** — 100+ file PRs classified as Core/Support/Generated, 80% focus on core files
-- **CI Watch** — delegates CI monitoring + auto-fix to simon-bot-ci-fix (error classification, diagnosis, fix, push — up to 5 cycles)
+- **CI Watch** — delegates CI monitoring + auto-fix to simon-ci-fix (error classification, diagnosis, fix, push — up to 5 cycles)
 - **Comment Auto-Watch** — polls PR comments every minute, auto-applies new feedback
 - **Expert-verified feedback loop** — spawns domain expert Agents to verify user comments before acting (AGREE/PARTIAL/COUNTER verdict with Self-Agreement Bias mitigation)
 - **Interruption recovery protocol** — auto-resumes remaining workflow after push failures, API errors, etc. Prevents inline review omission
@@ -192,7 +192,7 @@ In STANDALONE mode, 3 Agent Teams (architect, writer, impact-analyzer) run paral
 Builds large-scale full-stack services with multi-team collaboration (PM, Design, Frontend, Backend, QA, DBA, DevOps, ML):
 
 - **Consultation mode** — structures vague ideas through a guided interview
-- **Scope Guard** — auto-redirects small projects to simon-bot-pm
+- **Scope Guard** — auto-redirects small projects to simon-pm
 - **Full lifecycle** — planning → design → development → QA → deployment → operations
 - Explicit invocation only (`/simon-company`)
 
@@ -212,24 +212,24 @@ Runs finished apps with a Playwright headed browser for interactive live demonst
 <details>
 <summary><strong>Boost Family (auto-boost / boost / boost-capture / boost-review)</strong></summary>
 
-**simon-bot-auto-boost** — Automatically searches Claude Code docs, Hacker News, Medium, YouTube and more for the latest AI coding agent best practices. A 6-person expert panel analyzes findings, proposes improvements with user approval, then verifies against skill writing guidelines and runs smoke tests. Tracks last search timestamp to only process new content.
+**simon-auto-boost** — Automatically searches Claude Code docs, Hacker News, Medium, YouTube and more for the latest AI coding agent best practices. A 6-person expert panel analyzes findings, proposes improvements with user approval, then verifies against skill writing guidelines and runs smoke tests. Tracks last search timestamp to only process new content.
 
-**simon-bot-boost** — Reads external resources (blogs, GitHub, papers) and a 6-person expert panel proposes skill improvements. All proposals require explicit approval before application.
+**simon-boost** — Reads external resources (blogs, GitHub, papers) and a 6-person expert panel proposes skill improvements. All proposals require explicit approval before application.
 
-**simon-bot-boost-capture** — Records skill improvement insights in the background during active work. Captures ideas without interrupting your workflow for later batch processing.
+**simon-boost-capture** — Records skill improvement insights in the background during active work. Captures ideas without interrupting your workflow for later batch processing.
 
-**simon-bot-boost-review** — Reviews and applies accumulated insights from boost-capture. Batch-processes captured improvement proposals into actual skill changes.
+**simon-boost-review** — Reviews and applies accumulated insights from boost-capture. Batch-processes captured improvement proposals into actual skill changes.
 
 </details>
 
 <details>
-<summary><strong>simon-bot-ci-fix</strong></summary>
+<summary><strong>simon-ci-fix</strong></summary>
 
 Auto-fixes CI failures on PRs with specialized recovery strategies per error type:
 
 - **Up to 5 fix cycles** — log analysis, error classification, code fix, push, re-check
 - **Error-type routing** — different strategies for lint, test, build, type-check failures
-- **Dual mode** — auto-invoked by simon-bot-review's CI Watch, or run standalone
+- **Dual mode** — auto-invoked by simon-code-review's CI Watch, or run standalone
 - **Smart diagnosis** — analyzes CI logs to identify root cause before attempting fixes
 
 </details>

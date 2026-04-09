@@ -1,6 +1,6 @@
 ---
 name: simon-presenter
-description: "라이브 데모 프레젠터 — simon-company/simon-bot-pm으로 만든 앱을 Playwright로 실제 구동하며 인터랙티브하게 시연합니다. Use when: (1) 완성된 앱을 시연/데모해야 할 때 ('시연해줘', '데모 보여줘', 'demo', 'present'), (2) 프로젝트를 홍보하거나 이해관계자에게 보여줘야 할 때 ('영업', '프레젠테이션', '보여주기'), (3) 유저스토리 기반으로 앱의 동작을 검증하고 싶을 때. 앱을 직접 띄우고 브라우저를 조작하여 보여주는 모든 상황에서 이 스킬을 사용하세요."
+description: "라이브 데모 프레젠터 — simon-company/simon-pm으로 만든 앱을 Playwright로 실제 구동하며 인터랙티브하게 시연합니다. Use when: (1) 완성된 앱을 시연/데모해야 할 때 ('시연해줘', '데모 보여줘', 'demo', 'present'), (2) 프로젝트를 홍보하거나 이해관계자에게 보여줘야 할 때 ('영업', '프레젠테이션', '보여주기'), (3) 유저스토리 기반으로 앱의 동작을 검증하고 싶을 때. 앱을 직접 띄우고 브라우저를 조작하여 보여주는 모든 상황에서 이 스킬을 사용하세요."
 ---
 
 # simon-presenter
@@ -33,7 +33,7 @@ mkdir -p "${SESSION_DIR}/presenter"
 > **Reference Loading**: Phase 1 진입 시 [discovery-guide.md](references/discovery-guide.md) 읽기
 
 ### 1.1 모드 감지
-simon-company/simon-bot-pm 산출물 유무에 따라 CONNECTED / STANDALONE 모드를 결정한다.
+simon-company/simon-pm 산출물 유무에 따라 CONNECTED / STANDALONE 모드를 결정한다.
 
 ### 1.2 스펙 파일 탐색
 `.claude/company/spec.md` → `.claude/pm/spec.md` → `.claude/pm/prd.md` → 루트 스펙 파일 순으로 탐색한다.

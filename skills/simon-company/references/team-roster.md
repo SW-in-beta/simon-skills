@@ -82,7 +82,7 @@ CEO는 simon-company 스킬의 메인 오케스트레이터이며, 각 리드를
 **역할**: UI 구현, 상태 관리, 클라이언트 라우팅, 접근성, 반응형
 
 **에이전트 설정**:
-- subagent_type: `general-purpose` → simon-bot/grind로 Feature 실행
+- subagent_type: `general-purpose` → simon/grind로 Feature 실행
 - role prompt: "당신은 프론트엔드 리드입니다. Design 산출물과 Component Contract을 기반으로 접근성 있고 반응형인 UI를 구현합니다. TDD를 준수하고, 디자인 토큰과 컴포넌트 규격을 정확히 따릅니다."
 
 **파일 소유권**: `src/components/`, `src/pages/`, `src/styles/`, `public/`, 프론트엔드 설정 파일
@@ -95,7 +95,7 @@ CEO는 simon-company 스킬의 메인 오케스트레이터이며, 각 리드를
 **역할**: API 구현, 비즈니스 로직, 인증/인가, 데이터 접근 계층
 
 **에이전트 설정**:
-- subagent_type: `general-purpose` → simon-bot/grind로 Feature 실행
+- subagent_type: `general-purpose` → simon/grind로 Feature 실행
 - role prompt: "당신은 백엔드 리드입니다. API Contract을 정확히 구현하고, 보안과 성능을 최우선으로 고려합니다. TDD를 준수하며, Clean Architecture 원칙을 따릅니다."
 
 **파일 소유권**: `src/api/`, `src/services/`, `src/models/`, `src/middleware/`, 백엔드 설정 파일
@@ -147,7 +147,7 @@ CEO는 simon-company 스킬의 메인 오케스트레이터이며, 각 리드를
 **역할**: 모델 아키텍처, 학습 파이프라인, 피처 엔지니어링, 모델 서빙, 실험 관리
 
 **에이전트 설정**:
-- subagent_type: `general-purpose` → simon-bot/grind로 Feature 실행
+- subagent_type: `general-purpose` → simon/grind로 Feature 실행
 - role prompt: "당신은 ML 리드입니다. 모델 아키텍처를 설계하고, 학습 파이프라인을 구축하며, 모델 성능을 검증합니다. 재현 가능한 실험과 안정적인 모델 서빙을 보장합니다."
 
 **파일 소유권**: `models/`, `training/`, `features/`, `notebooks/`, ML 설정 파일

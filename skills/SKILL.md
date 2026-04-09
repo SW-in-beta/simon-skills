@@ -1,16 +1,16 @@
 ---
-name: simon-bot-sync
-description: simon-* 스킬 파일 변경 시 ~/simon-bot 레포 자동 동기화 및 README 업데이트. Stop 훅에 의해 자동 트리거 시 백그라운드 에이전트로 실행되어 메인 세션을 방해하지 않습니다. 10분 쿨다운이 적용되어 연속 수정 시 불필요한 반복 동기화를 방지합니다. 수동 호출(/simon-bot-sync)도 가능합니다.
+name: simon-sync
+description: simon-* 스킬 파일 변경 시 ~/simon-skills 레포 자동 동기화 및 README 업데이트. Stop 훅에 의해 자동 트리거 시 백그라운드 에이전트로 실행되어 메인 세션을 방해하지 않습니다. 10분 쿨다운이 적용되어 연속 수정 시 불필요한 반복 동기화를 방지합니다. 수동 호출(/simon-sync)도 가능합니다.
 ---
 
-# simon-bot-sync
+# simon-sync
 
-simon-* 스킬 패밀리의 변경사항을 `~/simon-bot` 오픈소스 레포에 동기화하고, README를 전문가 수준으로 업데이트한 뒤, 자동 커밋 & 푸시하는 스킬.
+simon-* 스킬 패밀리의 변경사항을 `~/simon-skills` 오픈소스 레포에 동기화하고, README를 전문가 수준으로 업데이트한 뒤, 자동 커밋 & 푸시하는 스킬.
 
 ## 트리거
 
 - **자동**: PostToolUse 훅이 `~/.claude/skills/simon-*` 파일 변경을 감지하면 마커 파일 생성 → Stop 훅이 이 스킬 실행 지시 (10분 쿨다운 적용)
-- **수동**: `/simon-bot-sync` 명령으로 직접 호출
+- **수동**: `/simon-sync` 명령으로 직접 호출
 
 ## 자동 트리거 시 (Stop 훅에 의한 호출)
 
@@ -31,7 +31,7 @@ simon-* 스킬 패밀리의 변경사항을 `~/simon-bot` 오픈소스 레포에
 
 ## 수동 호출 시
 
-`/simon-bot-sync`로 직접 호출된 경우에도 백그라운드 Agent로 실행한다. 동일한 3단계를 따른다.
+`/simon-sync`로 직접 호출된 경우에도 백그라운드 Agent로 실행한다. 동일한 3단계를 따른다.
 
 ## 동기화 절차
 
@@ -40,26 +40,26 @@ simon-* 스킬 패밀리의 변경사항을 `~/simon-bot` 오픈소스 레포에
 ### Step 1: 동기화 대상 파악
 
 동기화 대상 스킬 목록 (이 목록에 없는 스킬은 동기화하지 않는다):
-- `simon-bot`
-- `simon-bot-auto-boost`
-- `simon-bot-boost`
-- `simon-bot-boost-capture`
-- `simon-bot-boost-review`
-- `simon-bot-ci-fix`
-- `simon-bot-grind`
-- `simon-bot-pm`
-- `simon-bot-report`
-- `simon-bot-review`
-- `simon-bot-sessions`
+- `simon`
+- `simon-auto-boost`
+- `simon-boost`
+- `simon-boost-capture`
+- `simon-boost-review`
+- `simon-ci-fix`
+- `simon-grind`
+- `simon-pm`
+- `simon-report`
+- `simon-code-review`
+- `simon-sessions`
 - `simon-company`
 - `simon-presenter`
 
 **제외 대상:**
-- `simon-bot-sync` (이 스킬 자체 — 메타 스킬이므로 레포에 포함하지 않음)
+- `simon-sync` (이 스킬 자체 — 메타 스킬이므로 레포에 포함하지 않음)
 - `*-workspace/` 디렉토리 (로컬 eval 데이터)
 - `evals/` 디렉토리 (로컬 eval 데이터)
-- `~/.claude/skills/simon-bot/workflow/` (레포의 `workflow/`에서 복사된 것)
-- `~/.claude/skills/simon-bot/install.sh` (레포의 `install.sh`에서 복사된 것)
+- `~/.claude/skills/simon/workflow/` (레포의 `workflow/`에서 복사된 것)
+- `~/.claude/skills/simon/install.sh` (레포의 `install.sh`에서 복사된 것)
 
 ### Step 2: 파일 동기화
 
@@ -69,22 +69,22 @@ simon-* 스킬 패밀리의 변경사항을 `~/simon-bot` 오픈소스 레포에
 rsync -av --delete \
   --exclude='evals/' \
   --exclude='*-workspace/' \
-  ~/.claude/skills/<skill-name>/ ~/simon-bot/skills/<skill-name>/
+  ~/.claude/skills/<skill-name>/ ~/simon-skills/skills/<skill-name>/
 ```
 
-`simon-bot` 스킬은 추가 제외 필요:
+`simon` 스킬은 추가 제외 필요:
 ```bash
 rsync -av --delete \
   --exclude='evals/' \
   --exclude='*-workspace/' \
   --exclude='workflow/' \
   --exclude='install.sh' \
-  ~/.claude/skills/simon-bot/ ~/simon-bot/skills/simon-bot/
+  ~/.claude/skills/simon/ ~/simon-skills/skills/simon/
 ```
 
 ### Step 3: install.sh 업데이트
 
-`~/simon-bot/install.sh`의 `install_skill` 호출 목록을 동기화된 스킬 목록과 일치시킨다.
+`~/simon-skills/install.sh`의 `install_skill` 호출 목록을 동기화된 스킬 목록과 일치시킨다.
 
 현재 install.sh에서 `install_skill "..."` 라인들을 찾아, Step 1의 동기화 대상 목록과 비교하여 누락된 스킬을 추가한다.
 
@@ -119,7 +119,7 @@ README.md와 동일한 변경사항을 영어로 반영. 기존 영문 README의
 ### Step 5: Git 커밋 & 푸시
 
 ```bash
-cd ~/simon-bot
+cd ~/simon-skills
 git add -A
 ```
 
@@ -143,6 +143,6 @@ rm -f /tmp/.simon-skill-sync-needed
 
 ## 주의사항
 
-- 이 스킬은 `~/.claude/skills/` → `~/simon-bot/` 방향의 단방향 동기화만 수행
+- 이 스킬은 `~/.claude/skills/` → `~/simon-skills/` 방향의 단방향 동기화만 수행
 - 레포에서 직접 수정한 파일이 있다면 덮어써질 수 있으므로, 항상 `~/.claude/skills/`에서 수정할 것
 - `workflow/` 디렉토리(prompts, scripts, templates)는 이 스킬의 동기화 대상이 아님 — 별도로 관리

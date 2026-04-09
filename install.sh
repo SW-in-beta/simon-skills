@@ -1,5 +1,5 @@
 #!/bin/bash
-# simon-bot installer
+# simon installer
 # Usage:
 #   ./install.sh              # Full install (global skill + project workflow)
 #   ./install.sh --global     # Global skill only
@@ -11,7 +11,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SKILLS_DIR="$HOME/.claude/skills"
 MODE="${1:-full}"
 
-echo "=== simon-bot Installer ==="
+echo "=== simon Installer ==="
 echo ""
 
 # ============================================
@@ -62,24 +62,24 @@ install_global() {
     }
 
     # Install all skills
-    install_skill "simon-bot"
-    install_skill "simon-bot-auto-boost"
-    install_skill "simon-bot-boost"
-    install_skill "simon-bot-boost-capture"
-    install_skill "simon-bot-boost-review"
-    install_skill "simon-bot-ci-fix"
-    install_skill "simon-bot-grind"
-    install_skill "simon-bot-pm"
-    install_skill "simon-bot-report"
-    install_skill "simon-bot-review"
-    install_skill "simon-bot-sessions"
+    install_skill "simon"
+    install_skill "simon-auto-boost"
+    install_skill "simon-boost"
+    install_skill "simon-boost-capture"
+    install_skill "simon-boost-review"
+    install_skill "simon-ci-fix"
+    install_skill "simon-grind"
+    install_skill "simon-pm"
+    install_skill "simon-report"
+    install_skill "simon-code-review"
+    install_skill "simon-sessions"
     install_skill "simon-company"
     install_skill "simon-presenter"
 
     echo ""
 
     # Copy install.sh to main skill dir (for project-only install from skill context)
-    SKILL_DIR="$SKILLS_DIR/simon-bot"
+    SKILL_DIR="$SKILLS_DIR/simon"
     cp "$SCRIPT_DIR/install.sh" "$SKILL_DIR/install.sh"
     chmod +x "$SKILL_DIR/install.sh"
     echo "  Installer: $SKILL_DIR/install.sh"
@@ -106,7 +106,7 @@ install_global() {
     # Install git pre-commit hook for secret scanning
     local hook_src="$SCRIPT_DIR/hooks/secret-scan.sh"
     if [ -f "$hook_src" ]; then
-        # Install pre-commit hook to simon-bot repo (if .git exists)
+        # Install pre-commit hook to simon repo (if .git exists)
         if [ -d "$SCRIPT_DIR/.git/hooks" ]; then
             cat > "$SCRIPT_DIR/.git/hooks/pre-commit" << 'HOOK_EOF'
 #!/bin/bash
@@ -189,7 +189,7 @@ install_project() {
 
     # Initialize memory files
     if [ ! -f "$MEMORY_DIR/retrospective.md" ]; then
-        echo "# simon-bot Retrospective Log" > "$MEMORY_DIR/retrospective.md"
+        echo "# simon Retrospective Log" > "$MEMORY_DIR/retrospective.md"
         echo "" >> "$MEMORY_DIR/retrospective.md"
         echo "Feedback and workflow improvements are recorded here." >> "$MEMORY_DIR/retrospective.md"
         echo "This file is automatically referenced at the start of each run." >> "$MEMORY_DIR/retrospective.md"
@@ -225,6 +225,6 @@ echo ""
 echo "=== Installation Complete ==="
 echo ""
 echo "Usage:"
-echo "  In Claude Code, type: /simon-bot"
-echo "  Or say: \"simon-bot으로 구현해줘\""
+echo "  In Claude Code, type: /simon"
+echo "  Or say: \"simon으로 구현해줘\""
 echo ""

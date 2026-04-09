@@ -20,7 +20,7 @@
 
 ## 1.1 모드 감지
 
-먼저 simon-company/simon-bot-pm의 산출물이 존재하는지 확인한다.
+먼저 simon-company/simon-pm의 산출물이 존재하는지 확인한다.
 
 - **CONNECTED 모드**: `.claude/company/` 또는 `.claude/pm/` 디렉토리가 있으면 기존 산출물(spec, contracts, architecture, task results)을 최대한 활용한다. 이미 정리된 유저스토리, API 계약, DB 스키마를 다시 분석할 필요 없다.
 - **STANDALONE 모드**: 산출물 없이 프로젝트 코드만 있는 경우. 스펙과 구조를 모두 직접 분석해야 한다.
@@ -30,7 +30,7 @@
 다음 순서로 스펙 파일을 찾는다:
 
 1. `.claude/company/spec.md` (simon-company 산출물)
-2. `.claude/pm/spec.md` (simon-bot-pm 산출물)
+2. `.claude/pm/spec.md` (simon-pm 산출물)
 3. `.claude/pm/prd.md` (PRD 문서)
 4. 프로젝트 루트의 `spec.md`, `SPEC.md`, `PRD.md`
 

@@ -71,7 +71,7 @@ echo "${SESSION_DIR}" > "${SESSION_DIR}/company/session-path.txt"
 
 프로젝트의 `.claude/workflow/` (config, scripts)는 공유 설정이므로 프로젝트 디렉토리에서 그대로 읽는다.
 
-**simon-bot-pm 위임 시**: Phase 4에서 simon-bot-pm subagent를 spawn할 때, `{SESSION_DIR}`을 전달하여 PM이 동일 세션 디렉토리 내에서 작업하도록 한다.
+**simon-pm 위임 시**: Phase 4에서 simon-pm subagent를 spawn할 때, `{SESSION_DIR}`을 전달하여 PM이 동일 세션 디렉토리 내에서 작업하도록 한다.
 
 ## Shared Context Protocol
 
@@ -126,7 +126,7 @@ For detailed introspection process → read [planning-design.md](planning-design
 
 ## Docs-First Protocol
 
-LLM의 학습 데이터에 의존하지 않고 공식 문서를 먼저 조회하는 원칙. 자세한 프로토콜은 `~/.claude/skills/simon-bot/references/docs-first-protocol.md` 참조.
+LLM의 학습 데이터에 의존하지 않고 공식 문서를 먼저 조회하는 원칙. 자세한 프로토콜은 `~/.claude/skills/simon/references/docs-first-protocol.md` 참조.
 
 **적용 시점:**
 - **Phase 2 (설계)**: 기술 스택 선택 시 공식 문서로 기능·제약·호환성을 확인한다.
@@ -139,14 +139,14 @@ LLM의 학습 데이터에 의존하지 않고 공식 문서를 먼저 조회하
 |------|----------|
 | 단일 파일 수정, 간단한 설정 | CEO 직접 수행 |
 | TRP 리뷰 | 리뷰어 역할의 subagent spawn |
-| Sprint 코드 구현 (전체 Feature) | simon-bot-pm subagent → simon-bot/grind 관리 |
+| Sprint 코드 구현 (전체 Feature) | simon-pm subagent → simon/grind 관리 |
 | Sprint Review / Retro | Agent Team (TeamCreate → SendMessage로 팀 리드 소집) |
 | 전문 팀 분석 (Architecture, Design) | subagent |
 
 ## Error Resilience
 
-`~/.claude/skills/simon-bot/references/error-resilience.md`의 프로토콜을 적용한다.
-추가: 팀 간 충돌 → CTO 중재 / TRP 교착 → CEO 스코프 축소 또는 사용자 에스컬레이션 / Bot 3회 실패 → simon-bot-grind 자동 전환.
+`~/.claude/skills/simon/references/error-resilience.md`의 프로토콜을 적용한다.
+추가: 팀 간 충돌 → CTO 중재 / TRP 교착 → CEO 스코프 축소 또는 사용자 에스컬레이션 / Bot 3회 실패 → simon-grind 자동 전환.
 
 For state management, artifact persistence, context window management → read [operational-protocols.md](operational-protocols.md)
 For agile methodology details (INVEST, Story Mapping, DEEP, Sprint Cycle, Plan Review) → read [operational-protocols.md](operational-protocols.md)

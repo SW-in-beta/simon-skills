@@ -1,6 +1,6 @@
 # Boost Expert Panel (6인 전문가 패널)
 
-simon-bot-boost, simon-bot-auto-boost, simon-bot-boost-review에서 공유하는 전문가 패널 구성.
+simon-boost, simon-auto-boost, simon-boost-review에서 공유하는 전문가 패널 구성.
 
 ## Expert 1: Workflow Architect (워크플로 설계 전문가)
 
@@ -61,7 +61,7 @@ simon-bot-boost, simon-bot-auto-boost, simon-bot-boost-review에서 공유하는
 
 관점: 스킬 파일 자체의 구조적 품질 — 기능이 아무리 좋아도 스킬로서의 형식이 나쁘면 제대로 트리거되지 않거나, 컨텍스트를 낭비하거나, 후반 단계가 실행되지 않는다.
 
-> **Reference Loading**: 분석 전 `~/.claude/skills/simon-bot-boost/references/skill-best-practices.md` 읽기
+> **Reference Loading**: 분석 전 `~/.claude/skills/simon-boost/references/skill-best-practices.md` 읽기
 
 분석 항목:
 - **Progressive Disclosure**: SKILL.md가 500줄 이내인지, 3단계 로딩(metadata -> body -> references)을 잘 활용하는지

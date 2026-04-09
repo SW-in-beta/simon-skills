@@ -1,6 +1,6 @@
 # Report Viewer Infrastructure Spec
 
-구현팀을 위한 요구사항 정의서. simon-bot-pm 또는 simon-company로 구현할 때 이 스펙을 참조한다.
+구현팀을 위한 요구사항 정의서. simon-pm 또는 simon-company로 구현할 때 이 스펙을 참조한다.
 
 ## 아키텍처
 

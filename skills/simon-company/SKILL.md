@@ -1,9 +1,9 @@
 ---
 name: simon-company
-description: "풀스택 소프트웨어 회사 — 다중 전문 팀(PM, Design, FE, BE, QA, DBA, DevOps, ML)이 기획부터 배포/운영까지 협업합니다. 이 스킬은 명시적 호출 전용입니다. '/simon-company' 직접 호출 시에만 사용하세요. 암묵적으로 추론하여 자동 호출하지 마세요. Use when: (1) 3개 이상 팀이 필요한 대규모 프로젝트 ('회사 차원에서 만들어줘', '풀스택 팀으로'), (2) CI/CD, 배포, 모니터링을 포함한 프로덕션 서비스 구축, (3) UI/UX 디자인부터 백엔드까지 전 영역 협업이 필요할 때. Do NOT use when: 팀 2개 이하로 충분한 프로젝트 — simon-bot-pm을 사용하세요."
+description: "풀스택 소프트웨어 회사 — 다중 전문 팀(PM, Design, FE, BE, QA, DBA, DevOps, ML)이 기획부터 배포/운영까지 협업합니다. 이 스킬은 명시적 호출 전용입니다. '/simon-company' 직접 호출 시에만 사용하세요. 암묵적으로 추론하여 자동 호출하지 마세요. Use when: (1) 3개 이상 팀이 필요한 대규모 프로젝트 ('회사 차원에서 만들어줘', '풀스택 팀으로'), (2) CI/CD, 배포, 모니터링을 포함한 프로덕션 서비스 구축, (3) UI/UX 디자인부터 백엔드까지 전 영역 협업이 필요할 때. Do NOT use when: 팀 2개 이하로 충분한 프로젝트 — simon-pm을 사용하세요."
 compatibility:
   tools: [Agent, AskUserQuestion, TeamCreate, SendMessage]
-  skills: [simon-bot-pm, simon-bot, simon-bot-grind, simon-bot-report, git-push-pr]
+  skills: [simon-pm, simon, simon-grind, simon-report, git-push-pr]
 ---
 
 # simon-company
@@ -21,14 +21,14 @@ compatibility:
 
 이 스킬은 **다중 팀 협업이 필요한 대규모 프로젝트**를 위한 것입니다.
 
-| 기준 | simon-company | simon-bot-pm으로 리다이렉트 |
+| 기준 | simon-company | simon-pm으로 리다이렉트 |
 |------|--------------|---------------------------|
 | 필요 팀 수 | 3개 이상 (예: BE+FE+DevOps) | 1-2개 (BE만, 또는 BE+FE) |
 | 인프라 필요 | CI/CD, 배포, 모니터링 필요 | 로컬 실행으로 충분 |
 | 디자인 필요 | UI/UX 설계 필요 | API나 CLI 위주 |
 | 예상 Feature 수 | 5개 이상 | 3-4개 |
 
-**리다이렉트 시**: 왜 simon-company가 과한지 설명하고, simon-bot-pm 또는 simon-bot 사용을 제안한다. 사용자가 그래도 원하면 진행한다.
+**리다이렉트 시**: 왜 simon-company가 과한지 설명하고, simon-pm 또는 simon 사용을 제안한다. 사용자가 그래도 원하면 진행한다.
 
 ---
 
@@ -47,7 +47,7 @@ compatibility:
 | 6 | Deployment & Operations | DevOps, QA | CI/CD, Dockerfile, monitoring | O |
 | 7 | Delivery & Handoff | CEO, All Leads | final-report.md, PR | O |
 
-**Dependencies**: simon-bot-pm + simon-bot/simon-bot-grind 스킬을 실행 에이전트로, Agent Team (TeamCreate/SendMessage)을 Sprint 조율에 사용합니다.
+**Dependencies**: simon-pm + simon/simon-grind 스킬을 실행 에이전트로, Agent Team (TeamCreate/SendMessage)을 Sprint 조율에 사용합니다.
 
 <!-- Decomposition Note: Phase 0-3 (기획/설계)과 Phase 4-7 (실행/검증)은 독립적으로 분리 가능한 경계다. Phase 0-3 산출물이 Git에 커밋되면 Phase 4-7은 별도 스킬로도 실행 가능하다. -->
 
@@ -82,8 +82,8 @@ Sprint 실행 전반에 걸친 공통 프로토콜. Shared Context, Conflict Res
 ```
 
 - **의뢰 모드 자동 감지:** 불명확한 요청 → 의뢰 모드를 기본값으로 제시.
-- **Scope Guard 자동 적용:** 팀 2개 이하 → simon-bot-pm 리다이렉트를 기본값에 포함.
-- **Existing 프로젝트**: `git log --oneline -20`으로 현재 상태 파악, 통합 확인에 "현재 상태" 항목 포함. "simon-bot-report로 사전 분석 먼저?" 선택사항 제시.
+- **Scope Guard 자동 적용:** 팀 2개 이하 → simon-pm 리다이렉트를 기본값에 포함.
+- **Existing 프로젝트**: `git log --oneline -20`으로 현재 상태 파악, 통합 확인에 "현재 상태" 항목 포함. "simon-report로 사전 분석 먼저?" 선택사항 제시.
 
 **0-B: 초기 상태 저장** — `roster.json`과 `state.json`을 `.claude/company/`에 생성.
 
@@ -170,14 +170,14 @@ For detailed process → read [contracts-execution.md](references/contracts-exec
 
 > Reference Loading: `contracts-execution.md` + (TRP 실행 시) `quality-gates.md`
 
-Sprint 단위로 Feature를 구현하고 검증하는 **반복 사이클**. **simon-bot-pm**에 코드 구현을 위임하고, **Agent Team**으로 팀 리드를 소집하여 Review/Retro를 수행한다.
+Sprint 단위로 Feature를 구현하고 검증하는 **반복 사이클**. **simon-pm**에 코드 구현을 위임하고, **Agent Team**으로 팀 리드를 소집하여 Review/Retro를 수행한다.
 
 **실행 아키텍처:**
 ```
 simon-company (CEO)
 ├─ Phase 0-3: CEO 직접 수행 + TRP 리뷰어
 └─ Phase 4: Sprint마다 반복
-     ├─ simon-bot-pm (subagent): Sprint 코드 구현 위임
+     ├─ simon-pm (subagent): Sprint 코드 구현 위임
      └─ Agent Team: Sprint Review/Retro 시 팀 리드 소집
 ```
 
@@ -185,7 +185,7 @@ simon-company (CEO)
 ```
 for each sprint in sprint_plan:
     4-A: Sprint Planning — DoR 검증, 실행 순서, Bot 할당
-    4-B: Sprint Execution — simon-bot-pm subagent (background)
+    4-B: Sprint Execution — simon-pm subagent (background)
     4-C: Sprint Review — Agent Team Cross-Review + TRP + 통합 검증
     4-D: Sprint Retro — Keep/Problem/Try
     4-E: Re-planning — 다음 Sprint 백로그 조정
@@ -277,7 +277,7 @@ For detailed process → read [phase-7-delivery.md](references/phase-7-delivery.
 
 ## Global Forbidden Rules
 
-`~/.claude/skills/simon-bot/references/forbidden-rules.md`의 3계층 규칙(ABSOLUTE / CONTEXT-SENSITIVE / AUDIT-REQUIRED)을 전체 적용한다. Runtime Guard(P-008)도 Phase 4-6에서 적용한다.
+`~/.claude/skills/simon/references/forbidden-rules.md`의 3계층 규칙(ABSOLUTE / CONTEXT-SENSITIVE / AUDIT-REQUIRED)을 전체 적용한다. Runtime Guard(P-008)도 Phase 4-6에서 적용한다.
 
 추가 금지:
 - TRP 검토를 스킵하거나 형식적으로만 수행하는 것 — 각 라운드는 실질적 검증이어야 한다

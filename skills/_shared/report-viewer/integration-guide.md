@@ -1,6 +1,6 @@
 # Report Viewer 통합 가이드
 
-보고서를 생성하는 스킬(simon-study, simon-oncall, simon-bot-report, simon-bot)이 HTML Report Viewer를 사용하기 위한 공유 프로토콜.
+보고서를 생성하는 스킬(simon-study, simon-oncall, simon-report, simon)이 HTML Report Viewer를 사용하기 위한 공유 프로토콜.
 
 > **전제조건**: `~/.claude/skills/_shared/report-viewer/render-report.sh`가 설치되어 있어야 한다. 설치 전이면 이 프로토콜을 건너뛰고 기존 방식(마크다운 출력)으로 동작한다.
 
@@ -119,5 +119,5 @@ Report Viewer와 함께 사용하는 마크다운은 두 가지 역할을 한다
 |------|-------------------|-----------------|---------------|
 | simon-study | Phase 3 보고서 출력 | Phase 3 직후 | Phase 3 이후 종료 → 리뷰 루프 추가 |
 | simon-oncall | Phase 4 산출물 작성 | Phase 4 직후 | Phase 5 추가 분석 → 리뷰 루프로 대체 |
-| simon-bot-report | Step 4-C 출력 | Step 4-C 직후 | Step 5 순차 리뷰 → 리뷰 루프로 대체 |
-| simon-bot | plan-summary.md 저장 | 저장 직후 | 사용자 확인 → 리뷰 루프 추가 |
+| simon-report | Step 4-C 출력 | Step 4-C 직후 | Step 5 순차 리뷰 → 리뷰 루프로 대체 |
+| simon | plan-summary.md 저장 | 저장 직후 | 사용자 확인 → 리뷰 루프 추가 |

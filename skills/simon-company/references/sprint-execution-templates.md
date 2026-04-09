@@ -1,10 +1,10 @@
 # Sprint Execution Templates
 
-Sprint 실행 시 simon-bot-pm 위임 및 Review/Retro에 사용하는 템플릿.
+Sprint 실행 시 simon-pm 위임 및 Review/Retro에 사용하는 템플릿.
 
 ---
 
-## simon-bot-pm 위임 프롬프트
+## simon-pm 위임 프롬프트
 
 ```
 이 Sprint의 Feature를 구현해주세요.
@@ -12,9 +12,9 @@ Sprint 실행 시 simon-bot-pm 위임 및 Review/Retro에 사용하는 템플릿
 ## Sprint {N} Feature 목록
 | Feature ID | 이름 | 담당 팀 | 규모 | Bot |
 |------------|------|---------|------|-----|
-| F4 | 사용자 인증 API | Backend | M | simon-bot |
-| F5 | 메인 화면 UI | Frontend | L | simon-bot-grind |
-| F6 | 상품 API | Backend | M | simon-bot |
+| F4 | 사용자 인증 API | Backend | M | simon |
+| F5 | 메인 화면 UI | Frontend | L | simon-grind |
+| F6 | 상품 API | Backend | M | simon |
 
 ## 실행 순서
 - 병렬 가능: [F4, F6] (독립적)
