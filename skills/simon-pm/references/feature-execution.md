@@ -44,6 +44,12 @@ Phase 4에서 각 Feature를 실행하는 상세 프로토콜.
 - 기존 코드와의 연동 방식
 - 아키텍처 제약
 
+## Shared API Contract (병렬 Feature 간 공유 인터페이스가 있을 때 필수)
+- Endpoint / Method
+- Request/Response 필드명, 타입, 포맷 (예: `created_at: string (ISO-8601)`)
+- 에러 코드 및 응답 구조
+- 이 섹션은 동일 인터페이스를 구현하는 모든 병렬 Feature의 Task Spec에 동일하게 포함한다
+
 ## Files (Expected)
 - 생성/수정할 파일 목록 (예상)
 
@@ -162,6 +168,7 @@ Group 2 실행:
 
 병렬 실행 시 주의:
 - 같은 파일을 수정하는 Feature는 병렬 실행하지 않는다 -- 머지 충돌이 불가피하기 때문 (Phase 2에서 보장)
+- **API Contract 선행 정의**: 병렬 Feature 간 공유 인터페이스(API endpoint, 이벤트 스키마, DB 테이블 등)가 있으면, spawn 전에 PM이 contract를 확정하고 각 Task Spec의 `Shared API Contract` 섹션에 동일하게 기재한다. 필드명·타입·포맷이 양쪽에 명시되지 않으면 통합 시 불일치가 발생한다
 - 각 Feature는 독립된 워크트리에서 작업
 - 최대 병렬 수: 3 (리소스 제약)
 
