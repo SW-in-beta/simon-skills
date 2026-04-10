@@ -80,6 +80,21 @@ settings.json에 등록하여 report 세션 동안만 활성화한다. simon의 
 - 이전 보고서의 발견사항 중 아직 해결되지 않은 항목을 "기존 이슈"로 표시한다
 - 이전 보고서가 없으면 이 단계를 skip한다
 
+**1-0-ext: Codebase Health Assessment**
+
+> **Reference Loading**: `~/.claude/skills/_shared/codebase-health-prescan.md` 읽기
+
+코드 구조를 탐색하기 전에 git 이력 기반 정량 진단을 실행한다. 보고서에 "코드베이스 건강도" 섹션을 포함하여 의사결정 근거를 강화하기 위함이다.
+
+보고서용이므로 5개 전체 diagnostic command를 실행한다:
+1. High-churn 파일 (변경 빈도 상위 20)
+2. 기여자 집중도 (Bus factor)
+3. Bug hotspot (버그 커밋 집중 파일 상위 20)
+4. 프로젝트 모멘텀 (월별 커밋 빈도)
+5. Firefighting 빈도 (revert/hotfix 수)
+
+결과를 `.claude/reports/codebase-health-{topic-slug}.md`에 저장한다. 이후 Step 1-A 탐색 시 고churn/고버그 파일을 우선 심층 탐색하고, Step 3 전문가 토론에 정량적 리스크 컨텍스트를 제공한다. 최종 보고서(Step 4-B)에 "Codebase Health" 섹션으로 포함한다.
+
 **1-A: 구조 탐색**
 - Spawn `explore-medium` (model: haiku): 주제 관련 디렉토리/파일 구조 스캔
   - 관련 모듈, 클래스, 함수 식별
