@@ -3,7 +3,7 @@ name: simon-company
 description: "풀스택 소프트웨어 회사 — 다중 전문 팀(PM, Design, FE, BE, QA, DBA, DevOps, ML)이 기획부터 배포/운영까지 협업합니다. 이 스킬은 명시적 호출 전용입니다. '/simon-company' 직접 호출 시에만 사용하세요. 암묵적으로 추론하여 자동 호출하지 마세요. Use when: (1) 3개 이상 팀이 필요한 대규모 프로젝트 ('회사 차원에서 만들어줘', '풀스택 팀으로'), (2) CI/CD, 배포, 모니터링을 포함한 프로덕션 서비스 구축, (3) UI/UX 디자인부터 백엔드까지 전 영역 협업이 필요할 때. Do NOT use when: 팀 2개 이하로 충분한 프로젝트 — simon-pm을 사용하세요."
 compatibility:
   tools: [Agent, AskUserQuestion, TeamCreate, SendMessage]
-  skills: [simon-pm, simon, simon-grind, simon-report, git-push-pr]
+  skills: [simon-pm, simon-dev, simon-grind, simon-report, git-push-pr]
 ---
 
 # simon-company
@@ -47,7 +47,7 @@ compatibility:
 | 6 | Deployment & Operations | DevOps, QA | CI/CD, Dockerfile, monitoring | O |
 | 7 | Delivery & Handoff | CEO, All Leads | final-report.md, PR | O |
 
-**Dependencies**: simon-pm + simon/simon-grind 스킬을 실행 에이전트로, Agent Team (TeamCreate/SendMessage)을 Sprint 조율에 사용합니다.
+**Dependencies**: simon-pm + simon-dev/simon-grind 스킬을 실행 에이전트로, Agent Team (TeamCreate/SendMessage)을 Sprint 조율에 사용합니다.
 
 <!-- Decomposition Note: Phase 0-3 (기획/설계)과 Phase 4-7 (실행/검증)은 독립적으로 분리 가능한 경계다. Phase 0-3 산출물이 Git에 커밋되면 Phase 4-7은 별도 스킬로도 실행 가능하다. -->
 
@@ -277,7 +277,7 @@ For detailed process → read [phase-7-delivery.md](references/phase-7-delivery.
 
 ## Global Forbidden Rules
 
-`~/.claude/skills/simon/references/forbidden-rules.md`의 3계층 규칙(ABSOLUTE / CONTEXT-SENSITIVE / AUDIT-REQUIRED)을 전체 적용한다. Runtime Guard(P-008)도 Phase 4-6에서 적용한다.
+`~/.claude/skills/simon-dev/references/forbidden-rules.md`의 3계층 규칙(ABSOLUTE / CONTEXT-SENSITIVE / AUDIT-REQUIRED)을 전체 적용한다. Runtime Guard(P-008)도 Phase 4-6에서 적용한다.
 
 추가 금지:
 - TRP 검토를 스킵하거나 형식적으로만 수행하는 것 — 각 라운드는 실질적 검증이어야 한다

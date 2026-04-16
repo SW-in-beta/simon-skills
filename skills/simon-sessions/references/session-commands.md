@@ -181,6 +181,7 @@ Resume Default 자동 진행 조건 충족 시, 방향 확인(Step 3: "구체적
 **워크트리가 있는 경우:**
 1. 워크트리 디렉토리로 이동
 2. 세션 데이터 읽기: `{SESSIONS_DIR}/{branch-name}/memory/` 파일들 읽기. fallback: `.claude/memory/`
+2-B. **이전 Step 산출물 로딩** (세션 독립성 핵심): `workflow-state.json`을 읽어 `step_outputs[prev_step]`에 기록된 파일들을 로딩한다. 이 파일들이 다음 Step의 직접 입력이며, 없으면 해당 Step을 재실행해야 할 수 있다. (`session_id` 필드가 현재 세션과 다르면 반드시 로딩; 동일 세션이라면 이미 컨텍스트에 있으므로 스킵)
 3. Gotchas 자동 로딩 (아래 참조)
 4. State Integrity Check 실행 (아래 참조)
 5. Context Dashboard 제시
@@ -205,6 +206,7 @@ Uncommitted Changes: {YES/NO}
 Recent Commits: {최근 커밋 1줄 요약}
 Session Story: {최근 주요 이벤트 3개를 시간순 나열}
 Context Files: {읽은 파일 목록}
+Prev Step Outputs: {step_outputs[prev_step]에서 로딩한 파일 목록, 없으면 "(none)"}
 Next Step: Step {N+1} — {description}
 Recommended Action: {상태 기반 추천 — 아래 규칙 참조}
 ===

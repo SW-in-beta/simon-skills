@@ -3,7 +3,7 @@ name: simon-boost-review
 description: "축적된 스킬 개선 인사이트 리뷰 & 적용 — simon-boost-capture로 수집된 개선안을 검토하고 스킬에 반영합니다. Use when: (1) '쌓인 인사이트 리뷰하자', '개선점 확인', '캡처된 거 처리해줘', (2) simon-boost-capture 완료 후 개선안을 적용하고 싶을 때, (3) 'boost review', '인사이트 적용', '개선점 반영' 같은 표현, (4) 스킬 개선 아이디어를 모아서 한번에 처리하고 싶을 때. 캡처된 스킬 개선안을 실제로 적용하는 모든 상황에서 이 스킬을 사용하세요."
 compatibility:
   tools: [Agent, AskUserQuestion]
-  skills: [simon, simon-grind, simon-pm, simon-report, simon-sessions, simon-company]
+  skills: [simon-dev, simon-grind, simon-pm, simon-report, simon-sessions, simon-company]
 ---
 
 # simon-boost-review
@@ -57,7 +57,7 @@ captured_at: 2025-01-15T14:30:00+09:00
 
 | 스킬 | 경로 |
 |------|------|
-| simon | `~/.claude/skills/simon/SKILL.md` |
+| simon-dev | `~/.claude/skills/simon-dev/SKILL.md` |
 | simon-grind | `~/.claude/skills/simon-grind/SKILL.md` |
 | simon-pm | `~/.claude/skills/simon-pm/SKILL.md` |
 | simon-report | `~/.claude/skills/simon-report/SKILL.md` |
@@ -121,10 +121,10 @@ references/ 디렉토리의 하위 파일들도 대상에 포함.
 각 파일의 변경 사항을 사용자에게 보여준다:
 
 ```
-~/.claude/skills/simon/SKILL.md
+~/.claude/skills/simon-dev/SKILL.md
   - Line 58: Step 1-A에 새로운 분석 항목 추가
 
-~/.claude/skills/simon/references/phase-b-implementation.md
+~/.claude/skills/simon-dev/references/phase-b-implementation.md
   - Section "Step 5": 검증 게이트 강화
 ```
 

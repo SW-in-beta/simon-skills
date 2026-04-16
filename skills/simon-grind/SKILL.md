@@ -1,9 +1,9 @@
 ---
 name: simon-grind
-description: "열일모드 — simon의 끈질긴 변형. 모든 재시도 한계를 10으로 설정하고, 자동 진단/복구/전략 전환으로 끝까지 물고 늘어집니다. Use when: (1) 반드시 성공해야 하는 고위험 피처 (\"절대 실패하면 안 돼\", \"끝까지 해결해\", \"포기하지 마\"), (2) 빌드/테스트 실패가 잦은 복잡한 코드베이스, (3) 사람 개입 최소화하고 끝까지 자동으로 해결하고 싶을 때. simon이 실패했거나 반복 재시도가 필요한 작업에 적합합니다. Do NOT use when: 사용자가 끈질긴 해결을 명시적으로 요청하지 않은 일반 피처 구현 — simon으로 충분하다. simon이 3회+ 실패한 작업을 이어받을 때도 적합하다."
+description: "열일모드 — simon-dev의 끈질긴 변형. 모든 재시도 한계를 10으로 설정하고, 자동 진단/복구/전략 전환으로 끝까지 물고 늘어집니다. Use when: (1) 반드시 성공해야 하는 고위험 피처 (\"절대 실패하면 안 돼\", \"끝까지 해결해\", \"포기하지 마\"), (2) 빌드/테스트 실패가 잦은 복잡한 코드베이스, (3) 사람 개입 최소화하고 끝까지 자동으로 해결하고 싶을 때. simon-dev이 실패했거나 반복 재시도가 필요한 작업에 적합합니다. Do NOT use when: 사용자가 끈질긴 해결을 명시적으로 요청하지 않은 일반 피처 구현 — simon-dev로 충분하다. simon-dev이 3회+ 실패한 작업을 이어받을 때도 적합하다."
 compatibility:
   tools: [Agent, AskUserQuestion]
-  skills: [simon]
+  skills: [simon-dev]
 ---
 
 # simon-grind
@@ -12,8 +12,8 @@ compatibility:
 
 ## Base Workflow
 
-**이 스킬은 simon 19-step pipeline을 기반으로 합니다.**
-기본 워크플로는 `~/.claude/skills/simon/SKILL.md`와 그 `references/` 파일들을 따릅니다.
+**이 스킬은 simon-dev 19-step pipeline을 기반으로 합니다.**
+기본 워크플로는 `~/.claude/skills/simon-dev/SKILL.md`와 그 `references/` 파일들을 따릅니다.
 
 이 문서는 grind 전용 확장사항만 기술합니다:
 - **모든 재시도 한계 = 10** (포기하지 않는다)
@@ -103,9 +103,9 @@ loop_limits:
 
 | 트리거 | 읽을 파일 |
 |--------|----------|
-| Startup | grind SKILL.md + simon의 workflow-state.json 스키마 및 Reference Loading Policy 테이블만 참조 (전체 SKILL.md 로딩은 Phase 진입 시) |
-| Phase A 진입 | grind-phase-a.md + simon phase-a-planning.md |
-| Phase B-E 진입 | grind-phase-b.md + simon phase-b-implementation.md |
+| Startup | grind SKILL.md + simon-dev의 workflow-state.json 스키마 및 Reference Loading Policy 테이블만 참조 (전체 SKILL.md 로딩은 Phase 진입 시) |
+| Phase A 진입 | grind-phase-a.md + simon-dev phase-a-planning.md |
+| Phase B-E 진입 | grind-phase-b.md + simon-dev phase-b-implementation.md |
 | 에러 발생 시 | grind-error-resilience.md |
 | Cross-cutting 참조 시 | grind-cross-cutting.md |
 | 코드 탐색 시 (graphify-out/ 존재 시) | `~/.claude/skills/_shared/graphify-context.md` — 그래프 기반 탐색으로 진입점·영향범위 파악 효율화 |
@@ -137,7 +137,7 @@ Progress Detection이 이 Mini-Contract의 success_criteria를 기준으로 '진
 
 ## Cross-Cutting: Monitor Protocol (대시보드 연동)
 
-simon의 Monitor Protocol을 상속한다 (`~/.claude/skills/_shared/monitor-protocol.md` 참조). emit.sh가 skill을 자동 감지한다.
+simon-dev의 Monitor Protocol을 상속한다 (`~/.claude/skills/_shared/monitor-protocol.md` 참조). emit.sh가 skill을 자동 감지한다.
 
 **grind 전용 이벤트 — 모든 재시도 시점에서 발신:**
 
@@ -179,20 +179,20 @@ For detailed protocols, read [grind-cross-cutting.md](references/grind-cross-cut
 
 ## Cross-Cutting: Phase-End Auto-Retrospective
 
-simon의 Phase-End Auto-Retrospective 프로토콜을 상속한다. 동일 시점(Phase A 완료, Unit 완료, Integration 완료)에서 user-feedback-log.md를 스캔하고, 패턴 감지 시 boost-capture를 백그라운드로 자동 트리거한다. grind의 retry가 많을수록 사용자 교정 빈도도 높아지므로, Phase-end 회고의 가치가 더욱 크다.
+simon-dev의 Phase-End Auto-Retrospective 프로토콜을 상속한다. 동일 시점(Phase A 완료, Unit 완료, Integration 완료)에서 user-feedback-log.md를 스캔하고, 패턴 감지 시 boost-capture를 백그라운드로 자동 트리거한다. grind의 retry가 많을수록 사용자 교정 빈도도 높아지므로, Phase-end 회고의 가치가 더욱 크다.
 
 ## Cross-Cutting: Docs-First Protocol
 
-simon의 Docs-First Protocol을 상속한다 (`~/.claude/skills/simon/references/docs-first-protocol.md` 참조). 재시도 맥락에서 특히 중요: 학습 데이터 기반 기억으로 구현했다가 실패한 경우, 재시도 전에 반드시 공식 문서를 조회하여 정확한 API/설정을 확인한다.
+simon-dev의 Docs-First Protocol을 상속한다 (`~/.claude/skills/simon-dev/references/docs-first-protocol.md` 참조). 재시도 맥락에서 특히 중요: 학습 데이터 기반 기억으로 구현했다가 실패한 경우, 재시도 전에 반드시 공식 문서를 조회하여 정확한 API/설정을 확인한다.
 
 ## Cross-Cutting: Cognitive Independence
 
-simon의 Cognitive Independence 프로토콜을 상속한다. 검증 에이전트의 독립성은 grind에서 특히 중요하다 — 10회 재시도 압력 하에서 검증 에이전트가 "이번에는 봐주자"는 태도를 가지면 품질이 급격히 저하된다.
-For detailed protocol, read `~/.claude/skills/simon/references/context-separation.md`.
+simon-dev의 Cognitive Independence 프로토콜을 상속한다. 검증 에이전트의 독립성은 grind에서 특히 중요하다 — 10회 재시도 압력 하에서 검증 에이전트가 "이번에는 봐주자"는 태도를 가지면 품질이 급격히 저하된다.
+For detailed protocol, read `~/.claude/skills/simon-dev/references/context-separation.md`.
 
 ## Startup
 
-simon Startup과 동일 (P-001 브랜치명 자동 생성, P-009 Handoff Manifest 감지 포함) + 추가:
+simon-dev Startup과 동일 (P-001 브랜치명 자동 생성, P-009 Handoff Manifest 감지 포함) + 추가:
 3. **Initialize failure tracking**: `.claude/memory/failure-log.md` 생성/초기화 (Handoff Manifest의 `failure_context`가 있으면 초기값으로 설정)
 4. **Initialize checkpoints**: `.claude/memory/checkpoints.md` 생성/초기화
 5. **Monitor 상태 확인 + workflow_start 발신**:
@@ -201,16 +201,14 @@ simon Startup과 동일 (P-001 브랜치명 자동 생성, P-009 Handoff Manifes
       `[Monitor] 실시간 대시보드가 꺼져 있습니다. 원하시면 새 터미널에서 /simon-monitor를 실행하세요. 워크플로는 계속 진행합니다.`
    3. `~/.claude/skills/_shared/monitor-protocol.md` 읽기. 워크플로 시작 이벤트 발신:
    ```bash
-   bash ~/.claude/skills/simon-monitor/scripts/emit-event.sh \
-     --session "$SESSION_DIR" --skill simon-grind --type workflow_start \
-     --title "열일모드 워크플로 시작" \
-     --data '{"skill":"simon-grind","branch":"'"$BRANCH"'","task":"'"$TASK_SUMMARY"'","scope":"TBD","workflow_steps":[{"id":"A/0","name":"Scope Challenge","phase":"A"},{"id":"A/1-A","name":"Project Analysis","phase":"A"},{"id":"A/1-B","name":"Plan Creation","phase":"A"},{"id":"A/2","name":"Plan Review","phase":"A"},{"id":"A/3","name":"Meta Verification","phase":"A"},{"id":"A/4","name":"Over-engineering Check","phase":"A"},{"id":"A/4-B","name":"Expert Plan Review","phase":"A"},{"id":"B/5","name":"Implementation","phase":"B"},{"id":"B/6","name":"Purpose Alignment","phase":"B"},{"id":"B/7","name":"Code Review","phase":"B"},{"id":"B/8","name":"Regression Verification","phase":"B"},{"id":"B/17","name":"Production Readiness","phase":"B"},{"id":"review/18-A","name":"Work Report","phase":"review"},{"id":"review/18-B","name":"Review Sequence","phase":"review"},{"id":"review/19","name":"Code Review","phase":"review"}]}' \
+   bash ~/.claude/skills/simon-monitor/scripts/emit.sh workflow_start "" "열일모드 워크플로 시작" '{"skill":"simon-grind","branch":"'"$BRANCH"'","task":"'"$TASK_SUMMARY"'","scope":"TBD","workflow_steps":[{"id":"A/0","name":"Scope Challenge","phase":"A"},{"id":"A/1-A","name":"Project Analysis","phase":"A"},{"id":"A/1-B","name":"Plan Creation","phase":"A"},{"id":"A/2","name":"Plan Review","phase":"A"},{"id":"A/3","name":"Meta Verification","phase":"A"},{"id":"A/4","name":"Over-engineering Check","phase":"A"},{"id":"A/4-B","name":"Expert Plan Review","phase":"A"},{"id":"B/5","name":"Implementation","phase":"B"},{"id":"B/6","name":"Purpose Alignment","phase":"B"},{"id":"B/7","name":"Code Review","phase":"B"},{"id":"B/8","name":"Regression Verification","phase":"B"},{"id":"B/17","name":"Production Readiness","phase":"B"},{"id":"review/18-A","name":"Work Report","phase":"review"},{"id":"review/18-B","name":"Review Sequence","phase":"review"},{"id":"review/19","name":"Code Review","phase":"review"}]}' \
      2>/dev/null || true
    ```
+   open http://localhost:3847 2>/dev/null || true
 
 ## Phase A: Planning (Enhanced with Structured Interviews)
 
-simon Phase A를 따르되, grind 확장사항을 적용합니다.
+simon-dev Phase A를 따르되, grind 확장사항을 적용합니다.
 For detailed Phase A enhancements, read [grind-phase-a.md](references/grind-phase-a.md).
 
 **주요 변경사항:**
@@ -222,7 +220,7 @@ For detailed Phase A enhancements, read [grind-phase-a.md](references/grind-phas
 
 ## Phase B-E: Implementation (Enhanced with Retry)
 
-simon Phase B-E를 따르되, 모든 Step에 10회 retry + escalation ladder를 적용합니다.
+simon-dev Phase B-E를 따르되, 모든 Step에 10회 retry + escalation ladder를 적용합니다.
 For per-step override details, read [grind-phase-b.md](references/grind-phase-b.md).
 
 **재시도 원칙 (모든 Step 공통):**
@@ -235,7 +233,7 @@ For per-step override details, read [grind-phase-b.md](references/grind-phase-b.
 
 **Step별 주요 변경:**
 
-| Step | Base (simon) | Grind Override |
+| Step | Base (simon-dev) | Grind Override |
 |------|------------------|----------------|
 | 5 | No build retry | **10 retries + 10 pivots**, checkpoint system |
 | 6 | 3 auto-fix | **10** with requirement re-analysis |
@@ -251,7 +249,7 @@ For per-step override details, read [grind-phase-b.md](references/grind-phase-b.
 
 ## Success Criteria (Extended)
 
-simon의 체크리스트 + 추가:
+simon-dev의 체크리스트 + 추가:
 - [ ] **열일 Summary 포함** (재시도 횟수, 전략 전환, 수용된 트레이드오프, 잔여 retry budget)
 - [ ] **모든 에스컬레이션 리포트 해결됨 또는 문서화됨**
 - [ ] **failure-log.md 패턴이 Step 20 피드백 종합에 반영됨**
@@ -259,11 +257,11 @@ simon의 체크리스트 + 추가:
 
 ## Context Window Management
 
-simon과 동일한 세션 분할 경계. **추가 주의**: 재시도가 많을수록 컨텍스트 소비가 빠르므로, 경계 2 전에 잔여량을 반드시 확인.
+simon-dev과 동일한 세션 분할 경계. **추가 주의**: 재시도가 많을수록 컨텍스트 소비가 빠르므로, 경계 2 전에 잔여량을 반드시 확인.
 
 ## Memory Persistence (Extended)
 
-simon에 추가:
+simon-dev에 추가:
 - **On every failure**: failure-log.md entry (+ retry budget 잔여량 갱신)
 - **On every strategy pivot**: checkpoint tag + pivot description
 - **On every escalation**: escalation-report.md
@@ -272,6 +270,6 @@ Always read `.claude/memory/failure-log.md` AND relevant memory files before sta
 
 ## Global Forbidden Rules / Session Management / Unresolved Decision Tracking
 
-simon과 동일. Unresolved Decision Tracking에 추가:
+simon-dev과 동일. Unresolved Decision Tracking에 추가:
 - **Accepted trade-offs**: Step 17 triage에서 수용된 이슈
 - **Skipped improvements**: retry 예산 내 해결 불가한 품질 이슈

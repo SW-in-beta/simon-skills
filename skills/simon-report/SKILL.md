@@ -152,7 +152,7 @@ Agent(subagent_type="general-purpose", model="sonnet"):
 
 ### Step 2: Code Design Analysis (Agent Team)
 
-**목적:** simon Step 1-A의 Code Design Team 구조를 활용하여 코드 설계 컨텍스트 분석
+**목적:** simon-dev Step 1-A의 Code Design Team 구조를 활용하여 코드 설계 컨텍스트 분석
 
 **단일 통합 팀 생성** (Agent Teams 제약: 세션당 1팀, 세션 기본 모델 사용):
 
@@ -187,7 +187,7 @@ Agent(subagent_type="general-purpose", model="sonnet"):
 
 **Agent Team 해산**
 
-**Agent Teams Fallback**: Agent Teams가 비활성 상태이면 `~/.claude/skills/simon/references/agent-teams.md`의 Fallback 섹션을 참조하여 subagent fallback을 적용한다.
+**Agent Teams Fallback**: Agent Teams가 비활성 상태이면 `~/.claude/skills/simon-dev/references/agent-teams.md`의 Fallback 섹션을 참조하여 subagent fallback을 적용한다.
 
 **중간 보고 (Progressive Disclosure):**
 - 코드 설계 분석 완료 시 사용자에게 주요 발견 요약 출력 (예: "코드 설계 분석 완료. 주요 발견: Layered Architecture 사용 중, 테스트 커버리지 낮음, 네이밍 규칙 일관됨.")
@@ -197,7 +197,7 @@ Agent(subagent_type="general-purpose", model="sonnet"):
 
 ### Step 3: Domain Expert Team Discussion
 
-**목적:** simon Step 4-B의 도메인팀 Agent Team 토론 구조를 활용하여 심층 분석
+**목적:** simon-dev Step 4-B의 도메인팀 Agent Team 토론 구조를 활용하여 심층 분석
 
 > **Reference Loading**: [domain-teams.md](references/domain-teams.md) 읽기
 
@@ -294,7 +294,7 @@ config.yaml이 없어도 기본값으로 동작합니다.
 
 ### Global Rules
 
-`~/.claude/skills/simon/references/forbidden-rules.md`의 3계층 규칙(ABSOLUTE / CONTEXT-SENSITIVE / AUDIT-REQUIRED)을 전체 적용한다. 추가로:
+`~/.claude/skills/simon-dev/references/forbidden-rules.md`의 3계층 규칙(ABSOLUTE / CONTEXT-SENSITIVE / AUDIT-REQUIRED)을 전체 적용한다. 추가로:
 
 - **미검증 추측을 사실로 기술하지 않는다 (ABSOLUTE).** 코드를 Read/Grep으로 직접 확인하지 않은 내용을 확정적으로 기술하는 것은 금지다. 검증 수단(로컬 코드, 설정 파일, SQL 등)이 존재하는데 확인하지 않고 추측으로 기술하면 보고서의 신뢰성이 파괴된다. 확인하지 못한 내용은 반드시 "**[미확인]** — 추가 확인 필요" 또는 "**[추정]** — {추정 근거}"로 표시한다. 이 규칙은 모든 Step(1-4)의 모든 에이전트(탐색, 설계 분석, 도메인 전문가, writer)에 공통 적용된다. 각 에이전트 spawn 시 이 규칙을 프롬프트에 포함한다.
 - 코드를 수정하지 않는다 (읽기 전용 분석). 이 스킬의 목적은 사전 분석이므로, 코드를 변경하면 분석 결과의 객관성을 잃는다. 전문가 에이전트 spawn 시 도구 범위를 Read/Glob/Grep으로 제한한다 (P-011).

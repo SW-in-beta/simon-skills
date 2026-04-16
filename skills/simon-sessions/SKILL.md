@@ -3,7 +3,7 @@ name: simon-sessions
 description: "작업 세션 관리 — git 이력·워크트리·브랜치·메모리 파일을 종합하여 작업 현황을 파악하고, 이전 작업을 대화형으로 이어갑니다. Use when: (1) 작업 현황 확인 (\"세션 목록\", \"어디까지 했지\", \"뭐 하고 있었지\", \"현황\"), (2) 이전 작업 이어가기 (\"이어서 해줘\", \"계속해줘\", \"resume\"), (3) 세션 삭제 (\"세션 정리\", \"삭제해줘\"), (4) 피드백 전달 (\"피드백 반영해줘\"). 작업 현황 파악이나 재개가 필요할 때 사용하세요."
 compatibility:
   tools: [AskUserQuestion]
-  skills: [simon, simon-grind, simon-company, git-push-pr]
+  skills: [simon-dev, simon-grind, simon-company, git-push-pr]
 model: sonnet
 ---
 
@@ -19,7 +19,7 @@ model: sonnet
 
 ## Instructions
 
-스크립트 경로: `~/.claude/skills/simon/workflow/scripts/manage-sessions.sh`
+스크립트 경로: `~/.claude/skills/simon-dev/workflow/scripts/manage-sessions.sh`
 
 > **Shared Protocols**: `~/.claude/skills/_shared/preamble.md` 읽기 — Session Isolation, Error Resilience, Forbidden Rules, Agent Teams, Cognitive Independence 공통 프로토콜 포함.
 
@@ -86,7 +86,7 @@ SESSIONS_DIR="${HOME}/.claude/projects/${PROJECT_SLUG}/sessions"
 ### info - 세션 상세
 
 ```bash
-bash ~/.claude/skills/simon/workflow/scripts/manage-sessions.sh info {branch-name}
+bash ~/.claude/skills/simon-dev/workflow/scripts/manage-sessions.sh info {branch-name}
 ```
 
 브랜치명이 없으면 사용자에게 물어봄 (AskUserQuestion).
@@ -95,7 +95,7 @@ bash ~/.claude/skills/simon/workflow/scripts/manage-sessions.sh info {branch-nam
 ### delete - 세션 삭제
 
 ```bash
-bash ~/.claude/skills/simon/workflow/scripts/manage-sessions.sh delete {branch-name}
+bash ~/.claude/skills/simon-dev/workflow/scripts/manage-sessions.sh delete {branch-name}
 ```
 
 삭제 전 반드시 사용자에게 확인 (AskUserQuestion):
@@ -117,7 +117,7 @@ bash ~/.claude/skills/simon/workflow/scripts/manage-sessions.sh delete {branch-n
 ```json
 {
   "branch": "feat/some-feature",
-  "skill": "simon",
+  "skill": "simon-dev",
   "current_phase": "B",
   "current_step": 7,
   "total_steps": 19,
